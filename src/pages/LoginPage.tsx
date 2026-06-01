@@ -1,5 +1,8 @@
 import { useState } from "react";
 import "./LoginPage.css";
+import { getErrorMessage } from "../utils/axios";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 function PenIcon() {
   return (
@@ -138,12 +141,48 @@ function EyeIcon({ visible }: { visible: boolean }) {
 }
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [keepSignedIn, setKeepSignedIn] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  }
+    setIsLoading(true);
+
+    const loginPayload = {
+      email: email,
+      password: password,
+      isRememberMe: keepSignedIn,
+    };
+
+    try {
+      const response = await api.post("/api/auth/login", loginPayload);
+
+      if (response.status === 200) {
+        console.log("Đăng nhập thành công:", response.data.message);
+
+        const accessToken = response.data.accessToken;
+        sessionStorage.setItem("accessToken", accessToken);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
+      const errorMsg = getErrorMessage(
+        error,
+        "Email hoặc mật khẩu không chính xác!",
+      );
+
+      alert("Đăng nhập thất bại: " + errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="login-container">
@@ -185,7 +224,7 @@ export default function LoginPage() {
 
             <form className="login-form" onSubmit={handleSubmit}>
               <div className="login-field">
-                <label htmlFor="email">Email or Username</label>
+                <label htmlFor="email">Email</label>
                 <div className="login-input">
                   <span className="login-input__icon">
                     <UserIcon />
@@ -196,6 +235,8 @@ export default function LoginPage() {
                     type="text"
                     autoComplete="username"
                     placeholder="e.g. k.miura@kousei.studio"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
               </div>
@@ -217,6 +258,8 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
                     type="button"
@@ -240,9 +283,22 @@ export default function LoginPage() {
                 <span>Keep me signed in for 30 days</span>
               </label>
 
-              <button type="submit" className="login-submit">
-                Login to Studio
-                <span aria-hidden="true">→</span>
+              <button
+                type="submit"
+                className="login-submit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="login-submit__spinner" />
+                    Logging in...
+                  </>
+                ) : (
+                  <>
+                    Login to Studio
+                    <span aria-hidden="true">→</span>
+                  </>
+                )}
               </button>
             </form>
 

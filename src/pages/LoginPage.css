@@ -259,6 +259,7 @@
 }
 
 .login-submit {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -303,4 +304,37 @@
 .login-form-panel__footer a:hover {
   color: var(--text-dark);
   text-decoration: underline;
+}
+
+.login-submit:hover:not(:disabled) {
+  background: #b24a1e;
+}
+
+.login-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-submit__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.login-submit:disabled span {
+  display: none;
+}
+
+.login-form.loading {
+  opacity: 0.7;
+  pointer-events: none;
 }
