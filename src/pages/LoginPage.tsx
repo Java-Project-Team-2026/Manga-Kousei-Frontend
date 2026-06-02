@@ -162,12 +162,12 @@ export default function LoginPage() {
     };
 
     try {
-      const response = await api.post("/api/auth/login", loginPayload);
+      const response = await api.post("/auth/login", loginPayload);
 
       if (response.status === 200) {
-        console.log("Đăng nhập thành công:", response.data.message);
+        console.log("Đăng nhập thành công:", response.data);
 
-        const accessToken = response.data.accessToken;
+        const accessToken = response.data.data.accessToken;
         sessionStorage.setItem("accessToken", accessToken);
         navigate("/dashboard");
       }
