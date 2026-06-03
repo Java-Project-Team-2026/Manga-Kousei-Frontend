@@ -1,0 +1,128 @@
+.sidebar-container {
+  width: 260px;
+  background-color: #000000;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh; /* Chiều cao bằng toàn bộ màn hình */
+  padding: 24px 20px;
+  box-sizing: border-box;
+}
+
+/* ================= TRÊN: LOGO & MENU ================= */
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Khối Logo */
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.icon-wrapper {
+  background-color: #2563eb; /* Màu xanh của nút */
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  color: #3b82f6; /* Xanh nhạt hơn một chút cho chữ */
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  color: #d1d5db;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Nút Tạo tác phẩm mới */
+.create-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.create-btn:hover {
+  background-color: #1d4ed8;
+}
+
+/* Danh sách Menu */
+.menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  color: #e5e7eb;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+/* Trạng thái Hover và Đang chọn (Active) */
+.menu-item:hover {
+  background-color: #1f2937;
+}
+
+.menu-item.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Riêng nút Đăng xuất hover không ra màu xanh mà ra màu xám */
+.logout-btn:hover {
+  background-color: #1f2937;
+}
+
+/* ================= DƯỚI: HỖ TRỢ & ĐĂNG XUẤT ================= */
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.divider {
+  height: 1px;
+  background-color: #374151; /* Màu xám vạch ngang */
+  margin-bottom: 16px;
+}
