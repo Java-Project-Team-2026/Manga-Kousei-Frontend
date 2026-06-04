@@ -53,7 +53,7 @@ export const Sidebar = () => {
     ADMIN: [
       { path: "admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
       {
-        path: "admin/approve",
+        path: "admin/approvals",
         label: "Xét duyệt dự án mới",
         icon: ClipboardCheck,
       },
