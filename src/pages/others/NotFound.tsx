@@ -1,9 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import { MapPinOff, ArrowLeft, Home } from "lucide-react";
 import "./NotFound.scss";
+import { useAuth } from "../../hooks/useAuth";
 
 export const NotFound = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const logoutAndGoHome = async () => {
+    try {
+      await logout();
+
+      navigate("/", { replace: true });
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      navigate("/", { replace: true });
+    }
+  };
 
   return (
     <div className="not-found-fullscreen">
@@ -31,7 +45,7 @@ export const NotFound = () => {
             <span>Quay lại</span>
           </button>
 
-          <button className="btn btn-home" onClick={() => navigate("/")}>
+          <button className="btn btn-home" onClick={() => logoutAndGoHome()}>
             <Home size={20} strokeWidth={1.5} />
             <span>Về Trang chủ</span>
           </button>
