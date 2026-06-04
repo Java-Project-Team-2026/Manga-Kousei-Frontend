@@ -17,6 +17,10 @@ import TantouApprovals from "./pages/tantou/TantouApprovals";
 import TantouSchedule from "./pages/tantou/TantouSchedule";
 import TantouReports from "./pages/tantou/TantouReports";
 import MangakaDashboard from "./pages/mangaka/MangakaDashboard";
+import MangakaSeries from "./pages/mangaka/MangakaSeries";
+import MangakaSchedule from "./pages/mangaka/MangakaSchedule";
+import MangakaAssistants from "./pages/mangaka/MangakaAssistants";
+import MangakaReports from "./pages/mangaka/MangakaReports";
 
 function App() {
   return (
@@ -54,6 +58,10 @@ function App() {
           <Route path="/mangaka">
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<MangakaDashboard />} />
+            <Route path="series" element={<MangakaSeries />} />
+            <Route path="schedule" element={<MangakaSchedule />} />
+            <Route path="assistants" element={<MangakaAssistants />} />
+            <Route path="reports" element={<MangakaReports />} />
           </Route>
         </Route>
       </Route>
