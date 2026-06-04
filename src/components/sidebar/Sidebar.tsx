@@ -31,21 +31,21 @@ export const Sidebar = () => {
   const currentRole = user?.role || "";
 
   const menuConfig: Record<string, MenuItem[]> = {
-    MANGAKA: [
-      { path: "mangaka/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "mangaka/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
+    TANTOU: [
+      { path: "tantou/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      { path: "tantou/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
       {
-        path: "mangaka/approvals",
+        path: "tantou/approvals",
         label: "Không gian Phê duyệt",
         icon: ClipboardCheck,
       },
       {
-        path: "mangaka/schedule",
+        path: "tantou/schedule",
         label: "Lịch trình Xuất bản",
         icon: CalendarDays,
       },
       {
-        path: "mangaka/reports",
+        path: "tantou/reports",
         label: "Báo cáo Kinh doanh",
         icon: TrendingUp,
       },

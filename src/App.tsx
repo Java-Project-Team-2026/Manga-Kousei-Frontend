@@ -5,13 +5,17 @@ import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { PublicRoute } from "./components/routes/PublicRoute";
 import { MainLayout } from "./components/layouts/MainLayout";
 import AdminSurvival from "./pages/admin/AdminSurvival";
-import MangakaDashboard from "./pages/mangaka/Dashboard";
+import TantouDashboard from "./pages/tantou/TantouDashboard";
 import { DashboardRedirect } from "./pages/redirect/DashboardRedirect";
 import AdminApprovalsPage from "./pages/admin/AdminApprovals";
 import AdminMagazines from "./pages/admin/AdminMagazines";
 import AdminContracts from "./pages/admin/AdminContracts";
 import { Unauthorized } from "./pages/others/Unauthorized";
 import { NotFound } from "./pages/others/NotFound";
+import TantouManage from "./pages/tantou/TantouManage";
+import TantouApprovals from "./pages/tantou/TantouApprovals";
+import TantouSchedule from "./pages/tantou/TantouSchedule";
+import TantouReports from "./pages/tantou/TantouReports";
 
 function App() {
   return (
@@ -35,10 +39,14 @@ function App() {
             <Route path="contracts" element={<AdminContracts />} />
           </Route>
         </Route>
-        <Route element={<ProtectedRoute allowedRoles={["MANGAKA"]} />}>
-          <Route path="/mangaka">
+        <Route element={<ProtectedRoute allowedRoles={["TANTOU"]} />}>
+          <Route path="/tantou">
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<MangakaDashboard />} />
+            <Route path="dashboard" element={<TantouDashboard />} />
+            <Route path="manage" element={<TantouManage />} />
+            <Route path="approvals" element={<TantouApprovals />} />
+            <Route path="schedule" element={<TantouSchedule />} />
+            <Route path="reports" element={<TantouReports />} />
           </Route>
         </Route>
       </Route>
