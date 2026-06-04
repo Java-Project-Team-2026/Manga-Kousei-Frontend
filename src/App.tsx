@@ -16,6 +16,7 @@ import TantouManage from "./pages/tantou/TantouManage";
 import TantouApprovals from "./pages/tantou/TantouApprovals";
 import TantouSchedule from "./pages/tantou/TantouSchedule";
 import TantouReports from "./pages/tantou/TantouReports";
+import MangakaDashboard from "./pages/mangaka/MangakaDashboard";
 
 function App() {
   return (
@@ -47,6 +48,12 @@ function App() {
             <Route path="approvals" element={<TantouApprovals />} />
             <Route path="schedule" element={<TantouSchedule />} />
             <Route path="reports" element={<TantouReports />} />
+          </Route>
+        </Route>
+        <Route element={<ProtectedRoute allowedRoles={["MANGAKA"]} />}>
+          <Route path="/mangaka">
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<MangakaDashboard />} />
           </Route>
         </Route>
       </Route>

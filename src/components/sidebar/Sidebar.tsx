@@ -14,6 +14,9 @@ import {
   LogOut,
   BookOpen,
   Banknote,
+  Calendar,
+  Users,
+  LineChart,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Sidebar.scss";
@@ -69,6 +72,33 @@ export const Sidebar = () => {
         icon: Banknote,
       },
     ],
+    MANGAKA: [
+      {
+        path: "mangaka/dashboard",
+        label: "Bảng điều khiển",
+        icon: LayoutGrid,
+      },
+      {
+        path: "mangaka/series",
+        label: "Tác phẩm",
+        icon: BookOpen,
+      },
+      {
+        path: "mangaka/schedule",
+        label: "Lịch trình",
+        icon: Calendar,
+      },
+      {
+        path: "mangaka/assistants",
+        label: "Nhân sự",
+        icon: Users,
+      },
+      {
+        path: "mangaka/reports",
+        label: "Báo cáo",
+        icon: LineChart,
+      },
+    ],
   };
 
   const currentMenus = menuConfig[currentRole] || [];
@@ -100,7 +130,7 @@ export const Sidebar = () => {
             </div>
           </div>
 
-          {currentRole === "MANGAKA" && (
+          {["MANGAKA", "TANTOU"].includes(currentRole) && (
             <button className="create-btn">
               <Plus size={18} />
               <span>Tạo Tác phẩm Mới</span>
