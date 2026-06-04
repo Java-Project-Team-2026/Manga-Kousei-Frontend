@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { ConfirmDialog } from "../dialog/ConfirmDialog";
@@ -32,22 +32,34 @@ export const Sidebar = () => {
 
   const menuConfig: Record<string, MenuItem[]> = {
     MANGAKA: [
-      { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
+      { path: "mangaka/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      { path: "mangaka/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
       {
-        path: "/approvals",
+        path: "mangaka/approvals",
         label: "Không gian Phê duyệt",
         icon: ClipboardCheck,
       },
-      { path: "/schedule", label: "Lịch trình Xuất bản", icon: CalendarDays },
-      { path: "/reports", label: "Báo cáo Kinh doanh", icon: TrendingUp },
+      {
+        path: "mangaka/schedule",
+        label: "Lịch trình Xuất bản",
+        icon: CalendarDays,
+      },
+      {
+        path: "mangaka/reports",
+        label: "Báo cáo Kinh doanh",
+        icon: TrendingUp,
+      },
     ],
     ADMIN: [
-      { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "/approve", label: "Xét duyệt dự án mới", icon: ClipboardCheck },
-      { path: "/rating", label: "Đánh giá & sinh tồn", icon: TrendingUp },
-      { path: "/management", label: "Quản lý số tạp chí", icon: BookOpen },
-      { path: "/finance", label: "Tài chính & hợp đồng", icon: Banknote },
+      { path: "admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      {
+        path: "admin/approve",
+        label: "Xét duyệt dự án mới",
+        icon: ClipboardCheck,
+      },
+      { path: "admin/rating", label: "Đánh giá & sinh tồn", icon: TrendingUp },
+      { path: "admin/management", label: "Quản lý số tạp chí", icon: BookOpen },
+      { path: "admin/finance", label: "Tài chính & hợp đồng", icon: Banknote },
     ],
   };
 
