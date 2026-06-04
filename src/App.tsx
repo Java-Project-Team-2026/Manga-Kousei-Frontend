@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/login/LoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import { ProtectedRoute } from "./components/Routes/ProtectedRoute";
-import { PublicRoute } from "./components/Routes/PublicRoute";
+import { ProtectedRoute } from "./components/routes/ProtectedRoute";
+import { PublicRoute } from "./components/routes/PublicRoute";
 import { MainLayout } from "./components/layouts/MainLayout";
 import AdminSurvival from "./pages/admin/AdminSurvival";
 import MangakaDashboard from "./pages/mangaka/Dashboard";
@@ -10,6 +10,7 @@ import { DashboardRedirect } from "./pages/redirect/DashboardRedirect";
 import AdminApprovalsPage from "./pages/admin/AdminApprovals";
 import AdminMagazines from "./pages/admin/AdminMagazines";
 import AdminContracts from "./pages/admin/AdminContracts";
+import { Unauthorized } from "./pages/others/Unauthorized";
 
 function App() {
   return (
@@ -19,9 +20,10 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Route>
 
-      <Route path="/dashboard" element={<DashboardRedirect />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route element={<MainLayout />}>
+        <Route path="/dashboard" element={<DashboardRedirect />} />
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin">
             <Route index element={<Navigate to="dashboard" replace />} />
