@@ -45,7 +45,7 @@ export const Sidebar = () => {
     ADMIN: [
       { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
       { path: "/approve", label: "Xét duyệt dự án mới", icon: ClipboardCheck },
-      { path: "/rate", label: "Đánh giá & sinh tồn", icon: TrendingUp },
+      { path: "/rating", label: "Đánh giá & sinh tồn", icon: TrendingUp },
       { path: "/management", label: "Quản lý số tạp chí", icon: BookOpen },
       { path: "/finance", label: "Tài chính & hợp đồng", icon: Banknote },
     ],

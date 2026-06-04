@@ -4,6 +4,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicRoute } from "./components/PublicRoute";
 import { MainLayout } from "./components/MainLayout";
+import AdminRating from "./pages/admin/Rating";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route element={<MainLayout />}>
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/rating" element={<AdminRating />} />
         </Route>
       </Route>
     </Routes>
