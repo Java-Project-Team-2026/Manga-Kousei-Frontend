@@ -4,10 +4,12 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import { ProtectedRoute } from "./components/Routes/ProtectedRoute";
 import { PublicRoute } from "./components/Routes/PublicRoute";
 import { MainLayout } from "./components/layouts/MainLayout";
-import AdminRating from "./pages/admin/AdminSurvival";
+import AdminSurvival from "./pages/admin/AdminSurvival";
 import MangakaDashboard from "./pages/mangaka/Dashboard";
 import { DashboardRedirect } from "./pages/redirect/DashboardRedirect";
 import AdminApprovalsPage from "./pages/admin/AdminApprovals";
+import AdminMagazines from "./pages/admin/AdminMagazines";
+import AdminContracts from "./pages/admin/AdminContracts";
 
 function App() {
   return (
@@ -25,7 +27,9 @@ function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="approvals" element={<AdminApprovalsPage />} />
-            <Route path="survival" element={<AdminRating />} />
+            <Route path="survival" element={<AdminSurvival />} />
+            <Route path="magazines" element={<AdminMagazines />} />
+            <Route path="contracts" element={<AdminContracts />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["MANGAKA"]} />}>
