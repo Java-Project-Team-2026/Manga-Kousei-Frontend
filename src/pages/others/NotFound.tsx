@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MapPinOff, ArrowLeft, Home } from "lucide-react";
+import { MapPinOff, ArrowLeft, Home, CornerLeftUp } from "lucide-react";
 import "./NotFound.scss";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -10,11 +10,9 @@ export const NotFound = () => {
   const logoutAndGoHome = async () => {
     try {
       await logout();
-
       navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout failed:", error);
-
       navigate("/", { replace: true });
     }
   };
@@ -25,9 +23,7 @@ export const NotFound = () => {
 
       <div className="content-area">
         <MapPinOff className="icon-missing" size={72} strokeWidth={1} />
-
         <h1 className="title">Không tìm thấy trang</h1>
-
         <div className="divider-line"></div>
 
         <p className="description">
@@ -45,10 +41,20 @@ export const NotFound = () => {
             <span>Quay lại</span>
           </button>
 
-          <button className="btn btn-home" onClick={() => logoutAndGoHome()}>
-            <Home size={20} strokeWidth={1.5} />
-            <span>Về Trang chủ</span>
-          </button>
+          <div className="home-action-wrapper">
+            <button className="btn btn-home" onClick={() => logoutAndGoHome()}>
+              <Home size={20} strokeWidth={1.5} />
+              <span>Về Trang chủ</span>
+            </button>
+
+            <div className="logout-note">
+              <CornerLeftUp className="arrow-icon" size={16} strokeWidth={2} />
+              <span className="note-text">
+                Nếu bạn đã đăng nhập, chúng tôi sẽ đăng xuất bạn để đảm bảo an
+                toàn.
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
