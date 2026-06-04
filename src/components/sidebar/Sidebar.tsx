@@ -57,9 +57,17 @@ export const Sidebar = () => {
         label: "Xét duyệt dự án mới",
         icon: ClipboardCheck,
       },
-      { path: "admin/rating", label: "Đánh giá & sinh tồn", icon: TrendingUp },
-      { path: "admin/management", label: "Quản lý số tạp chí", icon: BookOpen },
-      { path: "admin/finance", label: "Tài chính & hợp đồng", icon: Banknote },
+      {
+        path: "admin/survival",
+        label: "Đánh giá & sinh tồn",
+        icon: TrendingUp,
+      },
+      { path: "admin/magazines", label: "Quản lý số tạp chí", icon: BookOpen },
+      {
+        path: "admin/contracts",
+        label: "Tài chính & hợp đồng",
+        icon: Banknote,
+      },
     ],
   };
 
