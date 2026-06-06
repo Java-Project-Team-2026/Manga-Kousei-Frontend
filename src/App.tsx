@@ -5,6 +5,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicRoute } from "./components/PublicRoute";
 import { MainLayout } from "./components/MainLayout";
 import AdminRating from "./pages/admin/Rating";
+import ReviewPage from "./pages/review/ReviewPage";
 
 function App() {
   return (
@@ -18,6 +19,9 @@ function App() {
           <Route path="/dashboard" element={<AdminDashboard />} />
           <Route path="/rating" element={<AdminRating />} />
         </Route>
+      </Route>
+      <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+        <Route path="/approve" element={<ReviewPage />} />
       </Route>
     </Routes>
   );

@@ -1,4 +1,3 @@
-import React from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { Search, CircleHelp, MessageSquareText, Bell } from "lucide-react";
 import "./Header.scss";
