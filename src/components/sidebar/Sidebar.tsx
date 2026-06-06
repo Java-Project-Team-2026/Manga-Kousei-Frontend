@@ -14,6 +14,9 @@ import {
   LogOut,
   BookOpen,
   Banknote,
+  Calendar,
+  Users,
+  LineChart,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Sidebar.scss";
@@ -31,23 +34,70 @@ export const Sidebar = () => {
   const currentRole = user?.role || "";
 
   const menuConfig: Record<string, MenuItem[]> = {
-    MANGAKA: [
-      { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
+    TANTOU: [
+      { path: "tantou/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      { path: "tantou/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
       {
-        path: "/approvals",
+        path: "tantou/approvals",
         label: "Không gian Phê duyệt",
         icon: ClipboardCheck,
       },
-      { path: "/schedule", label: "Lịch trình Xuất bản", icon: CalendarDays },
-      { path: "/reports", label: "Báo cáo Kinh doanh", icon: TrendingUp },
+      {
+        path: "tantou/schedule",
+        label: "Lịch trình Xuất bản",
+        icon: CalendarDays,
+      },
+      {
+        path: "tantou/reports",
+        label: "Báo cáo Kinh doanh",
+        icon: TrendingUp,
+      },
     ],
     ADMIN: [
-      { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "/approve", label: "Xét duyệt dự án mới", icon: ClipboardCheck },
-      { path: "/rating", label: "Đánh giá & sinh tồn", icon: TrendingUp },
-      { path: "/management", label: "Quản lý số tạp chí", icon: BookOpen },
-      { path: "/finance", label: "Tài chính & hợp đồng", icon: Banknote },
+      { path: "admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      {
+        path: "admin/approvals",
+        label: "Xét duyệt dự án mới",
+        icon: ClipboardCheck,
+      },
+      {
+        path: "admin/survival",
+        label: "Đánh giá & sinh tồn",
+        icon: TrendingUp,
+      },
+      { path: "admin/magazines", label: "Quản lý số tạp chí", icon: BookOpen },
+      {
+        path: "admin/contracts",
+        label: "Tài chính & hợp đồng",
+        icon: Banknote,
+      },
+    ],
+    MANGAKA: [
+      {
+        path: "mangaka/dashboard",
+        label: "Bảng điều khiển",
+        icon: LayoutGrid,
+      },
+      {
+        path: "mangaka/series",
+        label: "Tác phẩm",
+        icon: BookOpen,
+      },
+      {
+        path: "mangaka/schedule",
+        label: "Lịch trình",
+        icon: Calendar,
+      },
+      {
+        path: "mangaka/assistants",
+        label: "Nhân sự",
+        icon: Users,
+      },
+      {
+        path: "mangaka/reports",
+        label: "Báo cáo",
+        icon: LineChart,
+      },
     ],
   };
 
@@ -80,7 +130,7 @@ export const Sidebar = () => {
             </div>
           </div>
 
-          {currentRole === "MANGAKA" && (
+          {["MANGAKA", "TANTOU"].includes(currentRole) && (
             <button className="create-btn">
               <Plus size={18} />
               <span>Tạo Tác phẩm Mới</span>

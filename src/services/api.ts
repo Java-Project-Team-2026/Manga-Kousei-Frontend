@@ -7,35 +7,19 @@ const api = axios.create({
   withCredentials: true,
 });
 
-interface QueueItem {
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-}
-
 let isRefreshing = false;
-let failedQueue: QueueItem[] = [];
+let failedQueue: Array<{
+  resolve: () => void;
+  reject: (error: unknown) => void;
+}> = [];
 
-const processQueue = (error: unknown, token: string | null = null) => {
+const processQueue = (error: unknown) => {
   failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token!);
-    }
+    if (error) prom.reject(error);
+    else prom.resolve();
   });
   failedQueue = [];
 };
-
-api.interceptors.request.use(
-  (config) => {
-    const token = sessionStorage.getItem("accessToken");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
 
 api.interceptors.response.use(
   (response) => response,
@@ -44,53 +28,35 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
+    console.log("Ma loi", error.response?.status);
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (
         originalRequest.url?.includes("/auth/refresh") ||
         originalRequest.url?.includes("/auth/login")
       ) {
+        if (originalRequest.url?.includes("/auth/refresh")) {
+          window.location.href = "/login";
+        }
         return Promise.reject(error);
       }
 
       if (isRefreshing) {
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then((token) => {
-          originalRequest.headers = {
-            ...originalRequest.headers,
-            Authorization: `Bearer ${token}`,
-          };
-          return api(originalRequest);
-        });
+        }).then(() => api(originalRequest));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        const refreshInstance = axios.create({
-          baseURL: "http://localhost:8080/api",
-          withCredentials: true,
-        });
+        await api.post("/auth/refresh");
 
-        const res = await refreshInstance.post("/auth/refresh", {});
-
-        console.log("goi thanh cong");
-
-        const newAccessToken = res.data?.data?.accessToken;
-        if (!newAccessToken) throw new Error("Invalid refresh response");
-
-        sessionStorage.setItem("accessToken", newAccessToken);
-        originalRequest.headers = {
-          ...originalRequest.headers,
-          Authorization: `Bearer ${newAccessToken}`,
-        };
-
-        processQueue(null, newAccessToken);
+        processQueue(null);
         return api(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError, null);
-        sessionStorage.removeItem("accessToken");
+        processQueue(refreshError);
         window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {

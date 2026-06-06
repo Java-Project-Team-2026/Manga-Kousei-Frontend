@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import type { Role } from "../constants/roles";
 import { AuthContext } from "../contexts/AuthContext";
 import type { AuthContextType } from "../types/auth";
-import { jwtDecode } from "jwt-decode";
 import api from "../services/api";
+import axios from "axios";
 
 interface User {
   id: number;
@@ -12,6 +12,7 @@ interface User {
   email: string;
   role: Role;
 }
+const publicRoutes = ["/login", "/"];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -19,46 +20,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const accessToken = sessionStorage.getItem("accessToken");
-
-      if (!accessToken) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        const decoded = jwtDecode<CustomJwtPayload>(accessToken);
-        const isExpired = decoded.exp ? decoded.exp * 1000 < Date.now() : false;
+        if (publicRoutes.includes(location.pathname)) return;
 
-        console.log("isExpried", decoded.exp);
-
-        if (isExpired) {
-          const response = await api.post("/auth/refresh", {});
-          console.log("data day", response.data);
-          const newAccessToken = response.data.data.accessToken;
-          const data = jwtDecode(newAccessToken);
-          console.log(data);
-          sessionStorage.setItem("accessToken", newAccessToken);
-
-          const newData = jwtDecode<CustomJwtPayload>(newAccessToken);
-          setUser({
-            id: newData.id,
-            fullName: newData.fullName,
-            email: newData.email,
-            role: newData.roles.at(0) ?? "MANGAKA",
-          });
-        } else {
-          setUser({
-            id: decoded.id,
-            fullName: decoded.fullName,
-            email: decoded.email,
-            role: decoded.roles.at(0) ?? "MANGAKA",
-          });
-        }
+        const response = await api.get("/auth/me");
+        const { id, fullName, email, roles } = response.data.data;
+        setUser({
+          id,
+          fullName,
+          email,
+          role: roles.at(0) ?? "MANGAKA",
+        });
       } catch (error) {
-        console.error("Invalid token:", error);
-        setUser(null);
-        sessionStorage.removeItem("accessToken");
+        if (
+          axios.isAxiosError(error) &&
+          (error.response?.status === 401 || error.response?.status === 403)
+        ) {
+          setUser(null);
+        } else {
+          console.error("checkAuth error:", error);
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -68,16 +50,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (loginPayload: loginPayload) => {
     try {
       const response = await api.post("/auth/login", loginPayload);
-      const accessToken = response.data.data.accessToken;
 
-      sessionStorage.setItem("accessToken", accessToken);
-
-      const decoded = jwtDecode<CustomJwtPayload>(accessToken);
+      const { id, fullName, email, roles } = response.data.data;
       setUser({
-        id: decoded.id,
-        fullName: decoded.fullName,
-        email: decoded.email,
-        role: decoded.roles.at(0) ?? "MANGAKA",
+        id,
+        fullName,
+        email,
+        role: roles.at(0) ?? "MANGAKA",
       });
     } catch (error) {
       console.error("Login function error in Provider:", error);
@@ -86,7 +65,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    sessionStorage.removeItem("accessToken");
     setUser(null);
 
     try {

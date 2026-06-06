@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
+import { FullScreenLoader } from "../common/FullScreenLoader";
 
 interface ProtectedRouteProps {
   allowedRoles?: ("MANGAKA" | "TANTOU" | "ADMIN" | "ASSISTANT")[];
@@ -7,21 +8,9 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const { user, loading, isAuthenticated } = useAuth();
-  console.log(user, loading, isAuthenticated);
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <h3>Đang tải dữ liệu...</h3>
-      </div>
-    );
+    return <FullScreenLoader text="Đang kiểm tra quyền truy cập..." />;
   }
 
   if (!isAuthenticated || !user) {
