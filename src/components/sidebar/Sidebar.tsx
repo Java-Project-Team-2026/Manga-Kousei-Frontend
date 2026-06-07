@@ -5,18 +5,15 @@ import { ConfirmDialog } from "../dialog/ConfirmDialog";
 import {
   Banknote,
   BookOpen,
-  Calendar,
   CalendarDays,
-  CircleHelp,
   ClipboardCheck,
   LayoutGrid,
   LibraryBig,
-  LineChart,
   LogOut,
   PenTool,
   Plus,
+  Settings,
   TrendingUp,
-  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Sidebar.scss";
@@ -30,78 +27,26 @@ interface MenuItem {
 export const Sidebar = () => {
   const { user, logout } = useAuth();
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
-
-  const currentRole = user?.role || "";
+  const currentRole = user?.role || "ADMIN";
 
   const menuConfig: Record<string, MenuItem[]> = {
-    TANTOU: [
-      { path: "tantou/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "tantou/manage", label: "Quản lý tác phẩm", icon: LibraryBig },
-      {
-        path: "tantou/approvals",
-        label: "Không gian phê duyệt",
-        icon: ClipboardCheck,
-      },
-      {
-        path: "tantou/schedule",
-        label: "Lịch trình xuất bản",
-        icon: CalendarDays,
-      },
-      {
-        path: "tantou/reports",
-        label: "Báo cáo kinh doanh",
-        icon: TrendingUp,
-      },
+    MANGAKA: [
+      { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      { path: "/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
+      { path: "/approvals", label: "Không gian Phê duyệt", icon: ClipboardCheck },
+      { path: "/schedule", label: "Lịch trình Xuất bản", icon: CalendarDays },
+      { path: "/reports", label: "Báo cáo Kinh doanh", icon: TrendingUp },
     ],
     ADMIN: [
-      { path: "admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      {
-        path: "admin/approvals",
-        label: "Xét duyệt dự án mới",
-        icon: ClipboardCheck,
-      },
-      {
-        path: "admin/survival",
-        label: "Đánh giá & sinh tồn",
-        icon: TrendingUp,
-      },
-      { path: "admin/magazines", label: "Quản lý số tạp chí", icon: BookOpen },
-      {
-        path: "admin/contracts",
-        label: "Tài chính & hợp đồng",
-        icon: Banknote,
-      },
-    ],
-    MANGAKA: [
-      {
-        path: "mangaka/dashboard",
-        label: "Bảng điều khiển",
-        icon: LayoutGrid,
-      },
-      {
-        path: "mangaka/series",
-        label: "Tác phẩm",
-        icon: BookOpen,
-      },
-      {
-        path: "mangaka/schedule",
-        label: "Lịch trình",
-        icon: Calendar,
-      },
-      {
-        path: "mangaka/assistants",
-        label: "Nhân sự",
-        icon: Users,
-      },
-      {
-        path: "mangaka/reports",
-        label: "Báo cáo",
-        icon: LineChart,
-      },
+      { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
+      { path: "/approve", label: "Xét duyệt Dự án mới", icon: ClipboardCheck },
+      { path: "/rating", label: "Đánh giá & Sinh tồn", icon: TrendingUp },
+      { path: "/management", label: "Quản lý Số Tạp chí", icon: BookOpen },
+      { path: "/finance", label: "Tài chính & Hợp đồng", icon: Banknote },
     ],
   };
 
-  const currentMenus = menuConfig[currentRole] || [];
+  const currentMenus = menuConfig[currentRole] || menuConfig.ADMIN;
 
   const handleConfirmLogout = async () => {
     setShowConfirmLogout(false);
@@ -114,33 +59,32 @@ export const Sidebar = () => {
         <div className="sidebar-top">
           <div className="brand-logo">
             <div className="icon-wrapper">
-              <PenTool size={20} color="white" />
+              <PenTool size={19} color="white" />
             </div>
             <div className="brand-text">
               <span className="brand-title">Manga Kousei</span>
-              <span className="brand-subtitle">EDITORIAL BOARD</span>
+              <span className="brand-subtitle">Production Studio</span>
             </div>
           </div>
 
-          {["MANGAKA", "TANTOU"].includes(currentRole) && (
+          {currentRole === "MANGAKA" && (
             <button className="create-btn">
               <Plus size={18} />
-              <span>Tạo tác phẩm mới</span>
+              <span>Tạo Tác phẩm Mới</span>
             </button>
           )}
 
           <nav className="menu-nav">
             {currentMenus.map((menu) => {
               const Icon = menu.icon;
+
               return (
                 <NavLink
                   key={menu.path}
                   to={menu.path}
-                  className={({ isActive }) =>
-                    `menu-item ${isActive ? "active" : ""}`
-                  }
+                  className={({ isActive }) => `menu-item ${isActive ? "active" : ""}`}
                 >
-                  <Icon size={20} className="menu-icon" />
+                  <Icon size={19} className="menu-icon" />
                   <span>{menu.label}</span>
                 </NavLink>
               );
@@ -149,23 +93,19 @@ export const Sidebar = () => {
         </div>
 
         <div className="sidebar-bottom">
-          <div className="divider"></div>
+          <button className="create-btn meeting-btn" type="button">
+            <Plus size={18} />
+            <span>Mở phiên họp</span>
+          </button>
+          <div className="divider" />
 
-          <NavLink
-            to="/setting"
-            className={({ isActive }) =>
-              `menu-item ${isActive ? "active" : ""}`
-            }
-          >
-            <CircleHelp size={20} className="menu-icon" />
+          <NavLink to="/setting" className={({ isActive }) => `menu-item ${isActive ? "active" : ""}`}>
+            <Settings size={19} className="menu-icon" />
             <span>Cài đặt</span>
           </NavLink>
 
-          <button
-            onClick={() => setShowConfirmLogout(true)}
-            className="menu-item logout-btn"
-          >
-            <LogOut size={20} className="menu-icon" />
+          <button onClick={() => setShowConfirmLogout(true)} className="menu-item logout-btn" type="button">
+            <LogOut size={19} className="menu-icon" />
             <span>Đăng xuất</span>
           </button>
         </div>
