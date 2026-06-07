@@ -3,20 +3,20 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { ConfirmDialog } from "../dialog/ConfirmDialog";
 import {
-  PenTool,
-  Plus,
+  Banknote,
+  BookOpen,
+  Calendar,
+  CalendarDays,
+  CircleHelp,
+  ClipboardCheck,
   LayoutGrid,
   LibraryBig,
-  ClipboardCheck,
-  CalendarDays,
-  TrendingUp,
-  CircleHelp,
-  LogOut,
-  BookOpen,
-  Banknote,
-  Calendar,
-  Users,
   LineChart,
+  LogOut,
+  PenTool,
+  Plus,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Sidebar.scss";
@@ -36,20 +36,20 @@ export const Sidebar = () => {
   const menuConfig: Record<string, MenuItem[]> = {
     TANTOU: [
       { path: "tantou/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "tantou/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
+      { path: "tantou/manage", label: "Quản lý tác phẩm", icon: LibraryBig },
       {
         path: "tantou/approvals",
-        label: "Không gian Phê duyệt",
+        label: "Không gian phê duyệt",
         icon: ClipboardCheck,
       },
       {
         path: "tantou/schedule",
-        label: "Lịch trình Xuất bản",
+        label: "Lịch trình xuất bản",
         icon: CalendarDays,
       },
       {
         path: "tantou/reports",
-        label: "Báo cáo Kinh doanh",
+        label: "Báo cáo kinh doanh",
         icon: TrendingUp,
       },
     ],
@@ -103,17 +103,9 @@ export const Sidebar = () => {
 
   const currentMenus = menuConfig[currentRole] || [];
 
-  const handleLogoutClick = () => {
-    setShowConfirmLogout(true);
-  };
-
   const handleConfirmLogout = async () => {
     setShowConfirmLogout(false);
     await logout();
-  };
-
-  const handleCancelLogout = () => {
-    setShowConfirmLogout(false);
   };
 
   return (
@@ -133,16 +125,16 @@ export const Sidebar = () => {
           {["MANGAKA", "TANTOU"].includes(currentRole) && (
             <button className="create-btn">
               <Plus size={18} />
-              <span>Tạo Tác phẩm Mới</span>
+              <span>Tạo tác phẩm mới</span>
             </button>
           )}
 
           <nav className="menu-nav">
-            {currentMenus.map((menu, index) => {
+            {currentMenus.map((menu) => {
               const Icon = menu.icon;
               return (
                 <NavLink
-                  key={index}
+                  key={menu.path}
                   to={menu.path}
                   className={({ isActive }) =>
                     `menu-item ${isActive ? "active" : ""}`
@@ -169,7 +161,10 @@ export const Sidebar = () => {
             <span>Cài đặt</span>
           </NavLink>
 
-          <button onClick={handleLogoutClick} className="menu-item logout-btn">
+          <button
+            onClick={() => setShowConfirmLogout(true)}
+            className="menu-item logout-btn"
+          >
             <LogOut size={20} className="menu-icon" />
             <span>Đăng xuất</span>
           </button>
@@ -182,7 +177,7 @@ export const Sidebar = () => {
         confirmText="Đăng xuất"
         cancelText="Hủy"
         onConfirm={handleConfirmLogout}
-        onCancel={handleCancelLogout}
+        onCancel={() => setShowConfirmLogout(false)}
       />
     </>
   );

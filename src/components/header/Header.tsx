@@ -32,7 +32,7 @@ export const Header = () => {
           </button>
         </div>
 
-        <div className="divider"></div>
+        <div className="header-divider"></div>
 
         <div className="user-profile">
           <div className="user-info">
