@@ -3,17 +3,17 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { ConfirmDialog } from "../dialog/ConfirmDialog";
 import {
-  PenTool,
-  Plus,
+  Banknote,
+  BookOpen,
+  CalendarDays,
+  ClipboardCheck,
   LayoutGrid,
   LibraryBig,
-  ClipboardCheck,
-  CalendarDays,
-  TrendingUp,
-  CircleHelp,
   LogOut,
-  BookOpen,
-  Banknote,
+  PenTool,
+  Plus,
+  Settings,
+  TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Sidebar.scss";
@@ -27,43 +27,30 @@ interface MenuItem {
 export const Sidebar = () => {
   const { user, logout } = useAuth();
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
-
-  const currentRole = user?.role || "";
+  const currentRole = user?.role || "ADMIN";
 
   const menuConfig: Record<string, MenuItem[]> = {
     MANGAKA: [
       { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
       { path: "/manage", label: "Quản lý Tác phẩm", icon: LibraryBig },
-      {
-        path: "/approvals",
-        label: "Không gian Phê duyệt",
-        icon: ClipboardCheck,
-      },
+      { path: "/approvals", label: "Không gian Phê duyệt", icon: ClipboardCheck },
       { path: "/schedule", label: "Lịch trình Xuất bản", icon: CalendarDays },
       { path: "/reports", label: "Báo cáo Kinh doanh", icon: TrendingUp },
     ],
     ADMIN: [
       { path: "/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
-      { path: "/approve", label: "Xét duyệt dự án mới", icon: ClipboardCheck },
-      { path: "/rating", label: "Đánh giá & sinh tồn", icon: TrendingUp },
-      { path: "/management", label: "Quản lý số tạp chí", icon: BookOpen },
-      { path: "/finance", label: "Tài chính & hợp đồng", icon: Banknote },
+      { path: "/approve", label: "Xét duyệt Dự án mới", icon: ClipboardCheck },
+      { path: "/rating", label: "Đánh giá & Sinh tồn", icon: TrendingUp },
+      { path: "/management", label: "Quản lý Số Tạp chí", icon: BookOpen },
+      { path: "/finance", label: "Tài chính & Hợp đồng", icon: Banknote },
     ],
   };
 
-  const currentMenus = menuConfig[currentRole] || [];
-
-  const handleLogoutClick = () => {
-    setShowConfirmLogout(true);
-  };
+  const currentMenus = menuConfig[currentRole] || menuConfig.ADMIN;
 
   const handleConfirmLogout = async () => {
     setShowConfirmLogout(false);
     await logout();
-  };
-
-  const handleCancelLogout = () => {
-    setShowConfirmLogout(false);
   };
 
   return (
@@ -72,11 +59,11 @@ export const Sidebar = () => {
         <div className="sidebar-top">
           <div className="brand-logo">
             <div className="icon-wrapper">
-              <PenTool size={20} color="white" />
+              <PenTool size={19} color="white" />
             </div>
             <div className="brand-text">
               <span className="brand-title">Manga Kousei</span>
-              <span className="brand-subtitle">EDITORIAL BOARD</span>
+              <span className="brand-subtitle">Production Studio</span>
             </div>
           </div>
 
@@ -88,17 +75,16 @@ export const Sidebar = () => {
           )}
 
           <nav className="menu-nav">
-            {currentMenus.map((menu, index) => {
+            {currentMenus.map((menu) => {
               const Icon = menu.icon;
+
               return (
                 <NavLink
-                  key={index}
+                  key={menu.path}
                   to={menu.path}
-                  className={({ isActive }) =>
-                    `menu-item ${isActive ? "active" : ""}`
-                  }
+                  className={({ isActive }) => `menu-item ${isActive ? "active" : ""}`}
                 >
-                  <Icon size={20} className="menu-icon" />
+                  <Icon size={19} className="menu-icon" />
                   <span>{menu.label}</span>
                 </NavLink>
               );
@@ -107,20 +93,19 @@ export const Sidebar = () => {
         </div>
 
         <div className="sidebar-bottom">
-          <div className="divider"></div>
+          <button className="create-btn meeting-btn" type="button">
+            <Plus size={18} />
+            <span>Mở phiên họp</span>
+          </button>
+          <div className="divider" />
 
-          <NavLink
-            to="/setting"
-            className={({ isActive }) =>
-              `menu-item ${isActive ? "active" : ""}`
-            }
-          >
-            <CircleHelp size={20} className="menu-icon" />
+          <NavLink to="/setting" className={({ isActive }) => `menu-item ${isActive ? "active" : ""}`}>
+            <Settings size={19} className="menu-icon" />
             <span>Cài đặt</span>
           </NavLink>
 
-          <button onClick={handleLogoutClick} className="menu-item logout-btn">
-            <LogOut size={20} className="menu-icon" />
+          <button onClick={() => setShowConfirmLogout(true)} className="menu-item logout-btn" type="button">
+            <LogOut size={19} className="menu-icon" />
             <span>Đăng xuất</span>
           </button>
         </div>
@@ -132,7 +117,7 @@ export const Sidebar = () => {
         confirmText="Đăng xuất"
         cancelText="Hủy"
         onConfirm={handleConfirmLogout}
-        onCancel={handleCancelLogout}
+        onCancel={() => setShowConfirmLogout(false)}
       />
     </>
   );

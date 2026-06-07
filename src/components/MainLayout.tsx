@@ -1,16 +1,17 @@
 import { Outlet } from "react-router-dom";
 import { Header } from "./header/Header";
 import { Sidebar } from "./sidebar/Sidebar";
+import "./MainLayout.scss";
 
 export const MainLayout = () => {
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="main-layout">
       <Sidebar />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div className="main-layout__workspace">
         <Header />
 
-        <main style={{ padding: "24px", flex: 1, backgroundColor: "#f3f4f6" }}>
+        <main className="main-layout__content">
           <Outlet />
         </main>
       </div>
