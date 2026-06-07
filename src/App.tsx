@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/login/LoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import { ProtectedRoute } from "./components/routes/ProtectedRoute";
-import { PublicRoute } from "./components/routes/PublicRoute";
+import { ProtectedRoute } from "./components/Routes/ProtectedRoute";
+import { PublicRoute } from "./components/Routes/PublicRoute";
 import { MainLayout } from "./components/layouts/MainLayout";
 import AdminSurvival from "./pages/admin/AdminSurvival";
 import TantouDashboard from "./pages/tantou/TantouDashboard";
