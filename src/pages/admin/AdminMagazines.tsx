@@ -1,3 +1,3 @@
-export default function AdminMagazines() {
-  return <div>AdminMagazines</div>;
-}
+import MagazineManagement from "./MagazineManagement";
+
+export default MagazineManagement;

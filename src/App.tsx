@@ -1,17 +1,14 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/login/LoginPage";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import { ProtectedRoute } from "./components/routes/ProtectedRoute";
-import { PublicRoute } from "./components/routes/PublicRoute";
-import { MainLayout } from "./components/layouts/MainLayout";
-import AdminSurvival from "./pages/admin/AdminSurvival";
+import { ProtectedRoute } from "./components/Routes/ProtectedRoute";
+import { PublicRoute } from "./components/Routes/PublicRoute";
+import { MainLayout } from "./components/MainLayout";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminRating from "./pages/admin/Rating";
+import MagazineManagement from "./pages/admin/MagazineManagement";
+import FinanceContracts from "./pages/admin/FinanceContracts";
+import ReviewPage from "./pages/review/ReviewPage";
 import TantouDashboard from "./pages/tantou/TantouDashboard";
-import { DashboardRedirect } from "./pages/redirect/DashboardRedirect";
-import AdminApprovalsPage from "./pages/admin/AdminApprovals";
-import AdminMagazines from "./pages/admin/AdminMagazines";
-import AdminContracts from "./pages/admin/AdminContracts";
-import { Unauthorized } from "./pages/others/Unauthorized";
-import { NotFound } from "./pages/others/NotFound";
 import TantouManage from "./pages/tantou/TantouManage";
 import TantouApprovals from "./pages/tantou/TantouApprovals";
 import TantouSchedule from "./pages/tantou/TantouSchedule";
@@ -21,6 +18,8 @@ import MangakaSeries from "./pages/mangaka/MangakaSeries";
 import MangakaSchedule from "./pages/mangaka/MangakaSchedule";
 import MangakaAssistants from "./pages/mangaka/MangakaAssistants";
 import MangakaReports from "./pages/mangaka/MangakaReports";
+import { Unauthorized } from "./pages/others/Unauthorized";
+import { NotFound } from "./pages/others/NotFound";
 
 function App() {
   return (
@@ -30,42 +29,34 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Route>
 
-      <Route path="/unauthorized" element={<Unauthorized />} />
-
       <Route element={<MainLayout />}>
-        <Route path="/dashboard" element={<DashboardRedirect />} />
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-          <Route path="/admin">
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="approvals" element={<AdminApprovalsPage />} />
-            <Route path="survival" element={<AdminSurvival />} />
-            <Route path="magazines" element={<AdminMagazines />} />
-            <Route path="contracts" element={<AdminContracts />} />
-          </Route>
+          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/approve" element={<ReviewPage />} />
+          <Route path="/rating" element={<AdminRating />} />
+          <Route path="/management" element={<MagazineManagement />} />
+          <Route path="/finance" element={<FinanceContracts />} />
         </Route>
+
         <Route element={<ProtectedRoute allowedRoles={["TANTOU"]} />}>
-          <Route path="/tantou">
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<TantouDashboard />} />
-            <Route path="manage" element={<TantouManage />} />
-            <Route path="approvals" element={<TantouApprovals />} />
-            <Route path="schedule" element={<TantouSchedule />} />
-            <Route path="reports" element={<TantouReports />} />
-          </Route>
+          <Route path="/tantou/dashboard" element={<TantouDashboard />} />
+          <Route path="/tantou/manage" element={<TantouManage />} />
+          <Route path="/tantou/approvals" element={<TantouApprovals />} />
+          <Route path="/tantou/schedule" element={<TantouSchedule />} />
+          <Route path="/tantou/reports" element={<TantouReports />} />
         </Route>
+
         <Route element={<ProtectedRoute allowedRoles={["MANGAKA"]} />}>
-          <Route path="/mangaka">
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<MangakaDashboard />} />
-            <Route path="series" element={<MangakaSeries />} />
-            <Route path="schedule" element={<MangakaSchedule />} />
-            <Route path="assistants" element={<MangakaAssistants />} />
-            <Route path="reports" element={<MangakaReports />} />
-          </Route>
+          <Route path="/mangaka/dashboard" element={<MangakaDashboard />} />
+          <Route path="/mangaka/series" element={<MangakaSeries />} />
+          <Route path="/mangaka/schedule" element={<MangakaSchedule />} />
+          <Route path="/mangaka/assistants" element={<MangakaAssistants />} />
+          <Route path="/mangaka/reports" element={<MangakaReports />} />
         </Route>
       </Route>
 
+      <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
