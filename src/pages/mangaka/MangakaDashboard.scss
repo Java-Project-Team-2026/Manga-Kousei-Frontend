@@ -8,6 +8,39 @@
   font-family: "Inter", sans-serif;
   color: #0f172a;
 
+  $white: #ffffff;
+  $border: #cbd5e1;
+  $text-dark: #0f172a;
+  $text-gray: #334155;
+  $text-light: #475569;
+  $shadow-sm:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  $shadow-md:
+    0 4px 8px rgba(0, 0, 0, 0.05),
+    0 2px 4px rgba(0, 0, 0, 0.05);
+  $transition: all 0.2s ease;
+
+  @mixin card-base {
+    background: $white;
+    border: 1px solid $border;
+    box-shadow: $shadow-sm;
+  }
+
+  @mixin btn-base($color, $bg-hover: null) {
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: $transition;
+    @if $bg-hover {
+      &:hover {
+        background: $bg-hover;
+      }
+    }
+  }
+
   .main-content {
     display: flex;
     flex-direction: column;
@@ -19,21 +52,15 @@
       gap: 20px;
 
       .alert-card {
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
+        @include card-base;
         border-radius: 12px;
         padding: 20px;
         display: flex;
         flex-direction: column;
-        transition: all 0.2s ease;
-        box-shadow:
-          0 1px 2px rgba(0, 0, 0, 0.03),
-          0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: $transition;
 
         &:hover {
-          box-shadow:
-            0 4px 8px rgba(0, 0, 0, 0.05),
-            0 2px 4px rgba(0, 0, 0, 0.05);
+          box-shadow: $shadow-md;
           border-color: #b9c3d0;
         }
 
@@ -58,10 +85,10 @@
           font-size: 14px;
           line-height: 1.5;
           margin: 0 0 16px 0;
-          color: #334155;
+          color: $text-gray;
 
           strong {
-            color: #0f172a;
+            color: $text-dark;
             font-size: 15px;
           }
         }
@@ -85,16 +112,8 @@
             background: transparent;
             color: #dc2626;
             border: 1px solid #dc2626;
-            padding: 8px 16px;
-            font-weight: 600;
-            font-size: 14px;
-            border-radius: 8px;
-            cursor: pointer;
+            @include btn-base(transparent, #fee2e2);
             align-self: flex-start;
-            transition: 0.2s;
-            &:hover {
-              background: #fee2e2;
-            }
           }
         }
 
@@ -106,7 +125,7 @@
           }
           .time-text {
             font-size: 12px;
-            color: #475569;
+            color: $text-light;
             font-weight: 600;
           }
           .link-action {
@@ -148,16 +167,8 @@
             background-color: #2563eb;
             color: white;
             border: none;
-            padding: 8px 16px;
-            font-weight: 600;
-            font-size: 14px;
-            border-radius: 8px;
-            cursor: pointer;
+            @include btn-base(#2563eb, #1d4ed8);
             align-self: flex-start;
-            transition: 0.2s;
-            &:hover {
-              background-color: #1d4ed8;
-            }
           }
         }
       }
@@ -169,13 +180,9 @@
       gap: 24px;
 
       .panel-card {
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
+        @include card-base;
         border-radius: 16px;
         overflow: hidden;
-        box-shadow:
-          0 1px 2px rgba(0, 0, 0, 0.03),
-          0 1px 3px rgba(0, 0, 0, 0.05);
 
         .panel-header {
           padding: 16px 20px;
@@ -187,7 +194,7 @@
           h3 {
             font-size: 12px;
             font-weight: 800;
-            color: #334155;
+            color: $text-gray;
             margin: 0;
             letter-spacing: 0.5px;
           }
@@ -222,12 +229,11 @@
             margin-bottom: 8px;
             font-size: 13px;
             font-weight: 600;
-
             .series-name {
-              color: #0f172a;
+              color: $text-dark;
             }
             .status-text {
-              color: #475569;
+              color: $text-light;
               text-align: right;
               &.highlight {
                 color: #1e40af;
@@ -293,7 +299,7 @@
                 height: 14px;
                 border-radius: 50%;
                 border: 2px solid white;
-                background-color: #cbd5e1;
+                background-color: $border;
               }
               &.online::after {
                 background-color: #10b981;
@@ -329,7 +335,7 @@
 
               .rank-num {
                 width: 32px;
-                color: #475569;
+                color: $text-light;
               }
               .rank-name {
                 flex: 1;
@@ -337,7 +343,7 @@
               }
 
               &.top-1 {
-                background-color: #ffffff;
+                background-color: $white;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
                 .rank-num {
                   color: #eab308;
@@ -347,7 +353,6 @@
                   color: #10b981;
                 }
               }
-
               .trend-flat {
                 color: #94a3b8;
               }
@@ -359,13 +364,9 @@
   }
 
   .activity-feed {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
+    @include card-base;
     border-radius: 16px;
     height: fit-content;
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.02),
-      0 1px 2px rgba(0, 0, 0, 0.05);
 
     .feed-header {
       padding: 16px 20px;
@@ -378,7 +379,6 @@
         display: flex;
         align-items: center;
         gap: 8px;
-
         .dot-green {
           width: 10px;
           height: 10px;
@@ -390,15 +390,15 @@
           font-size: 15px;
           font-weight: 700;
           margin: 0;
-          color: #0f172a;
+          color: $text-dark;
         }
       }
       .icon-filter {
-        color: #475569;
+        color: $text-light;
         cursor: pointer;
-        transition: 0.2s;
+        transition: $transition;
         &:hover {
-          color: #0f172a;
+          color: $text-dark;
         }
       }
     }
@@ -412,7 +412,6 @@
         margin-bottom: 28px;
         position: relative;
 
-        // Đường kẻ dọc tăng độ tương phản
         &:not(:last-child)::before {
           content: "";
           position: absolute;
@@ -420,7 +419,7 @@
           top: 36px;
           bottom: -24px;
           width: 2px;
-          background-color: #cbd5e1;
+          background-color: $border;
         }
 
         .timeline-icon {
@@ -465,7 +464,7 @@
             line-height: 1.5;
 
             strong {
-              color: #0f172a;
+              color: $text-dark;
               font-weight: 700;
             }
             .target-link {
@@ -480,11 +479,10 @@
 
           .quote-box {
             background-color: #f8fafc;
-            border-left: 3px solid #cbd5e1;
+            border-left: 3px solid $border;
             padding: 8px 12px;
             font-size: 13px;
-            font-style: normal;
-            color: #475569;
+            color: $text-light;
             border-radius: 0 8px 8px 0;
             margin: 8px 0;
           }
