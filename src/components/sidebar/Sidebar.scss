@@ -10,6 +10,11 @@
   height: 100vh;
   padding: 24px 20px;
   box-sizing: border-box;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .sidebar-top {
