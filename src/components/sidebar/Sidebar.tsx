@@ -123,7 +123,7 @@ export const Sidebar = () => {
             </div>
           </div>
 
-          {["MANGAKA", "TANTOU"].includes(currentRole) && (
+          {["MANGAKA"].includes(currentRole) && (
             <NavLink
               to={`${currentRole.toLowerCase()}/create-work`}
               className={({ isActive }) =>

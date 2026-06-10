@@ -53,7 +53,6 @@ function App() {
             <Route path="approvals" element={<TantouApprovals />} />
             <Route path="schedule" element={<TantouSchedule />} />
             <Route path="reports" element={<TantouReports />} />
-            <Route path="create-work" element={<CreateWork />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["MANGAKA"]} />}>
