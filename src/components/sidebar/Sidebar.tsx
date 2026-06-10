@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { ConfirmDialog } from "../dialog/ConfirmDialog";
+
 import {
   PenTool,
-  Plus,
   LayoutGrid,
   LibraryBig,
   ClipboardCheck,
@@ -17,9 +16,11 @@ import {
   Calendar,
   Users,
   LineChart,
+  Plus,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Sidebar.scss";
+import { useLogout } from "../../hooks/useLogout";
 
 interface MenuItem {
   path: string;
@@ -28,8 +29,13 @@ interface MenuItem {
 }
 
 export const Sidebar = () => {
-  const { user, logout } = useAuth();
-  const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+  const { user } = useAuth();
+  const {
+    showConfirmLogout,
+    handleLogoutClick,
+    handleConfirmLogout,
+    handleCancelLogout,
+  } = useLogout();
 
   const currentRole = user?.role || "";
 
@@ -103,19 +109,6 @@ export const Sidebar = () => {
 
   const currentMenus = menuConfig[currentRole] || [];
 
-  const handleLogoutClick = () => {
-    setShowConfirmLogout(true);
-  };
-
-  const handleConfirmLogout = async () => {
-    setShowConfirmLogout(false);
-    await logout();
-  };
-
-  const handleCancelLogout = () => {
-    setShowConfirmLogout(false);
-  };
-
   return (
     <>
       <aside className="sidebar-container">
@@ -130,11 +123,16 @@ export const Sidebar = () => {
             </div>
           </div>
 
-          {["MANGAKA", "TANTOU"].includes(currentRole) && (
-            <button className="create-btn">
+          {["MANGAKA"].includes(currentRole) && (
+            <NavLink
+              to={`${currentRole.toLowerCase()}/create-work`}
+              className={({ isActive }) =>
+                `create-btn ${isActive ? "active" : ""}`
+              }
+            >
               <Plus size={18} />
               <span>Tạo Tác phẩm Mới</span>
-            </button>
+            </NavLink>
           )}
 
           <nav className="menu-nav">

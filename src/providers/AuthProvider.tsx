@@ -11,8 +11,8 @@ interface User {
   fullName: string;
   email: string;
   role: Role;
+  avatarUrl: string | null;
 }
-const publicRoutes = ["/login", "/"];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -21,15 +21,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        if (publicRoutes.includes(location.pathname)) return;
-
         const response = await api.get("/auth/me");
-        const { id, fullName, email, roles } = response.data.data;
+
+        const { id, fullName, email, roles, avatarUrl } = response.data.data;
         setUser({
           id,
           fullName,
           email,
           role: roles.at(0) ?? "MANGAKA",
+          avatarUrl,
         });
       } catch (error) {
         if (
@@ -51,12 +51,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await api.post("/auth/login", loginPayload);
 
-      const { id, fullName, email, roles } = response.data.data;
+      const { id, fullName, email, roles, avatarUrl } = response.data.data;
       setUser({
         id,
         fullName,
         email,
         role: roles.at(0) ?? "MANGAKA",
+        avatarUrl,
       });
     } catch (error) {
       console.error("Login function error in Provider:", error);

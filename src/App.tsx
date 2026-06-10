@@ -21,6 +21,7 @@ import MangakaSeries from "./pages/mangaka/MangakaSeries";
 import MangakaSchedule from "./pages/mangaka/MangakaSchedule";
 import MangakaAssistants from "./pages/mangaka/MangakaAssistants";
 import MangakaReports from "./pages/mangaka/MangakaReports";
+import CreateWork from "./pages/others/CreateWork";
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
             <Route path="schedule" element={<MangakaSchedule />} />
             <Route path="assistants" element={<MangakaAssistants />} />
             <Route path="reports" element={<MangakaReports />} />
+            <Route path="create-work" element={<CreateWork />} />
           </Route>
         </Route>
       </Route>
