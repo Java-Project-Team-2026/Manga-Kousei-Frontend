@@ -249,7 +249,7 @@ export default function TantouDashboard() {
                       if (item.itemType === "manuscript") {
                         window.location.href = `/approvals/manuscript/${item.id}`;
                       } else if (item.itemType === "proposal") {
-                        window.location.href = `/proposals/${item.id}`;
+                        window.location.href = `proposal-review/${item.id}`;
                       }
                     }}
                   >
