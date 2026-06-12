@@ -19,6 +19,9 @@ import {
   LineChart,
   Plus,
   Sparkles,
+  FileCheck,
+  BanknoteArrowUp,
+  StickyNotes,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Sidebar.scss";
@@ -111,6 +114,26 @@ export const Sidebar = () => {
         path: "mangaka/reports",
         label: "Báo cáo",
         icon: LineChart,
+      },
+    ],
+    ASSISTANT: [
+      {
+        path: "assistant/dashboard",
+        label: "Bảng điều khiển",
+        icon: LayoutGrid },
+      {
+        path: "assistant/myjob",
+        label: "Công việc của tôi",
+        icon: FileCheck },
+      {
+        path: "assistant/recource-warehouse",
+        label: "Kho tài nguyên",
+        icon: StickyNotes,
+      },
+      {
+        path: "assistant/income",
+        label: "Thu nhập",
+        icon: BanknoteArrowUp,
       },
     ],
   };
