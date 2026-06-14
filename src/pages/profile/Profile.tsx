@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import {
   BadgeCheck,
   Bell,
@@ -9,14 +11,23 @@ import {
   FileText,
   Globe2,
   KeyRound,
+  Loader2,
   Mail,
   MapPin,
   Palette,
+  Save,
   ShieldCheck,
   Sparkles,
   UserRound,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import {
+  changeMyPassword,
+  updateMyProfile,
+  type UserProfile,
+} from "../../services/profileService";
+import type { AuthUser } from "../../types/auth";
+import { getErrorMessage } from "../../utils/axios";
 import { getAvatarColor, getInitials } from "../../utils";
 import "./Profile.scss";
 
@@ -29,9 +40,12 @@ const roleLabels = {
 
 const roleDescriptions = {
   ADMIN: "Full access to studio operations, approvals, contracts, and reports.",
-  TANTOU: "Manages manga proposals, editorial reviews, creator assignments, and publication flow.",
-  MANGAKA: "Creates proposals, manages series progress, coordinates with editors and assistants.",
-  ASSISTANT: "Supports assigned production tasks, resources, delivery, and income tracking.",
+  TANTOU:
+    "Manages manga proposals, editorial reviews, creator assignments, and publication flow.",
+  MANGAKA:
+    "Creates proposals, manages series progress, coordinates with editors and assistants.",
+  ASSISTANT:
+    "Supports assigned production tasks, resources, delivery, and income tracking.",
 } as const;
 
 const profileStats = [
@@ -42,7 +56,7 @@ const profileStats = [
 ];
 
 const securityItems = [
-  { label: "Password", value: "Updated 18 days ago", icon: KeyRound },
+  { label: "Password", value: "Protected by encrypted credentials", icon: KeyRound },
   { label: "Two-factor Auth", value: "Ready to enable", icon: ShieldCheck },
   { label: "Notifications", value: "Email and in-app alerts", icon: Bell },
 ];
@@ -65,26 +79,121 @@ const activityItems = [
   },
 ];
 
+const toAuthUser = (profile: UserProfile): AuthUser => ({
+  id: profile.id,
+  fullName: profile.fullName,
+  email: profile.email,
+  role:
+    (profile.roles.at(0) as AuthUser["role"] | undefined) ?? "MANGAKA",
+  avatarUrl: profile.avatarUrl,
+});
+
 function Profile() {
-  const { user } = useAuth();
+  const { user, updateUser, refreshUser } = useAuth();
+  const [fullName, setFullName] = useState(user?.fullName ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [profileSubmitting, setProfileSubmitting] = useState(false);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const [profileMessage, setProfileMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const displayName = user?.fullName || "MangaKousei User";
   const email = user?.email || "user@mangakousei.local";
   const role = user?.role || "MANGAKA";
   const initials = getInitials(displayName);
-  const avatarColor = getAvatarColor(displayName);
+  const avatarColor = useMemo(() => getAvatarColor(displayName), [displayName]);
+  const previewAvatar = avatarUrl.trim() || user?.avatarUrl || "";
+
+  const handleRefreshUser = async () => {
+    setProfileError("");
+    setProfileMessage("");
+
+    try {
+      const refreshedUser = await refreshUser();
+      setFullName(refreshedUser.fullName);
+      setAvatarUrl(refreshedUser.avatarUrl ?? "");
+      setProfileMessage("Profile data refreshed.");
+    } catch (error) {
+      setProfileError(getErrorMessage(error, "Could not refresh profile data."));
+    }
+  };
+
+  const handleProfileSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    setProfileError("");
+    setProfileMessage("");
+
+    if (!fullName.trim()) {
+      setProfileError("Full name cannot be blank.");
+      return;
+    }
+
+    try {
+      setProfileSubmitting(true);
+      const updatedProfile = await updateMyProfile({
+        fullName: fullName.trim(),
+        avatarUrl: avatarUrl.trim() || null,
+      });
+
+      updateUser(toAuthUser(updatedProfile));
+      setFullName(updatedProfile.fullName);
+      setAvatarUrl(updatedProfile.avatarUrl ?? "");
+      setProfileMessage("Profile updated successfully.");
+    } catch (error) {
+      setProfileError(getErrorMessage(error, "Could not update profile."));
+    } finally {
+      setProfileSubmitting(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    setPasswordError("");
+    setPasswordMessage("");
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New password confirmation does not match.");
+      return;
+    }
+
+    try {
+      setPasswordSubmitting(true);
+      await changeMyPassword({ currentPassword, newPassword });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordMessage("Password changed successfully.");
+    } catch (error) {
+      setPasswordError(getErrorMessage(error, "Could not change password."));
+    } finally {
+      setPasswordSubmitting(false);
+    }
+  };
 
   return (
     <main className="profile-page">
       <section className="profile-hero">
         <div className="profile-hero__identity">
           <div className="profile-avatar" style={{ background: avatarColor }}>
-            {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={`${displayName} avatar`} />
+            {previewAvatar ? (
+              <img src={previewAvatar} alt={`${displayName} avatar`} />
             ) : (
               <span>{initials}</span>
             )}
-            <button className="profile-avatar__action" type="button" aria-label="Update avatar">
+            <button
+              className="profile-avatar__action"
+              type="button"
+              aria-label="Update avatar"
+            >
               <Camera size={16} />
             </button>
           </div>
@@ -117,20 +226,35 @@ function Profile() {
         </div>
 
         <div className="profile-hero__actions">
-          <button className="profile-btn profile-btn--ghost" type="button">
+          <button
+            className="profile-btn profile-btn--ghost"
+            type="button"
+            onClick={handleRefreshUser}
+          >
             <ShieldCheck size={16} />
-            Security
+            Refresh
           </button>
-          <button className="profile-btn profile-btn--primary" type="button">
-            <Edit3 size={16} />
-            Edit Profile
+          <button
+            className="profile-btn profile-btn--primary"
+            type="submit"
+            form="profile-form"
+            disabled={profileSubmitting}
+          >
+            {profileSubmitting ? <Loader2 size={16} /> : <Save size={16} />}
+            Save Profile
           </button>
         </div>
       </section>
 
-      <section className="profile-stats-grid" aria-label="Profile production overview">
+      <section
+        className="profile-stats-grid"
+        aria-label="Profile production overview"
+      >
         {profileStats.map((stat) => (
-          <article className={`profile-stat profile-stat--${stat.tone}`} key={stat.label}>
+          <article
+            className={`profile-stat profile-stat--${stat.tone}`}
+            key={stat.label}
+          >
             <span>{stat.label}</span>
             <strong>{stat.value}</strong>
           </article>
@@ -145,37 +269,133 @@ function Profile() {
                 <span className="profile-section-kicker">Account</span>
                 <h2>Personal Information</h2>
               </div>
-              <button className="profile-icon-btn" type="button" aria-label="Edit personal information">
-                <Edit3 size={17} />
-              </button>
+              <Edit3 size={18} />
             </div>
 
-            <div className="profile-info-grid">
-              <div className="profile-info-item">
+            <form
+              className="profile-form"
+              id="profile-form"
+              onSubmit={handleProfileSubmit}
+            >
+              <label className="profile-field">
                 <span>Full Name</span>
-                <strong>{displayName}</strong>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
+                  placeholder="Enter your full name"
+                  maxLength={100}
+                />
+              </label>
+
+              <label className="profile-field">
+                <span>Avatar URL</span>
+                <input
+                  type="url"
+                  value={avatarUrl}
+                  onChange={(event) => setAvatarUrl(event.target.value)}
+                  placeholder="https://example.com/avatar.png"
+                  maxLength={500}
+                />
+              </label>
+
+              <div className="profile-info-grid">
+                <div className="profile-info-item">
+                  <span>Email Address</span>
+                  <strong>{email}</strong>
+                </div>
+                <div className="profile-info-item">
+                  <span>Primary Role</span>
+                  <strong>{roleLabels[role]}</strong>
+                </div>
+                <div className="profile-info-item">
+                  <span>Member ID</span>
+                  <strong>MK-{String(user?.id || 1024).padStart(5, "0")}</strong>
+                </div>
+                <div className="profile-info-item">
+                  <span>Editable Fields</span>
+                  <strong>Name and avatar only</strong>
+                </div>
               </div>
-              <div className="profile-info-item">
-                <span>Email Address</span>
-                <strong>{email}</strong>
+
+              {(profileMessage || profileError) && (
+                <p
+                  className={`profile-feedback ${
+                    profileError ? "profile-feedback--error" : ""
+                  }`}
+                >
+                  {profileError || profileMessage}
+                </p>
+              )}
+            </form>
+          </article>
+
+          <article className="profile-panel">
+            <div className="profile-panel__header">
+              <div>
+                <span className="profile-section-kicker">Security</span>
+                <h2>Change Password</h2>
               </div>
-              <div className="profile-info-item">
-                <span>Primary Role</span>
-                <strong>{roleLabels[role]}</strong>
-              </div>
-              <div className="profile-info-item">
-                <span>Member ID</span>
-                <strong>MK-{String(user?.id || 1024).padStart(5, "0")}</strong>
-              </div>
-              <div className="profile-info-item">
-                <span>Timezone</span>
-                <strong>Asia/Tokyo UTC+09</strong>
-              </div>
-              <div className="profile-info-item">
-                <span>Language</span>
-                <strong>English / Japanese</strong>
-              </div>
+              <KeyRound size={18} />
             </div>
+
+            <form className="profile-form" onSubmit={handlePasswordSubmit}>
+              <label className="profile-field">
+                <span>Current Password</span>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  placeholder="Enter current password"
+                  autoComplete="current-password"
+                />
+              </label>
+
+              <div className="profile-form__row">
+                <label className="profile-field">
+                  <span>New Password</span>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(event) => setNewPassword(event.target.value)}
+                    placeholder="At least 8 characters"
+                    autoComplete="new-password"
+                    minLength={8}
+                  />
+                </label>
+
+                <label className="profile-field">
+                  <span>Confirm New Password</span>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    placeholder="Repeat new password"
+                    autoComplete="new-password"
+                    minLength={8}
+                  />
+                </label>
+              </div>
+
+              {(passwordMessage || passwordError) && (
+                <p
+                  className={`profile-feedback ${
+                    passwordError ? "profile-feedback--error" : ""
+                  }`}
+                >
+                  {passwordError || passwordMessage}
+                </p>
+              )}
+
+              <button
+                className="profile-btn profile-btn--primary profile-form__submit"
+                type="submit"
+                disabled={passwordSubmitting}
+              >
+                {passwordSubmitting ? <Loader2 size={16} /> : <KeyRound size={16} />}
+                Change Password
+              </button>
+            </form>
           </article>
 
           <article className="profile-panel">
@@ -195,7 +415,10 @@ function Profile() {
                 <div>
                   <span>Creative Team</span>
                   <strong>MangaKousei Studio A</strong>
-                  <p>Editorial planning, manuscript review, chapter tracking, and resource coordination.</p>
+                  <p>
+                    Editorial planning, manuscript review, chapter tracking,
+                    and resource coordination.
+                  </p>
                 </div>
               </div>
 
