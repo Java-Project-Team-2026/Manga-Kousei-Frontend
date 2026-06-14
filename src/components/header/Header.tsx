@@ -11,10 +11,12 @@ import {
   LogOut,
   History,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 
 export const Header = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const {
@@ -42,6 +44,11 @@ export const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showPopup]);
+
+  const handleProfileClick = () => {
+    setShowPopup(false);
+    navigate("/profile");
+  };
 
   return (
     <header className="header-container">
@@ -122,7 +129,7 @@ export const Header = () => {
               <div className="popup-divider" />
 
               <ul className="popup-menu">
-                <li className="popup-menu-item">
+                <li className="popup-menu-item" onClick={handleProfileClick}>
                   <UserRound size={16} strokeWidth={1.5} />
                   <span>Hồ sơ của bạn</span>
                 </li>

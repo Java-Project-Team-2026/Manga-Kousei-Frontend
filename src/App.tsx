@@ -28,6 +28,7 @@ import AssistantResourceWarehouse from "./pages/assistant/AssistantResourceWareh
 import AssistantIncome from "./pages/assistant/AssistantIncome.tsx";
 import AssistantMyJob from "./pages/assistant/AssistantMyJob.tsx";
 import MangakaSeriesDetail from "./pages/mangaka/MangakaSeriesDetail.tsx";
+import Profile from "./pages/profile/Profile.tsx";
 
 function App() {
   return (
@@ -41,6 +42,15 @@ function App() {
 
       <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<DashboardRedirect />} />
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={["ADMIN", "TANTOU", "MANGAKA", "ASSISTANT"]}
+            />
+          }
+        >
+          <Route path="/profile" element={<Profile />} />
+        </Route>
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin">
             <Route index element={<Navigate to="dashboard" replace />} />
