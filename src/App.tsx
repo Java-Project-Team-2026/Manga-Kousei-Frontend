@@ -30,6 +30,7 @@ import AssistantMyJob from "./pages/assistant/AssistantMyJob.tsx";
 import MangakaSeriesDetail from "./pages/mangaka/MangakaSeriesDetail.tsx";
 import Profile from "./pages/profile/Profile.tsx";
 import AdminProposalReview from "./pages/admin/AdminProposalReview.tsx";
+import ScheduleAssignment from "./pages/admin/ScheduleAssignment/ScheduleAssignment.tsx";
 
 function App() {
   return (
@@ -64,6 +65,10 @@ function App() {
             <Route
               path="/admin/proposal-review/:proposalId"
               element={<AdminProposalReview />}
+            />
+            <Route
+              path="schedule-assignment/:proposalId"
+              element={<ScheduleAssignment />}
             />
           </Route>
         </Route>

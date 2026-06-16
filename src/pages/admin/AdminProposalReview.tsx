@@ -65,7 +65,6 @@ const STATUS_META: Record<
   },
 };
 
-// ─── Collapsible section ──────────────────────────────────────────────────────
 function Section({
   title,
   icon,
@@ -155,12 +154,16 @@ export default function AdminProposalReview() {
     setSubmitting(true);
     try {
       await adminReviewProposal(id, { decision: "approve" });
+
       setProposals((prev) =>
         prev.map((p) =>
-          p.proposal_id === id ? { ...p, status: "approved" } : p,
+          p.proposal_id === id
+            ? { ...p, status: "approved_pending_schedule" as ProposalStatus }
+            : p,
         ),
       );
-      setShowRejectForm(false);
+
+      navigate(`/admin/schedule-assignment/${id}`);
     } catch (err) {
       console.error("Phê duyệt thất bại", err);
     } finally {

@@ -108,3 +108,6 @@ export const adminReviewProposal = (
     reason?: string;
   },
 ) => api.patch(`/admin/proposals/${id}/review`, body);
+
+export const cancelApprove = (proposalId: number) =>
+  api.patch(`/admin/proposals/${proposalId}/cancel-approve`);
