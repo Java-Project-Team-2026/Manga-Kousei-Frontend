@@ -73,6 +73,11 @@ export const Sidebar = () => {
     ADMIN: [
       { path: "admin/dashboard", label: "Bảng điều khiển", icon: LayoutGrid },
       {
+        path: "admin/proposal-review",
+        label: "Duyệt Bản Name",
+        icon: Sparkles,
+      },
+      {
         path: "admin/approvals",
         label: "Xét duyệt dự án mới",
         icon: ClipboardCheck,
@@ -120,11 +125,13 @@ export const Sidebar = () => {
       {
         path: "assistant/dashboard",
         label: "Bảng điều khiển",
-        icon: LayoutGrid },
+        icon: LayoutGrid,
+      },
       {
         path: "assistant/myjob",
         label: "Công việc của tôi",
-        icon: FileCheck },
+        icon: FileCheck,
+      },
       {
         path: "assistant/recource-warehouse",
         label: "Kho tài nguyên",
