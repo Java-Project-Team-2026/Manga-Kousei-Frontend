@@ -1,116 +1,145 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  Sparkles,
-  Clock,
-  ChevronRight,
-  Users,
   BookOpen,
-  ImageIcon,
-  CheckCircle2,
-  XCircle,
-  RotateCcw,
-  Send,
-  Tag,
-  X,
+  ChevronRight,
   FileText,
+  ImageIcon,
+  RotateCcw,
   Search,
+  Send,
+  Sparkles,
+  Tag,
+  Users,
+  X,
+  XCircle,
+  CheckCircle2,
+  Clock,
+  ShieldCheck,
   Calendar,
 } from "lucide-react";
-import "./ProposalReview.scss";
-import { formatDate, timeAgo } from "../../../utils/date";
-import Section from "./Section";
+import { getAvatarColor, getInitials } from "../../utils";
+import { formatDate } from "../../utils/date";
 import {
-  fetchProposals,
-  reopenProposal,
-  reviewProposal,
-} from "../../../services/tantouService";
-import { getAvatarColor, getInitials } from "../../../utils";
-import type {
-  ProposalStatus,
-  SeriesProposal,
-} from "../../../types/SeriesProposal";
-import { useNavigate, useParams } from "react-router-dom";
+  fetchAdminPendingProposals,
+  adminReviewProposal,
+} from "../../services/adminProposalService";
+import type { SeriesProposal } from "../../types/SeriesProposal";
+import "./AdminProposalReview.scss";
+
+type ProposalStatus =
+  | "pending"
+  | "pending_admin"
+  | "approved"
+  | "revision"
+  | "rejected";
 
 const STATUS_META: Record<
   ProposalStatus,
   { label: string; className: string; icon: React.ReactNode }
 > = {
   pending: {
-    label: "CHỜ DUYỆT",
+    label: "Chờ Tantou",
     className: "pr-badge--pending",
-    icon: <Clock size={11} />,
-  },
-  approved: {
-    label: "ĐÃ DUYỆT",
-    className: "pr-badge--approved",
-    icon: <CheckCircle2 size={11} />,
-  },
-  revision: {
-    label: "CẦN SỬA",
-    className: "pr-badge--revision",
-    icon: <RotateCcw size={11} />,
-  },
-  rejected: {
-    label: "TỪ CHỐI",
-    className: "pr-badge--rejected",
-    icon: <XCircle size={11} />,
+    icon: <Clock size={10} />,
   },
   pending_admin: {
-    label: "CHỜ ADMIN",
-    className: "pr-badge--pending-admin",
-    icon: <Clock size={11} />,
+    label: "Chờ Admin duyệt",
+    className: "apr-badge--pending-admin",
+    icon: <ShieldCheck size={10} />,
+  },
+  approved: {
+    label: "Đã duyệt",
+    className: "pr-badge--approved",
+    icon: <CheckCircle2 size={10} />,
+  },
+  revision: {
+    label: "Cần sửa",
+    className: "pr-badge--revision",
+    icon: <RotateCcw size={10} />,
+  },
+  rejected: {
+    label: "Từ chối",
+    className: "pr-badge--rejected",
+    icon: <XCircle size={10} />,
   },
 };
 
-export default function ProposalReview() {
+// ─── Collapsible section ──────────────────────────────────────────────────────
+function Section({
+  title,
+  icon,
+  children,
+  defaultOpen = true,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="pr-section">
+      <button className="pr-section__head" onClick={() => setOpen((o) => !o)}>
+        <span className="pr-section__icon">{icon}</span>
+        <span className="pr-section__title">{title}</span>
+        <ChevronRight
+          size={14}
+          style={{
+            transform: open ? "rotate(90deg)" : "rotate(0deg)",
+            transition: "transform 0.15s",
+          }}
+        />
+      </button>
+      {open && <div className="pr-section__body">{children}</div>}
+    </div>
+  );
+}
+
+export default function AdminProposalReview() {
   const { proposalId } = useParams<{ proposalId?: string }>();
   const navigate = useNavigate();
 
   const [proposals, setProposals] = useState<SeriesProposal[]>([]);
-  // const [selected, setSelected] = useState<SeriesProposal | null>(null);
-  const selected = proposalId
-    ? (proposals.find((p) => p.proposal_id === Number(proposalId)) ?? null)
-    : null;
-  const [filter, setFilter] = useState<ProposalStatus | "all">("all");
+  const [filter, setFilter] = useState<ProposalStatus | "all">("pending_admin");
   const [search, setSearch] = useState("");
-  const [revisionText, setRevisionText] = useState("");
   const [rejectionText, setRejectionText] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
-  const [showRevisionForm, setShowRevisionForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(true);
 
+  const selected = proposalId
+    ? (proposals.find((p) => p.proposal_id === Number(proposalId)) ?? null)
+    : null;
+
   useEffect(() => {
-    if (!proposalId && proposals.length > 0 && !selected) {
-      navigate(`/tantou/proposal-review/${proposals[0].proposal_id}`, {
+    if (!proposalId && proposals.length > 0) {
+      navigate(`/admin/proposal-review/${proposals[0].proposal_id}`, {
         replace: true,
       });
     }
-  }, [proposalId, proposals, selected, navigate]);
+  }, [proposalId, proposals, navigate]);
 
   useEffect(() => {
-    const loadProposals = async () => {
+    const load = async () => {
       try {
         setLoading(true);
-        const data = await fetchProposals();
+        const data = await fetchAdminPendingProposals();
         setProposals(data);
       } catch (err) {
-        console.error("unsuccessful fetch data proposals", err);
+        console.error("Không thể tải danh sách proposal", err);
       } finally {
         setLoading(false);
       }
     };
-    loadProposals();
+    load();
   }, []);
 
   const counts = {
     all: proposals.length,
-    pending: proposals.filter((p) => p.status === "pending").length,
     pending_admin: proposals.filter((p) => p.status === "pending_admin").length,
     approved: proposals.filter((p) => p.status === "approved").length,
-    revision: proposals.filter((p) => p.status === "revision").length,
     rejected: proposals.filter((p) => p.status === "rejected").length,
   };
 
@@ -125,48 +154,15 @@ export default function ProposalReview() {
   const approve = async (id: number) => {
     setSubmitting(true);
     try {
-      await reviewProposal(id, { decision: "approve" });
+      await adminReviewProposal(id, { decision: "approve" });
       setProposals((prev) =>
         prev.map((p) =>
-          p.proposal_id === id
-            ? { ...p, status: "pending_admin", rejection_reason: null }
-            : p,
+          p.proposal_id === id ? { ...p, status: "approved" } : p,
         ),
       );
       setShowRejectForm(false);
-      setShowRevisionForm(false);
     } catch (err) {
       console.error("Phê duyệt thất bại", err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const sendRevision = async (id: number) => {
-    if (!revisionText.trim()) return;
-    setSubmitting(true);
-    try {
-      await reviewProposal(id, {
-        decision: "revision",
-        feedback: revisionText.trim(),
-      });
-
-      setProposals((prev) =>
-        prev.map((p) =>
-          p.proposal_id === id
-            ? {
-                ...p,
-                status: "revision",
-                revision_feedback: revisionText.trim(),
-              }
-            : p,
-        ),
-      );
-
-      setRevisionText("");
-      setShowRevisionForm(false);
-    } catch (err) {
-      console.error("Yêu cầu sửa thất bại", err);
     } finally {
       setSubmitting(false);
     }
@@ -176,11 +172,10 @@ export default function ProposalReview() {
     if (!rejectionText.trim()) return;
     setSubmitting(true);
     try {
-      await reviewProposal(id, {
+      await adminReviewProposal(id, {
         decision: "reject",
         reason: rejectionText.trim(),
       });
-
       setProposals((prev) =>
         prev.map((p) =>
           p.proposal_id === id
@@ -192,7 +187,6 @@ export default function ProposalReview() {
             : p,
         ),
       );
-
       setRejectionText("");
       setShowRejectForm(false);
     } catch (err) {
@@ -202,35 +196,9 @@ export default function ProposalReview() {
     }
   };
 
-  const handleReopen = async (id: number) => {
-    setSubmitting(true);
-    try {
-      await reopenProposal(id);
-      setProposals((prev) =>
-        prev.map((p) =>
-          p.proposal_id === id
-            ? {
-                ...p,
-                status: "pending",
-                rejection_reason: null,
-                revision_feedback: null,
-              }
-            : p,
-        ),
-      );
-    } catch (err) {
-      console.error("Mở lại thất bại", err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const openDetail = (p: SeriesProposal) => {
-    navigate(`/tantou/proposal-review/${p.proposal_id}`);
-
+    navigate(`/admin/proposal-review/${p.proposal_id}`);
     setShowRejectForm(false);
-    setShowRevisionForm(false);
-    setRevisionText("");
     setRejectionText("");
   };
 
@@ -240,13 +208,15 @@ export default function ProposalReview() {
         <div className="pr-list-header">
           <div className="pr-list-header__top">
             <div className="pr-list-header__title">
-              <Sparkles size={18} strokeWidth={1.75} />
-              Đề xuất Series Mới
+              <ShieldCheck size={18} strokeWidth={1.75} />
+              Duyệt Series (Admin)
             </div>
-            <span className="pr-new-badge">{counts.pending} mới</span>
+            <span className="apr-new-badge">
+              {counts.pending_admin} chờ duyệt
+            </span>
           </div>
           <p className="pr-list-header__sub">
-            Bản Name ý tưởng từ Mangaka gửi lên xét duyệt
+            Bản Name đã được Tantou xét duyệt, chờ Admin phê duyệt cuối
           </p>
 
           <div className="pr-search">
@@ -261,52 +231,41 @@ export default function ProposalReview() {
         </div>
 
         <div className="pr-filter-tabs">
-          {(
-            [
-              "all",
-              "pending",
-              "pending_admin",
-              "revision",
-              "approved",
-              "rejected",
-            ] as const
-          ).map((f) => (
-            <button
-              key={f}
-              className={`pr-filter-tab ${filter === f ? "pr-filter-tab--on" : ""}`}
-              onClick={() => setFilter(f)}
-            >
-              {f === "all"
-                ? "Tất cả"
-                : f === "pending"
-                  ? "Chờ duyệt"
+          {(["all", "pending_admin", "approved", "rejected"] as const).map(
+            (f) => (
+              <button
+                key={f}
+                className={`pr-filter-tab ${filter === f ? "pr-filter-tab--on" : ""}`}
+                onClick={() => setFilter(f)}
+              >
+                {f === "all"
+                  ? "Tất cả"
                   : f === "pending_admin"
-                    ? "Chờ Admin"
-                    : f === "revision"
-                      ? "Cần sửa"
+                    ? "Chờ duyệt"
+                    : f === "approved"
+                      ? "Đã duyệt"
+                      : "Từ chối"}
+                <span className="pr-filter-tab__count">
+                  {f === "all"
+                    ? counts.all
+                    : f === "pending_admin"
+                      ? counts.pending_admin
                       : f === "approved"
-                        ? "Đã duyệt"
-                        : "Từ chối"}
-              <span className="pr-filter-tab__count">{counts[f]}</span>
-            </button>
-          ))}
+                        ? counts.approved
+                        : counts.rejected}
+                </span>
+              </button>
+            ),
+          )}
         </div>
 
-        <div className="pr-cards">
-          {visible.length === 0 && (
-            <div className="pr-cards__empty">
-              <FileText size={28} strokeWidth={1} />
-              <p>Không có đề xuất nào.</p>
-            </div>
-          )}
-
+        <div className="pr-list">
           {visible.map((p) => {
-            const isActive = selected?.proposal_id === p.proposal_id;
-            const sm = STATUS_META[p.status];
+            const meta = STATUS_META[p.status];
             return (
               <button
                 key={p.proposal_id}
-                className={`pr-card ${isActive ? "pr-card--active" : ""} pr-card--${p.status}`}
+                className={`pr-card ${selected?.proposal_id === p.proposal_id ? "pr-card--active" : ""} pr-card--${p.status}`}
                 onClick={() => openDetail(p)}
               >
                 <div className="pr-card__bar" />
@@ -314,9 +273,9 @@ export default function ProposalReview() {
                 <div className="pr-card__content">
                   <div className="pr-card__row1">
                     <span className="pr-card__title">{p.working_title}</span>
-                    <span className={`pr-badge ${sm.className}`}>
-                      {sm.icon}
-                      {sm.label}
+                    <span className={`pr-badge ${meta.className}`}>
+                      {meta.icon}
+                      {meta.label}
                     </span>
                   </div>
 
@@ -342,12 +301,12 @@ export default function ProposalReview() {
                     </div>
                     <span className="pr-card__date">
                       <Calendar size={11} />
-                      {timeAgo(p.created_at)}
+                      {formatDate(p.created_at)}
                     </span>
                   </div>
 
                   <div className="pr-card__genres">
-                    {p.genres.map((g, index) => (
+                    {p.genres.slice(0, 3).map((g, index) => (
                       <span
                         key={g.genre_id ?? `genre-${index}`}
                         className="pr-genre-chip"
@@ -374,11 +333,11 @@ export default function ProposalReview() {
             <div className="pr-detail__empty-icon">
               <Sparkles size={36} strokeWidth={1} />
             </div>
-            <p>Chọn một đề xuất để xem chi tiết</p>
+            <p>Chọn một đề xuất để xem chi tiết và phê duyệt</p>
           </div>
         ) : (
           <>
-            <div className="pr-detail__head">
+            <div className="pr-detail__head apr-detail__head">
               <div className="pr-detail__head-main">
                 <div>
                   <div className="pr-detail__eyebrow">
@@ -389,7 +348,7 @@ export default function ProposalReview() {
                 </div>
                 <button
                   className="pr-detail__close"
-                  onClick={() => navigate("/tantou/proposal-review")}
+                  onClick={() => navigate("/admin/proposal-review")}
                 >
                   <X size={16} />
                 </button>
@@ -514,11 +473,12 @@ export default function ProposalReview() {
               {selected.revision_feedback && (
                 <div className="pr-prev-feedback pr-prev-feedback--revision">
                   <div className="pr-prev-feedback__label">
-                    <RotateCcw size={12} /> Phản hồi yêu cầu sửa (trước đó)
+                    <RotateCcw size={12} /> Phản hồi chỉnh sửa từ Tantou
                   </div>
                   <p>{selected.revision_feedback}</p>
                 </div>
               )}
+
               {selected.rejection_reason && (
                 <div className="pr-prev-feedback pr-prev-feedback--rejected">
                   <div className="pr-prev-feedback__label">
@@ -529,137 +489,76 @@ export default function ProposalReview() {
               )}
             </div>
 
-            {selected.status === "pending" || selected.status === "revision" ? (
-              <div className="pr-detail__footer">
-                {showRevisionForm && (
-                  <div className="pr-feedback-form pr-feedback-form--revision">
-                    <div className="pr-feedback-form__label">
-                      <RotateCcw size={13} /> Yêu cầu chỉnh sửa
+            <div className="pr-detail__footer">
+              {selected.status === "pending_admin" ? (
+                <>
+                  {showRejectForm && (
+                    <div className="pr-feedback-form pr-feedback-form--reject">
+                      <div className="pr-feedback-form__label">
+                        <XCircle size={13} /> Lý do từ chối (Admin)
+                      </div>
+                      <textarea
+                        className="pr-feedback-form__area"
+                        rows={3}
+                        placeholder="Giải thích lý do Admin từ chối để tác giả hiểu và cải thiện..."
+                        value={rejectionText}
+                        onChange={(e) => setRejectionText(e.target.value)}
+                        autoFocus
+                      />
+                      <div className="pr-feedback-form__actions">
+                        <button
+                          className="pr-btn pr-btn--ghost"
+                          onClick={() => {
+                            setShowRejectForm(false);
+                            setRejectionText("");
+                          }}
+                        >
+                          Hủy
+                        </button>
+                        <button
+                          className="pr-btn pr-btn--reject"
+                          onClick={() => sendRejection(selected.proposal_id)}
+                          disabled={!rejectionText.trim() || submitting}
+                        >
+                          <Send size={14} /> Gửi từ chối
+                        </button>
+                      </div>
                     </div>
-                    <textarea
-                      className="pr-feedback-form__area"
-                      rows={3}
-                      placeholder="Mô tả cụ thể những gì tác giả cần chỉnh sửa hoặc bổ sung..."
-                      value={revisionText}
-                      onChange={(e) => setRevisionText(e.target.value)}
-                      autoFocus
-                    />
-                    <div className="pr-feedback-form__actions">
-                      <button
-                        className="pr-btn pr-btn--ghost"
-                        onClick={() => {
-                          setShowRevisionForm(false);
-                          setRevisionText("");
-                        }}
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        className="pr-btn pr-btn--revision"
-                        onClick={() => sendRevision(selected.proposal_id)}
-                        disabled={!revisionText.trim()}
-                      >
-                        <Send size={14} /> Gửi yêu cầu sửa
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {showRejectForm && (
-                  <div className="pr-feedback-form pr-feedback-form--reject">
-                    <div className="pr-feedback-form__label">
-                      <XCircle size={13} /> Lý do từ chối
-                    </div>
-                    <textarea
-                      className="pr-feedback-form__area"
-                      rows={3}
-                      placeholder="Giải thích lý do từ chối để tác giả hiểu và cải thiện trong lần sau..."
-                      value={rejectionText}
-                      onChange={(e) => setRejectionText(e.target.value)}
-                      autoFocus
-                    />
-                    <div className="pr-feedback-form__actions">
+                  {!showRejectForm && (
+                    <div className="pr-detail__actions">
                       <button
-                        className="pr-btn pr-btn--ghost"
-                        onClick={() => {
-                          setShowRejectForm(false);
-                          setRejectionText("");
-                        }}
+                        className="pr-btn pr-btn--reject pr-btn--icon"
+                        onClick={() => setShowRejectForm(true)}
+                        disabled={submitting}
                       >
-                        Hủy
+                        <XCircle size={14} /> Từ chối
                       </button>
                       <button
-                        className="pr-btn pr-btn--reject"
-                        onClick={() => sendRejection(selected.proposal_id)}
-                        disabled={!rejectionText.trim()}
+                        className="pr-btn pr-btn--approve pr-btn--icon apr-btn--approve"
+                        onClick={() => approve(selected.proposal_id)}
+                        disabled={submitting}
                       >
-                        <XCircle size={14} /> Xác nhận từ chối
+                        <CheckCircle2 size={14} /> Phê duyệt chính thức
                       </button>
                     </div>
-                  </div>
-                )}
-
-                {!showRevisionForm && !showRejectForm && (
-                  <div className="pr-detail__actions">
-                    <button
-                      className="pr-btn pr-btn--ghost pr-btn--icon"
-                      onClick={() => setShowRejectForm(true)}
-                    >
-                      <XCircle size={16} strokeWidth={1.75} /> Từ chối
-                    </button>
-                    <button
-                      className="pr-btn pr-btn--revision pr-btn--icon"
-                      onClick={() => setShowRevisionForm(true)}
-                    >
-                      <RotateCcw size={15} strokeWidth={1.75} /> Yêu cầu sửa
-                    </button>
-                    <button
-                      className="pr-btn pr-btn--approve pr-btn--icon"
-                      disabled={submitting}
-                      onClick={() => approve(selected.proposal_id)}
-                    >
-                      <CheckCircle2 size={16} strokeWidth={1.75} /> Phê duyệt
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : selected.status === "pending_admin" ? (
-              <div className="pr-detail__footer pr-detail__footer--decided">
-                <span className="pr-badge pr-badge--lg pr-badge--pending-admin">
-                  <Clock size={11} /> CHỜ ADMIN DUYỆT
-                </span>
-                <p className="pr-detail__footer-note">
-                  Đề xuất đã được bạn phê duyệt và đang chờ Admin xét duyệt lần
-                  cuối.
-                </p>
-                <button
-                  className="pr-btn pr-btn--ghost"
-                  disabled={submitting}
-                  onClick={() => handleReopen(selected.proposal_id)}
-                >
-                  Mở lại xét duyệt
-                </button>
-              </div>
-            ) : (
-              <div className="pr-detail__footer pr-detail__footer--decided">
-                <span
-                  className={`pr-badge pr-badge--lg ${STATUS_META[selected.status].className}`}
-                >
-                  {STATUS_META[selected.status].icon}
-                  {STATUS_META[selected.status].label}
-                </span>
-                {(selected.status === "rejected" ||
-                  selected.status === "approved") && (
-                  <button
-                    className="pr-btn pr-btn--ghost"
-                    disabled={submitting}
-                    onClick={() => handleReopen(selected.proposal_id)}
+                  )}
+                </>
+              ) : (
+                <div className="pr-detail__footer--decided">
+                  <span
+                    className={`pr-badge pr-badge--lg ${STATUS_META[selected.status].className}`}
                   >
-                    Mở lại xét duyệt
-                  </button>
-                )}
-              </div>
-            )}
+                    {STATUS_META[selected.status].icon}
+                    {STATUS_META[selected.status].label}
+                  </span>
+                  <span className="apr-decided-note">
+                    Đề xuất này đã được xử lý bởi Admin
+                  </span>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

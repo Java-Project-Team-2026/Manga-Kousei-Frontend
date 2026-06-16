@@ -12,10 +12,12 @@ import {
   LogOut,
   History,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 export const Header = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const {
@@ -43,6 +45,11 @@ export const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showPopup]);
+
+  const handleProfileClick = () => {
+    setShowPopup(false);
+    navigate("/profile");
+  };
 
   return (
     <header className="header-container">

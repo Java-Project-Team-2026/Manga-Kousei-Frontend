@@ -29,6 +29,8 @@ import AssistantIncome from "./pages/assistant/AssistantIncome.tsx";
 import AssistantMyJob from "./pages/assistant/AssistantMyJob.tsx";
 import MangakaSeriesDetail from "./pages/mangaka/MangakaSeriesDetail.tsx";
 import { Profile } from './pages/profile/Profile.tsx';
+import AdminProposalReview from "./pages/admin/AdminProposalReview.tsx";
+
 
 function App() {
   return (
@@ -42,6 +44,15 @@ function App() {
 
       <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<DashboardRedirect />} />
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={["ADMIN", "TANTOU", "MANGAKA", "ASSISTANT"]}
+            />
+          }
+        >
+          <Route path="/profile" element={<Profile />} />
+        </Route>
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin">
             <Route index element={<Navigate to="dashboard" replace />} />
@@ -50,6 +61,11 @@ function App() {
             <Route path="survival" element={<AdminSurvival />} />
             <Route path="magazines" element={<AdminMagazines />} />
             <Route path="contracts" element={<AdminContracts />} />
+            <Route path="proposal-review" element={<AdminProposalReview />} />
+            <Route
+              path="/admin/proposal-review/:proposalId"
+              element={<AdminProposalReview />}
+            />
           </Route>
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["TANTOU"]} />}>
