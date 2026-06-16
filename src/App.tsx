@@ -28,6 +28,7 @@ import AssistantResourceWarehouse from "./pages/assistant/AssistantResourceWareh
 import AssistantIncome from "./pages/assistant/AssistantIncome.tsx";
 import AssistantMyJob from "./pages/assistant/AssistantMyJob.tsx";
 import MangakaSeriesDetail from "./pages/mangaka/MangakaSeriesDetail.tsx";
+import { Profile } from './pages/profile/Profile.tsx';
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
             <Route path="myjob" element={<AssistantMyJob />} />
           </Route>
         </Route>
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
