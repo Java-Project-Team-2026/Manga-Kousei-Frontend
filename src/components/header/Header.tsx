@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import {useNavigate} from 'react-router-dom'; 
 import { useAuth } from "../../hooks/useAuth";
 import { useLogout } from "../../hooks/useLogout";
 import { ConfirmDialog } from "../dialog/ConfirmDialog";
@@ -15,7 +14,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 export const Header = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
@@ -130,7 +128,7 @@ export const Header = () => {
               <div className="popup-divider" />
 
               <ul className="popup-menu">
-                <li className="popup-menu-item" onClick={() => navigate('/profile')}>
+                <li className="popup-menu-item" onClick={handleProfileClick}>
                   <UserRound size={16} strokeWidth={1.5} />
                   <span>Hồ sơ của bạn</span>
                 </li>
