@@ -1,4 +1,3 @@
-// src/pages/mangaka/MangakaSeries.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -35,28 +34,25 @@ function scheduleLabel(type: string | null, day: number | null): string {
   return `Ngày ${day} hàng tháng`;
 }
 
-function statusMeta(status: string | null): {
-  label: string;
-  className: string;
-} {
+function statusMeta(status: string | null) {
   switch (status) {
     case "approved":
-      return { label: "Đang hoạt động", className: "ms-status--active" };
+      return { label: "Đang hoạt động", cls: "s-active" };
     case "hiatus":
-      return { label: "Tạm dừng", className: "ms-status--hiatus" };
+      return { label: "Tạm dừng", cls: "s-hiatus" };
     case "completed":
-      return { label: "Hoàn thành", className: "ms-status--done" };
+      return { label: "Hoàn thành", cls: "s-done" };
     case "cancelled":
-      return { label: "Đã huỷ", className: "ms-status--cancelled" };
+      return { label: "Đã huỷ", cls: "s-cancelled" };
     default:
-      return { label: status ?? "—", className: "ms-status--default" };
+      return { label: status ?? "—", cls: "s-default" };
   }
 }
 
 const COVER_PLACEHOLDER =
   "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop";
 
-export default function MangakaSeries() {
+export default function MangakaSeriesPage() {
   const navigate = useNavigate();
   const [seriesList, setSeriesList] = useState<MangakaSeries[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,20 +60,13 @@ export default function MangakaSeries() {
   const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await fetchMySeries();
-        setSeriesList(data);
-      } catch (err) {
-        console.error("Không thể tải series", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    fetchMySeries()
+      .then(setSeriesList)
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const statusFilters = [
+  const filters = [
     { id: "all", label: "Tất cả" },
     { id: "approved", label: "Đang hoạt động" },
     { id: "hiatus", label: "Tạm dừng" },
@@ -103,20 +92,20 @@ export default function MangakaSeries() {
         </div>
         <div className="hero-actions">
           <button className="btn-outline">
-            <Download size={18} /> Tải báo cáo tổng
+            <Download size={16} /> Tải báo cáo
           </button>
           <button
             className="btn-primary"
             onClick={() => navigate("/mangaka/create-work")}
           >
-            <Plus size={18} /> Tạo Series Mới
+            <Plus size={16} /> Tạo Series Mới
           </button>
         </div>
       </div>
 
       <div className="series-toolbar">
         <div className="search-box">
-          <Search size={18} className="search-icon" />
+          <Search size={16} className="search-icon" />
           <input
             type="text"
             placeholder="Tìm series..."
@@ -125,7 +114,7 @@ export default function MangakaSeries() {
           />
         </div>
         <div className="filter-tabs">
-          {statusFilters.map((f) => (
+          {filters.map((f) => (
             <button
               key={f.id}
               className={`filter-tab ${activeFilter === f.id ? "active" : ""}`}
@@ -136,29 +125,33 @@ export default function MangakaSeries() {
           ))}
         </div>
         <button className="btn-icon">
-          <SlidersHorizontal size={18} />
+          <SlidersHorizontal size={16} />
         </button>
       </div>
 
       {loading ? (
-        <div className="ms-loading">Đang tải series...</div>
+        <div className="ms-empty">
+          <span>Đang tải series...</span>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="empty-state">
-          {search
-            ? "Không tìm thấy series phù hợp."
-            : "Bạn chưa có series nào. Hãy tạo series mới!"}
+        <div className="ms-empty">
+          <BookOpen size={32} strokeWidth={1.25} />
+          <span>
+            {search
+              ? "Không tìm thấy series phù hợp."
+              : "Bạn chưa có series nào. Hãy tạo series mới!"}
+          </span>
         </div>
       ) : (
         <div className="series-grid">
           {filtered.map((s) => {
-            const status = statusMeta(s.seriesStatus);
+            const st = statusMeta(s.seriesStatus);
             return (
               <div
                 key={s.seriesId}
                 className="series-card"
                 onClick={() => navigate(`/mangaka/series/${s.seriesId}`)}
               >
-                {/* Cover */}
                 <div className="card-cover">
                   <img
                     src={s.coverImageUrl ?? COVER_PLACEHOLDER}
@@ -167,68 +160,84 @@ export default function MangakaSeries() {
                       (e.target as HTMLImageElement).src = COVER_PLACEHOLDER;
                     }}
                   />
-                  <span className={`status-badge ${status.className}`}>
-                    {status.label}
-                  </span>
-                </div>
-
-                <div className="card-body">
-                  <h3 className="series-title">{s.title}</h3>
-
-                  {s.genres.length > 0 && (
-                    <div className="ms-genres">
-                      {s.genres.slice(0, 3).map((g) => (
-                        <span key={g} className="ms-genre-chip">
-                          {g}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="card-meta">
-                    <span>
-                      <BookOpen size={13} /> {s.chapterCount} Chương
-                    </span>
-                    <span>
-                      <Calendar size={13} />
-                      {scheduleLabel(s.scheduleType, s.dayValue)}
+                  <div className="card-cover__scrim" />
+                  <div className="card-cover__bottom">
+                    <span className="card-cover__title">{s.title}</span>
+                    <span className={`card-cover__badge ${st.cls}`}>
+                      {st.label}
                     </span>
                   </div>
+                </div>
 
-                  <div className="card-footer">
-                    <span className="tantou-label">Tantou</span>
+                {s.genres.length > 0 && (
+                  <div className="card-genres">
+                    {s.genres.slice(0, 3).map((g) => (
+                      <span key={g} className="card-genre-chip">
+                        {g}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="card-stats">
+                  <div className="card-stat">
+                    <BookOpen size={14} />
+                    <span>{s.chapterCount} chương</span>
+                  </div>
+                  <div className="card-stat">
+                    <Calendar size={14} />
+                    <span>{scheduleLabel(s.scheduleType, s.dayValue)}</span>
+                  </div>
+                </div>
+
+                <div className="card-footer">
+                  <div className="card-tantou">
                     {s.tantouName ? (
-                      <div className="ms-tantou">
+                      <>
                         {s.tantouAvatarUrl ? (
                           <img
-                            className="ms-tantou__avatar"
+                            className="tantou-avatar"
                             src={s.tantouAvatarUrl}
                             alt={s.tantouName}
                           />
                         ) : (
                           <div
-                            className="ms-tantou__avatar ms-tantou__avatar--initials"
-                            style={{ background: getAvatarColor(s.tantouName) }}
+                            className="tantou-avatar tantou-avatar--initials"
+                            style={{
+                              background: getAvatarColor(s.tantouName),
+                            }}
                           >
                             {getInitials(s.tantouName)}
                           </div>
                         )}
-                        <span className="tantou-name">{s.tantouName}</span>
-                      </div>
+                        <div>
+                          <div className="tantou-role">Tantou</div>
+                          <div className="tantou-name">{s.tantouName}</div>
+                        </div>
+                      </>
                     ) : (
-                      <span className="tantou-name">—</span>
+                      <span className="tantou-role">Chưa có Tantou</span>
                     )}
                   </div>
 
                   {s.approvedAt && (
-                    <div className="ms-approved-at">
-                      <Clock size={11} /> Duyệt {s.approvedAt}
+                    <div className="card-approved">
+                      <Clock size={11} />
+                      {s.approvedAt}
                     </div>
                   )}
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {filtered.length > 0 && (
+        <div className="pagination">
+          <button className="page-btn">‹</button>
+          <button className="page-btn active">1</button>
+          <button className="page-btn">›</button>
         </div>
       )}
     </div>
