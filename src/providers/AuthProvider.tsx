@@ -1,36 +1,42 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Role } from "../constants/roles";
 import { AuthContext } from "../contexts/AuthContext";
-import type { AuthContextType } from "../types/auth";
+import type { AuthContextType, AuthUser } from "../types/auth";
 import api from "../services/api";
 import axios from "axios";
 
-interface User {
+interface AuthUserResponse {
   id: number;
   fullName: string;
   email: string;
-  role: Role;
+  roles: Role[];
   avatarUrl: string | null;
 }
 
+const mapAuthUser = (data: AuthUserResponse): AuthUser => ({
+  id: data.id,
+  fullName: data.fullName,
+  email: data.email,
+  role: data.roles.at(0) ?? "MANGAKA",
+  avatarUrl: data.avatarUrl,
+});
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const refreshUser = useCallback(async () => {
+    const response = await api.get<ApiResponse<AuthUserResponse>>("/auth/me");
+    const nextUser = mapAuthUser(response.data.data);
+    setUser(nextUser);
+    return nextUser;
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await api.get("/auth/me");
-
-        const { id, fullName, email, roles, avatarUrl } = response.data.data;
-        setUser({
-          id,
-          fullName,
-          email,
-          role: roles.at(0) ?? "MANGAKA",
-          avatarUrl,
-        });
+        await refreshUser();
       } catch (error) {
         if (
           axios.isAxiosError(error) &&
@@ -46,19 +52,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     checkAuth();
-  }, []);
+  }, [refreshUser]);
   const login = async (loginPayload: loginPayload) => {
     try {
-      const response = await api.post("/auth/login", loginPayload);
+      const response = await api.post<ApiResponse<AuthUserResponse>>(
+        "/auth/login",
+        loginPayload,
+      );
 
-      const { id, fullName, email, roles, avatarUrl } = response.data.data;
-      setUser({
-        id,
-        fullName,
-        email,
-        role: roles.at(0) ?? "MANGAKA",
-        avatarUrl,
-      });
+      setUser(mapAuthUser(response.data.data));
     } catch (error) {
       console.error("Login function error in Provider:", error);
       throw error;
@@ -80,6 +82,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: !!user,
     login,
     logout,
+    refreshUser,
+    updateUser: setUser,
     loading,
   };
 

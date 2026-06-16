@@ -96,6 +96,19 @@
   border-left: 1px solid #c8ced8;
 }
 
+.schedule-empty {
+  display: grid;
+  min-height: 80px;
+  place-items: center;
+  border: 1px dashed #c8d3e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
 .calendar-day {
   position: relative;
   min-height: 110px;
