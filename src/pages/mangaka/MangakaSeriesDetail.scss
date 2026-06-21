@@ -173,8 +173,7 @@ $shadow-block: 3px 3px 0 $navy-deep;
     letter-spacing: 0.12em;
   }
 
-  .status-card,
-  .deadline-card {
+  .status-card {
     border: 1px solid $border-soft;
     border-radius: 12px;
     background: #ffffff;
@@ -212,32 +211,6 @@ $shadow-block: 3px 3px 0 $navy-deep;
         font-size: 12px;
         font-weight: 700;
       }
-    }
-  }
-
-  .deadline-card {
-    background: $red-bg;
-    border-color: rgba(220, 29, 39, 0.18);
-
-    .deadline-body {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-      color: $red;
-
-      strong {
-        font-size: 18px;
-        font-weight: 950;
-      }
-    }
-
-    p {
-      margin: 0;
-      color: $text-muted;
-      font-size: 13px;
-      line-height: 1.5;
-      font-weight: 600;
     }
   }
 
@@ -345,369 +318,6 @@ $shadow-block: 3px 3px 0 $navy-deep;
     }
   }
 
-  .chapters-table {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .table-row {
-    display: grid;
-    grid-template-columns: 52px 1.6fr 1.4fr 1fr 80px;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid $border-soft;
-
-    &:last-child {
-      border-bottom: 0;
-    }
-
-    &.table-head {
-      color: $text-faint;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding-top: 0;
-    }
-
-    .col-id {
-      color: $text-faint;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .col-name {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-
-      strong {
-        color: $ink;
-        font-size: 14px;
-        font-weight: 800;
-      }
-
-      .sub {
-        color: $text-faint;
-        font-size: 12px;
-        font-weight: 600;
-      }
-    }
-
-    .col-progress {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-
-      .progress-bar {
-        height: 6px;
-        border-radius: 999px;
-        background: $bg;
-        overflow: hidden;
-
-        .progress-fill {
-          height: 100%;
-          border-radius: 999px;
-          background: $blue;
-
-          &.is-full {
-            background: $green;
-          }
-        }
-      }
-
-      .progress-text {
-        color: $text-faint;
-        font-size: 11px;
-        font-weight: 700;
-      }
-    }
-
-    .col-status {
-      .status-pill {
-        display: inline-flex;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 900;
-        letter-spacing: 0.04em;
-        padding: 5px 12px;
-        white-space: nowrap;
-
-        &.pill-blue {
-          background: $blue-mid;
-          color: $blue;
-        }
-
-        &.pill-navy {
-          background: $navy;
-          color: #ffffff;
-        }
-
-        &.pill-green {
-          background: $green-bg;
-          color: $green;
-        }
-
-        &.pill-gray {
-          background: $slate-bg;
-          color: $slate;
-        }
-      }
-    }
-
-    .col-actions {
-      display: flex;
-      gap: 6px;
-      justify-content: flex-end;
-    }
-  }
-
-  .task-columns {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }
-
-  .task-col {
-    border: 1px solid $border-soft;
-    border-radius: 8px;
-    background: $bg;
-    padding: 12px;
-    min-height: 150px;
-  }
-
-  .task-col-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    color: $text-sub;
-    font-size: 12px;
-    font-weight: 900;
-
-    .task-col-count {
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid $border-soft;
-      color: $text-faint;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 2px 8px;
-    }
-  }
-
-  .task-col-body {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .task-card {
-    border: 1px solid $border-soft;
-    border-radius: 8px;
-    background: #ffffff;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    padding: 10px 12px;
-
-    .task-title {
-      margin: 0 0 8px;
-      color: $ink;
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.4;
-    }
-
-    .task-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-
-      .task-assignee {
-        color: $text-faint;
-        font-size: 12px;
-        font-weight: 700;
-        white-space: nowrap;
-      }
-
-      .state-done {
-        color: $green;
-        flex-shrink: 0;
-      }
-
-      .state-tag {
-        flex-shrink: 0;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 800;
-        padding: 3px 9px;
-        white-space: nowrap;
-
-        &.tag-doing {
-          background: $blue-soft;
-          color: $blue;
-        }
-
-        &.tag-review {
-          background: $orange-bg;
-          color: $orange;
-        }
-      }
-    }
-  }
-
-  .btn-review {
-    width: 100%;
-    margin-top: 10px;
-    border: 0;
-    border-radius: 6px;
-    background: $blue;
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 900;
-    padding: 8px;
-    transition: background 160ms ease;
-
-    &:hover {
-      background: #0758ad;
-    }
-  }
-
-  .task-card-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border-style: dashed;
-    background: transparent;
-    color: $text-faint;
-    min-height: 92px;
-    font-size: 12px;
-    font-weight: 800;
-    transition:
-      color 160ms ease,
-      border-color 160ms ease;
-
-    &:hover {
-      color: $blue;
-      border-color: $blue;
-    }
-  }
-
-  .process-panel {
-    h3 {
-      margin: 0 0 14px;
-      color: $ink;
-      font-size: 15px;
-      font-weight: 900;
-    }
-  }
-
-  .process-steps {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 30px;
-      bottom: 30px;
-      left: 30px;
-      width: 2px;
-      background: $border-soft;
-      z-index: 0;
-    }
-  }
-
-  .process-step {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    border: 1px solid $border-soft;
-    border-radius: 8px;
-    background: $bg;
-    padding: 12px;
-    text-align: left;
-    transition:
-      border-color 160ms ease,
-      background 160ms ease,
-      transform 160ms ease;
-
-    &:hover {
-      border-color: $blue;
-      background: $blue-soft;
-      transform: translateX(2px);
-
-      .step-arrow {
-        color: $blue;
-      }
-    }
-
-    .step-icon {
-      display: grid;
-      place-items: center;
-      width: 36px;
-      height: 36px;
-      flex-shrink: 0;
-      border-radius: 8px;
-      background: #ffffff;
-      border: 1px solid $border-soft;
-      color: $blue;
-
-      &--blue {
-        background: $blue-soft;
-        border-color: $blue-mid;
-        color: $blue;
-      }
-
-      &--purple {
-        background: $purple-bg;
-        border-color: #e9d5ff;
-        color: $purple;
-      }
-
-      &--teal {
-        background: $teal-bg;
-        border-color: #ccfbf1;
-        color: $teal;
-      }
-    }
-
-    .step-text {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-
-      strong {
-        color: $ink;
-        font-size: 13px;
-        font-weight: 800;
-      }
-
-      span {
-        color: $text-faint;
-        font-size: 12px;
-        font-weight: 600;
-      }
-    }
-
-    .step-arrow {
-      color: $text-faint;
-      flex-shrink: 0;
-      transition: color 160ms ease;
-    }
-  }
-
   .studio-panel {
     .online-pill {
       border-radius: 999px;
@@ -776,124 +386,6 @@ $shadow-block: 3px 3px 0 $navy-deep;
     }
   }
 
-  .archive-section {
-    border-top: 1px solid $border-soft;
-    padding-top: 24px;
-  }
-
-  .archive-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-
-    h2 {
-      margin: 0 0 4px;
-      color: $navy;
-      font-size: 18px;
-      font-weight: 950;
-    }
-
-    p {
-      margin: 0;
-      color: $text-faint;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .archive-link {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: $blue;
-      font-size: 13px;
-      font-weight: 900;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .archive-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-  }
-
-  .archive-card {
-    border: 1px solid $border-soft;
-    border-radius: 12px;
-    background: #ffffff;
-    box-shadow: $shadow-card;
-    overflow: hidden;
-    transition:
-      transform 160ms ease,
-      box-shadow 160ms ease;
-
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-    }
-  }
-
-  .archive-cover {
-    position: relative;
-    height: 150px;
-    overflow: hidden;
-    background: $border-soft;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .archive-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.04em;
-      padding: 5px 12px;
-
-      &.badge-blue {
-        background: $blue;
-        color: #ffffff;
-      }
-
-      &.badge-dark {
-        background: rgba(13, 37, 68, 0.85);
-        color: #ffffff;
-      }
-
-      &.badge-gray {
-        background: $slate-bg;
-        color: $slate;
-      }
-    }
-  }
-
-  .archive-title {
-    margin: 0;
-    padding: 12px 14px 0;
-    color: $ink;
-    font-size: 13px;
-    font-weight: 800;
-  }
-
-  .archive-subtitle {
-    margin: 2px 0 0;
-    padding: 0 14px 12px;
-    color: $text-faint;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
   @media (max-width: 1200px) {
     .detail-layout {
       grid-template-columns: 1fr 1fr;
@@ -902,8 +394,7 @@ $shadow-block: 3px 3px 0 $navy-deep;
         grid-column: 1 / -1;
         flex-direction: row;
 
-        .status-card,
-        .deadline-card {
+        .status-card {
           flex: 1;
         }
       }
@@ -929,17 +420,297 @@ $shadow-block: 3px 3px 0 $navy-deep;
       }
     }
 
-    .task-columns {
-      grid-template-columns: 1fr;
-    }
-
-    .archive-grid {
-      grid-template-columns: 1fr;
-    }
-
     .header-row {
       flex-direction: column;
       align-items: flex-start;
     }
+  }
+}
+
+.cover-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid $border-soft;
+  box-shadow: $shadow-card;
+  aspect-ratio: 3/4;
+  max-height: 240px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.status-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .status-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: $blue-soft;
+    color: $blue;
+  }
+
+  strong {
+    display: block;
+    color: $ink;
+    font-size: 15px;
+    font-weight: 950;
+    margin-bottom: 2px;
+  }
+
+  p {
+    margin: 0;
+    color: $text-muted;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  &.status-active .status-icon {
+    background: $green-bg;
+    color: $green;
+  }
+  &.status-hiatus .status-icon {
+    background: #fff7ed;
+    color: #c2410c;
+  }
+  &.status-done .status-icon {
+    background: $blue-soft;
+    color: $navy;
+  }
+}
+
+.ssd-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ssd-genre-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: $bg;
+  border: 1px solid $border-soft;
+  color: $text-sub;
+}
+
+.ssd-tantou {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1.5px solid $border-soft;
+
+    &--initials {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #fff;
+    }
+  }
+
+  &__name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: $ink;
+  }
+}
+
+.chapter-table {
+  &__head {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 120px 70px;
+    gap: 8px;
+    padding: 0 12px 8px;
+    font-size: 10.5px;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: $text-faint;
+    border-bottom: 1px solid $border-soft;
+    margin-bottom: 4px;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 120px 70px;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+    transition: background 120ms;
+
+    &:hover {
+      background: $bg;
+    }
+  }
+}
+
+.col-chapter {
+  strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 900;
+    color: $navy;
+  }
+  span {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-faint;
+  }
+}
+
+.col-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-actions {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.studio-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1.5px solid $border-soft;
+
+  &--initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff;
+  }
+}
+
+.ssd-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ssd-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid $border-soft;
+  font-size: 13px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  span {
+    color: $text-faint;
+    font-weight: 700;
+  }
+  strong {
+    color: $ink;
+    font-weight: 900;
+  }
+}
+
+.ssd-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 0;
+    border-bottom: 1px solid $border-soft;
+    font-size: 13px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    span {
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: $text-faint;
+    }
+
+    strong {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: $ink;
+      line-height: 1.5;
+    }
+  }
+}
+
+.ssd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $text-faint;
+
+  svg {
+    color: $border-soft;
+  }
+
+  &--sm {
+    padding: 16px 0;
+  }
+}
+
+.ssd-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 300px;
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-faint;
+
+  &__icon {
+    animation: ssd-spin 1s linear infinite;
+    color: $blue;
+  }
+}
+
+@keyframes ssd-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
