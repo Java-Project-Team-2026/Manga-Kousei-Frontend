@@ -26,3 +26,10 @@ export const fetchMySeries = async (): Promise<MangakaSeries[]> => {
     .then((res) => res.data.data ?? [])
     .catch(() => []);
 };
+
+export const fetchSeriesDetail = async (
+  seriesId: number,
+): Promise<MangakaSeries> =>
+  api
+    .get<ApiResponse<MangakaSeries>>(`/mangaka/series/${seriesId}`)
+    .then((r) => r.data.data);
