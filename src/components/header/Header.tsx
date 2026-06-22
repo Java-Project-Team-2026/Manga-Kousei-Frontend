@@ -10,6 +10,12 @@ import {
   UserRound,
   LogOut,
   History,
+  Settings,
+  ShieldCheck,
+  BookOpenCheck,
+  WalletCards,
+  CalendarClock,
+  Send,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotificationCount } from "../../hooks/useNotificationCount";
@@ -19,7 +25,11 @@ export const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
+  const [activeUtility, setActiveUtility] = useState<
+    "help" | "messages" | "notifications" | null
+  >(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const utilityRef = useRef<HTMLDivElement>(null);
   const notifCount = useNotificationCount();
 
   const {
@@ -37,20 +47,61 @@ export const Header = () => {
       ) {
         setShowPopup(false);
       }
+
+      if (
+        utilityRef.current &&
+        !utilityRef.current.contains(event.target as Node)
+      ) {
+        setActiveUtility(null);
+      }
     };
 
-    if (showPopup) {
+    if (showPopup || activeUtility) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showPopup]);
+  }, [showPopup, activeUtility]);
 
   const handleProfileClick = () => {
     setShowPopup(false);
+    setActiveUtility(null);
     navigate("/profile");
+  };
+
+  const goTo = (path: string) => {
+    setActiveUtility(null);
+    setShowPopup(false);
+    navigate(path);
+  };
+
+  const role = user?.role;
+  const reviewPath =
+    role === "ADMIN"
+      ? "/admin/proposal-review"
+      : role === "TANTOU"
+        ? "/tantou/proposal-review"
+        : role === "MANGAKA"
+          ? "/mangaka/series"
+          : "/dashboard";
+  const schedulePath =
+    role === "TANTOU"
+      ? "/tantou/schedule"
+      : role === "MANGAKA"
+        ? "/mangaka/schedule"
+        : "/dashboard";
+  const financePath =
+    role === "ADMIN"
+      ? "/admin/contracts"
+      : role === "ASSISTANT"
+        ? "/assistant/income"
+        : "/dashboard";
+
+  const toggleUtility = (panel: "help" | "messages" | "notifications") => {
+    setShowPopup(false);
+    setActiveUtility((current) => (current === panel ? null : panel));
   };
 
   return (
@@ -65,23 +116,31 @@ export const Header = () => {
       </div>
 
       <div className="header-right">
-        <div className="icon-group">
-          <button className="icon-btn">
+        <div className="icon-group" ref={utilityRef}>
+          <button
+            className={`icon-btn ${activeUtility === "help" ? "active" : ""}`}
+            type="button"
+            aria-label="Mở trợ giúp"
+            onClick={() => toggleUtility("help")}
+          >
             <CircleHelp size={22} strokeWidth={1.5} />
           </button>
 
-          <button className="icon-btn chat-btn">
+          <button
+            className={`icon-btn chat-btn ${activeUtility === "messages" ? "active" : ""}`}
+            type="button"
+            aria-label="Mở tin nhắn"
+            onClick={() => toggleUtility("messages")}
+          >
             <MessageSquareText size={22} strokeWidth={1.5} />
             <span className="red-dot"></span>
           </button>
 
           <button
-            className="icon-btn header-bell"
-            onClick={() => {
-              if (user?.role === "ASSISTANT") {
-                navigate("/assistant/invitations");
-              }
-            }}
+            className={`icon-btn header-bell ${activeUtility === "notifications" ? "active" : ""}`}
+            type="button"
+            aria-label="Mở thông báo"
+            onClick={() => toggleUtility("notifications")}
           >
             <Bell size={22} strokeWidth={1.5} />
             {notifCount > 0 && (
@@ -90,6 +149,112 @@ export const Header = () => {
               </span>
             )}
           </button>
+
+          {activeUtility === "help" && (
+            <div className="header-popover header-popover--utility">
+              <div className="header-popover__header">
+                <div>
+                  <strong>Trợ giúp nhanh</strong>
+                  <span>Các lối tắt thường dùng</span>
+                </div>
+              </div>
+
+              <div className="header-action-list">
+                <button type="button" onClick={() => goTo("/setting")}>
+                  <Settings size={17} />
+                  <span>Cài đặt hệ thống</span>
+                </button>
+                <button type="button" onClick={handleProfileClick}>
+                  <ShieldCheck size={17} />
+                  <span>Kiểm tra hồ sơ & bảo mật</span>
+                </button>
+                <button type="button" onClick={() => goTo(reviewPath)}>
+                  <BookOpenCheck size={17} />
+                  <span>Mở khu vực xét duyệt</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeUtility === "messages" && (
+            <div className="header-popover header-popover--utility">
+              <div className="header-popover__header">
+                <div>
+                  <strong>Hộp tin nội bộ</strong>
+                  <span>3 trao đổi cần theo dõi</span>
+                </div>
+                <button type="button" aria-label="Soạn tin nhắn">
+                  <Send size={16} />
+                </button>
+              </div>
+
+              <div className="header-message-list">
+                <button type="button" onClick={() => goTo(reviewPath)}>
+                  <strong>Ban biên tập</strong>
+                  <span>Có phản hồi mới trong luồng xét duyệt bản name.</span>
+                  <time>5 phút trước</time>
+                </button>
+                <button type="button" onClick={() => goTo(schedulePath)}>
+                  <strong>Lịch sản xuất</strong>
+                  <span>Deadline tuần này đã được cập nhật.</span>
+                  <time>31 phút trước</time>
+                </button>
+                <button type="button" onClick={() => goTo("/profile")}>
+                  <strong>Hệ thống</strong>
+                  <span>Hồ sơ tài khoản đã đồng bộ thành công.</span>
+                  <time>Hôm qua</time>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeUtility === "notifications" && (
+            <div className="header-popover header-popover--utility">
+              <div className="header-popover__header">
+                <div>
+                  <strong>Thông báo</strong>
+                  <span>
+                    {notifCount > 0
+                      ? `${notifCount} lời mời đang chờ`
+                      : "Không có cảnh báo khẩn cấp"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="header-notice-list">
+                {role === "ASSISTANT" && (
+                  <button type="button" onClick={() => goTo("/assistant/invitations")}>
+                    <Bell size={17} />
+                    <span>
+                      <strong>Lời mời cộng tác</strong>
+                      <small>Xem và phản hồi các lời mời mới.</small>
+                    </span>
+                  </button>
+                )}
+                <button type="button" onClick={() => goTo(reviewPath)}>
+                  <BookOpenCheck size={17} />
+                  <span>
+                    <strong>Tiến độ xét duyệt</strong>
+                    <small>Theo dõi dự án và bản name đang chờ xử lý.</small>
+                  </span>
+                </button>
+                <button type="button" onClick={() => goTo(financePath)}>
+                  <WalletCards size={17} />
+                  <span>
+                    <strong>Tài chính</strong>
+                    <small>Kiểm tra hợp đồng, thu nhập hoặc ngân sách.</small>
+                  </span>
+                </button>
+                <button type="button" onClick={() => goTo(schedulePath)}>
+                  <CalendarClock size={17} />
+                  <span>
+                    <strong>Lịch trình</strong>
+                    <small>Xem các mốc sản xuất sắp tới.</small>
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="divider"></div>
