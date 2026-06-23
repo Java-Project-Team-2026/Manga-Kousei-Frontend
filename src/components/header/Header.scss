@@ -59,6 +59,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  position: relative;
 }
 
 .icon-btn {
@@ -71,9 +72,19 @@
   justify-content: center;
   position: relative;
   padding: 4px;
+  border-radius: 8px;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 
   &:hover {
+    background-color: #f3f4f6;
     color: #111827;
+  }
+
+  &.active {
+    background-color: #eff6ff;
+    color: #0254b1;
   }
 }
 
@@ -292,5 +303,168 @@
     justify-content: center;
     border: 1.5px solid #fff;
     pointer-events: none;
+  }
+}
+
+.header-popover {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 340px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+  padding: 14px;
+  z-index: 1000;
+  animation: popupFadeIn 0.15s ease;
+}
+
+.header-popover--utility {
+  &::before {
+    position: absolute;
+    top: -7px;
+    right: 49px;
+    width: 12px;
+    height: 12px;
+    border-top: 1px solid #e5e7eb;
+    border-left: 1px solid #e5e7eb;
+    background: #ffffff;
+    content: "";
+    transform: rotate(45deg);
+  }
+}
+
+.header-popover__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+
+  strong {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  span {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  button {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0254b1;
+    cursor: pointer;
+
+    &:hover {
+      border-color: #0254b1;
+      background: #eff6ff;
+    }
+  }
+}
+
+.header-action-list,
+.header-message-list,
+.header-notice-list {
+  display: grid;
+  gap: 8px;
+}
+
+.header-action-list button,
+.header-message-list button,
+.header-notice-list button {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: #dbeafe;
+    background: #f8fafc;
+    color: #0254b1;
+  }
+}
+
+.header-action-list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.header-message-list button {
+  display: grid;
+  gap: 4px;
+  padding: 11px 12px;
+
+  strong {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  span {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  time {
+    color: #0254b1;
+    font-size: 11px;
+    font-weight: 800;
+  }
+}
+
+.header-notice-list button {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+
+  > svg {
+    color: #0254b1;
+  }
+
+  strong,
+  small {
+    display: block;
+  }
+
+  strong {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  small {
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.35;
   }
 }
