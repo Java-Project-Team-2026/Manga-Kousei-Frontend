@@ -9,12 +9,12 @@ import {
   Eye,
   RefreshCw,
   Send,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useSchedule } from "../../hooks/useSchedule";
 import { useScheduleFilters } from "../../hooks/useScheduleFilters";
 import { useChapterDetail } from "../../hooks/useChapterDetail";
-import { FullScreenLoader } from "../../components/common/FullScreenLoader";
 import type { ScheduleEvent } from "../../types/schedule";
 import {
   submitChapterToAdmin,
@@ -23,16 +23,13 @@ import {
   type PageSimple,
 } from "../../services/chapterService";
 import "./TantouSchedule.scss";
-
 type ViewMode = "gantt" | "list";
 type ItemStatus = "on-track" | "behind" | "done";
-
 const STATUS_LABEL: Record<ItemStatus, string> = {
   "on-track": "Đúng tiến độ",
   behind: "Trễ tiến độ",
   done: "Hoàn thành",
 };
-
 const FILTERS: { key: "all" | ItemStatus; label: string }[] = [
   { key: "all", label: "Tất cả" },
   { key: "on-track", label: "Đúng tiến độ" },
@@ -227,19 +224,33 @@ export default function TantouSchedule() {
       return diff >= 0 && diff <= 7;
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  if (loading) return <FullScreenLoader text="Đang tải lịch trình..." />;
-  if (error)
+  // Nếu đang loading dữ liệu chính, hiển thị inline loader (không che header/sidebar)
+  if (loading) {
     return (
-      <div className="sch-error">
-        <p>Đã xảy ra lỗi khi tải dữ liệu.</p>
-        <p className="sch-error-detail">{error.message}</p>
-        <button onClick={() => refetch()} className="sch-retry-btn">
-          <RefreshCw size={16} /> Thử lại
-        </button>
+      <div className="sch-page sch-page--loading">
+        <div className="sch-loading-container">
+          <Loader2 className="sch-loading-spinner" size={48} strokeWidth={1.5} />
+          <p>Đang tải lịch trình...</p>
+        </div>
       </div>
     );
+  }
+  if (error) {
+    return (
+      <div className="sch-page">
+        <div className="sch-error">
+          <p>Đã xảy ra lỗi khi tải dữ liệu.</p>
+          <p className="sch-error-detail">{error.message}</p>
+          <button onClick={() => refetch()} className="sch-retry-btn">
+            <RefreshCw size={16} /> Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="sch-page">
+      {/* Header content vẫn giữ nguyên, đã có trong layout */}
       <div className="sch-header">
         <div className="sch-header__left">
           <h1>Lịch trình Xuất bản</h1>
@@ -373,7 +384,6 @@ export default function TantouSchedule() {
                           }}
                         />
                       ))}
-
                       <div
                         className={`sch-bar sch-bar--track sch-bar--${item.status}`}
                         style={{
@@ -525,6 +535,7 @@ export default function TantouSchedule() {
           </div>
         </div>
       </div>
+      {/* ===== MODAL CHI TIẾT ===== */}
       {modalOpen && selectedEvent && (
         <div className="sch-modal-overlay" onClick={closeModal}>
           <div className="sch-modal" onClick={(e) => e.stopPropagation()}>
@@ -541,7 +552,12 @@ export default function TantouSchedule() {
             <div className="sch-modal__body">
               {modalMode === "chapter" && (
                 <>
-                  {chapterLoading && <FullScreenLoader text="Đang tải chi tiết..." />}
+                  {chapterLoading && (
+                    <div className="sch-modal-loading">
+                      <Loader2 className="sch-loading-spinner" size={32} strokeWidth={1.5} />
+                      <p>Đang tải chi tiết...</p>
+                    </div>
+                  )}
                   {chapterError && (
                     <div className="sch-modal__error">{chapterError}</div>
                   )}
@@ -637,7 +653,12 @@ export default function TantouSchedule() {
                       </div>
                     )}
                   </div>
-                  {pageLoading && <FullScreenLoader text="Đang tải danh sách trang..." />}
+                  {pageLoading && (
+                    <div className="sch-modal-loading">
+                      <Loader2 className="sch-loading-spinner" size={32} strokeWidth={1.5} />
+                      <p>Đang tải danh sách trang...</p>
+                    </div>
+                  )}
                   {pageError && <div className="sch-modal__error">{pageError}</div>}
                   {!pageLoading && !pageError && (
                     <div className="sch-modal__pages">
