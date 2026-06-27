@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "./useAuth";
-import { countPendingInvitations } from "../services/assistantAssignmentService";
+import { fetchUnreadCount } from "../services/notificationService";
 
 export function useNotificationCount() {
   const { user } = useAuth();
   const [count, setCount] = useState(0);
 
-  useEffect(() => {
-    if (user?.role !== "ASSISTANT") return;
-
-    const fetch = async () => {
-      try {
-        const n = await countPendingInvitations();
-        setCount(n);
-      } catch {
-        // ignore
-      }
-    };
-
-    fetch();
-    const interval = setInterval(fetch, 60_000);
-    return () => clearInterval(interval);
+  const refresh = useCallback(async () => {
+    if (!user) return;
+    try {
+      const n = await fetchUnreadCount();
+      setCount(n);
+    } catch {
+      // silent
+    }
   }, [user]);
 
-  return count;
+  useEffect(() => {
+    // eslint-disable-next-line
+    refresh();
+    const interval = setInterval(refresh, 30_000);
+    return () => clearInterval(interval);
+  }, [refresh]);
+
+  return { count, refresh };
 }
