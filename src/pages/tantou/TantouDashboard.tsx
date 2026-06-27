@@ -85,7 +85,6 @@ export default function TantouDashboard() {
 
       <div className="td-grid">
         <div className="td-col td-col--left">
-          {/* ── Deadline alerts ── */}
           <div className="td-card td-deadline">
             <div className="td-deadline__header">
               <AlertTriangle size={18} strokeWidth={2.5} />
@@ -126,14 +125,12 @@ export default function TantouDashboard() {
             </button>
           </div>
 
-          {/* ── Activity log ── */}
           <div className="td-card td-activity">
             <RecentActivityWidget />
           </div>
         </div>
 
         <div className="td-col td-col--right">
-          {/* ── Inbox ── */}
           <div className="td-card td-inbox">
             <div className="td-card__head">
               <div className="td-card__title">
@@ -201,7 +198,6 @@ export default function TantouDashboard() {
             </div>
           </div>
 
-          {/* ── Progress (tính từ deadline thực tế) ── */}
           <div className="td-card td-progress">
             <div className="td-card__head">
               <div className="td-card__title">Tình trạng Deadline Tháng</div>
