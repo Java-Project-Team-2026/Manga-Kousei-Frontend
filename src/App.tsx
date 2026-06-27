@@ -36,6 +36,7 @@ import TantouSeriesChapters from "./pages/tantou/TantouSeriesChapters/TantouSeri
 import AssistantInvitations from "./pages/assistant/AssistantInvitations/AssistantInvitations.tsx";
 import MangakaPageEditor from "./pages/mangaka/MangakaPageEditor/MangakaPageEditor.tsx";
 import AssistantTasks from "./pages/assistant/AssistantTasks/AssistantTasks.tsx";
+import AdminPersonnel from "./pages/admin/AdminPersonnel.tsx";
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
               path="schedule-assignment/:proposalId"
               element={<ScheduleAssignment />}
             />
+            <Route path="personnel" element={<AdminPersonnel />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["TANTOU"]} />}>

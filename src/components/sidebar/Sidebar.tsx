@@ -89,6 +89,11 @@ export const Sidebar = () => {
         label: "Tài chính & hợp đồng",
         icon: Banknote,
       },
+      {
+        path: "admin/personnel",
+        label: "Quản lý Nhân sự",
+        icon: Users,
+      },
     ],
     MANGAKA: [
       {
