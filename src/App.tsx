@@ -4,11 +4,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { PublicRoute } from "./components/routes/PublicRoute";
 import { MainLayout } from "./components/layouts/MainLayout";
-import AdminSurvival from "./pages/admin/AdminSurvival";
 import TantouDashboard from "./pages/tantou/TantouDashboard";
 import { DashboardRedirect } from "./pages/redirect/DashboardRedirect";
 import AdminApprovalsPage from "./pages/admin/AdminApprovals";
-import AdminMagazines from "./pages/admin/AdminMagazines";
 import AdminContracts from "./pages/admin/AdminContracts";
 import { Unauthorized } from "./pages/others/Unauthorized";
 import { NotFound } from "./pages/others/NotFound";
@@ -67,8 +65,6 @@ function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="approvals" element={<AdminApprovalsPage />} />
-            <Route path="survival" element={<AdminSurvival />} />
-            <Route path="magazines" element={<AdminMagazines />} />
             <Route path="contracts" element={<AdminContracts />} />
             <Route path="proposal-review" element={<AdminProposalReview />} />
             <Route

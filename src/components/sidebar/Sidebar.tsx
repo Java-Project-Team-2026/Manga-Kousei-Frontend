@@ -85,12 +85,6 @@ export const Sidebar = () => {
         icon: ClipboardCheck,
       },
       {
-        path: "admin/survival",
-        label: "Đánh giá & sinh tồn",
-        icon: TrendingUp,
-      },
-      { path: "admin/magazines", label: "Quản lý số tạp chí", icon: BookOpen },
-      {
         path: "admin/contracts",
         label: "Tài chính & hợp đồng",
         icon: Banknote,
