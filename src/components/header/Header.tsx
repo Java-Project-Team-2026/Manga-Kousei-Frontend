@@ -13,12 +13,18 @@ import {
   Settings,
   ShieldCheck,
   BookOpenCheck,
-  WalletCards,
-  CalendarClock,
   Send,
+  CheckCheck,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotificationCount } from "../../hooks/useNotificationCount";
+import {
+  fetchMyNotifications,
+  markAllRead,
+  markOneRead,
+  type NotificationItem,
+} from "../../services/notificationService";
 import "./Header.scss";
 
 export const Header = () => {
@@ -30,7 +36,10 @@ export const Header = () => {
   >(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const utilityRef = useRef<HTMLDivElement>(null);
-  const notifCount = useNotificationCount();
+
+  const { count: notifCount, refresh: refreshCount } = useNotificationCount();
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
 
   const {
     showConfirmLogout,
@@ -47,7 +56,6 @@ export const Header = () => {
       ) {
         setShowPopup(false);
       }
-
       if (
         utilityRef.current &&
         !utilityRef.current.contains(event.target as Node)
@@ -55,15 +63,35 @@ export const Header = () => {
         setActiveUtility(null);
       }
     };
-
     if (showPopup || activeUtility) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showPopup, activeUtility]);
+
+  useEffect(() => {
+    if (activeUtility !== "notifications") return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNotifLoading(true);
+    fetchMyNotifications()
+      .then(setNotifications)
+      .catch(() => setNotifications([]))
+      .finally(() => setNotifLoading(false));
+  }, [activeUtility]);
+
+  const handleMarkAllRead = async () => {
+    await markAllRead();
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    refreshCount();
+  };
+
+  const handleMarkOneRead = async (id: number) => {
+    await markOneRead(id);
+    setNotifications((prev) =>
+      prev.map((n) => (n.notificationId === id ? { ...n, isRead: true } : n)),
+    );
+    refreshCount();
+  };
 
   const handleProfileClick = () => {
     setShowPopup(false);
@@ -97,12 +125,6 @@ export const Header = () => {
       ? "/tantou/schedule"
       : role === "MANGAKA"
         ? "/mangaka/schedule"
-        : "/dashboard";
-  const financePath =
-    role === "ADMIN"
-      ? "/admin/contracts"
-      : role === "ASSISTANT"
-        ? "/assistant/income"
         : "/dashboard";
 
   const toggleUtility = (panel: "help" | "messages" | "notifications") => {
@@ -164,7 +186,6 @@ export const Header = () => {
                   <span>Các lối tắt thường dùng</span>
                 </div>
               </div>
-
               <div className="header-action-list">
                 <button type="button" onClick={() => goTo("/setting")}>
                   <Settings size={17} />
@@ -193,7 +214,6 @@ export const Header = () => {
                   <Send size={16} />
                 </button>
               </div>
-
               <div className="header-message-list">
                 <button type="button" onClick={() => goTo(reviewPath)}>
                   <strong>Ban biên tập</strong>
@@ -215,49 +235,61 @@ export const Header = () => {
           )}
 
           {activeUtility === "notifications" && (
-            <div className="header-popover header-popover--utility">
+            <div className="header-popover header-popover--utility header-popover--notif">
               <div className="header-popover__header">
                 <div>
                   <strong>Thông báo</strong>
                   <span>
                     {notifCount > 0
-                      ? `${notifCount} lời mời đang chờ`
-                      : "Không có cảnh báo khẩn cấp"}
+                      ? `${notifCount} chưa đọc`
+                      : "Không có thông báo mới"}
                   </span>
                 </div>
-              </div>
-
-              <div className="header-notice-list">
-                {role === "ASSISTANT" && (
-                  <button type="button" onClick={() => goTo("/assistant/invitations")}>
-                    <Bell size={17} />
-                    <span>
-                      <strong>Lời mời cộng tác</strong>
-                      <small>Xem và phản hồi các lời mời mới.</small>
-                    </span>
+                {notifCount > 0 && (
+                  <button
+                    type="button"
+                    className="header-notif__mark-all"
+                    onClick={handleMarkAllRead}
+                    title="Đánh dấu tất cả đã đọc"
+                  >
+                    <CheckCheck size={15} />
                   </button>
                 )}
-                <button type="button" onClick={() => goTo(reviewPath)}>
-                  <BookOpenCheck size={17} />
-                  <span>
-                    <strong>Tiến độ xét duyệt</strong>
-                    <small>Theo dõi dự án và bản name đang chờ xử lý.</small>
-                  </span>
-                </button>
-                <button type="button" onClick={() => goTo(financePath)}>
-                  <WalletCards size={17} />
-                  <span>
-                    <strong>Tài chính</strong>
-                    <small>Kiểm tra hợp đồng, thu nhập hoặc ngân sách.</small>
-                  </span>
-                </button>
-                <button type="button" onClick={() => goTo(schedulePath)}>
-                  <CalendarClock size={17} />
-                  <span>
-                    <strong>Lịch trình</strong>
-                    <small>Xem các mốc sản xuất sắp tới.</small>
-                  </span>
-                </button>
+              </div>
+
+              <div className="header-notif-list">
+                {notifLoading ? (
+                  <div className="header-notif__empty">
+                    <Loader2 size={18} className="header-notif__spin" />
+                    <span>Đang tải...</span>
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="header-notif__empty">
+                    <Bell size={28} strokeWidth={1.2} />
+                    <span>Chưa có thông báo nào</span>
+                  </div>
+                ) : (
+                  notifications.map((notif) => (
+                    <button
+                      key={notif.notificationId}
+                      type="button"
+                      className={`header-notif-item ${!notif.isRead ? "header-notif-item--unread" : ""}`}
+                      onClick={() => {
+                        if (!notif.isRead)
+                          handleMarkOneRead(notif.notificationId);
+                      }}
+                    >
+                      {!notif.isRead && (
+                        <span className="header-notif-item__dot" />
+                      )}
+                      <span className="header-notif-item__body">
+                        <strong>{notif.title}</strong>
+                        <small>{notif.message}</small>
+                        <time>{notif.createdAt}</time>
+                      </span>
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -310,8 +342,6 @@ export const Header = () => {
                 </div>
               </div>
 
-              {/* <button className="popup-manage-btn">Quản lý tài khoản</button> */}
-
               <div className="popup-divider" />
 
               <ul className="popup-menu">
@@ -338,6 +368,7 @@ export const Header = () => {
           )}
         </div>
       </div>
+
       <ConfirmDialog
         isOpen={showConfirmLogout}
         title="Xác nhận đăng xuất"
