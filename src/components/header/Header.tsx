@@ -13,9 +13,9 @@ import {
   Settings,
   ShieldCheck,
   BookOpenCheck,
-  Send,
   CheckCheck,
   Loader2,
+  MessagesSquare,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotificationCount } from "../../hooks/useNotificationCount";
@@ -25,8 +25,17 @@ import {
   markOneRead,
   type NotificationItem,
 } from "../../services/notificationService";
-import { onNotification } from "../../services/notificationSocket";
+import {
+  onChatMessage,
+  onNotification,
+} from "../../services/notificationSocket";
 import "./Header.scss";
+import {
+  fetchConversations,
+  type ConversationItem,
+} from "../../services/chatService";
+import { useUnreadMessagesCount } from "../../hooks/useUnreadMessagesCount";
+import ChatWindow from "../chat/ChatWindow";
 
 export const Header = () => {
   const { user } = useAuth();
@@ -40,6 +49,11 @@ export const Header = () => {
 
   const { count: notifCount, refresh: refreshCount } = useNotificationCount();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const { count: msgCount, refresh: refreshMsgCount } =
+    useUnreadMessagesCount();
+  const [conversations, setConversations] = useState<ConversationItem[]>([]);
+  const [convLoading, setConvLoading] = useState(false);
+  const [openChat, setOpenChat] = useState<ConversationItem | null>(null);
   const [notifLoading, setNotifLoading] = useState(false);
 
   const {
@@ -87,6 +101,53 @@ export const Header = () => {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    if (activeUtility !== "messages") return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setConvLoading(true);
+    fetchConversations()
+      .then(setConversations)
+      .catch(() => setConversations([]))
+      .finally(() => setConvLoading(false));
+  }, [activeUtility]);
+
+  useEffect(() => {
+    const unsubscribe = onChatMessage((msg) => {
+      setConversations((prev) => {
+        const idx = prev.findIndex(
+          (c) => c.conversationId === msg.conversationId,
+        );
+        if (idx === -1) return prev;
+
+        const updated = [...prev];
+        const isMine = msg.senderId === user?.id;
+        updated[idx] = {
+          ...updated[idx],
+          lastMessagePreview: msg.content,
+          lastMessageAt: msg.createdAt,
+          unreadCount: isMine
+            ? updated[idx].unreadCount
+            : updated[idx].unreadCount + 1,
+        };
+
+        const [item] = updated.splice(idx, 1);
+        return [item, ...updated];
+      });
+    });
+    return unsubscribe;
+  }, [user?.id]);
+
+  const handleOpenConversation = (conv: ConversationItem) => {
+    setActiveUtility(null);
+    setOpenChat(conv);
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.conversationId === conv.conversationId ? { ...c, unreadCount: 0 } : c,
+      ),
+    );
+    refreshMsgCount();
+  };
+
   const handleMarkAllRead = async () => {
     await markAllRead();
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
@@ -128,12 +189,6 @@ export const Header = () => {
         : role === "MANGAKA"
           ? "/mangaka/series"
           : "/dashboard";
-  const schedulePath =
-    role === "TANTOU"
-      ? "/tantou/schedule"
-      : role === "MANGAKA"
-        ? "/mangaka/schedule"
-        : "/dashboard";
 
   const toggleUtility = (panel: "help" | "messages" | "notifications") => {
     setShowPopup(false);
@@ -169,7 +224,7 @@ export const Header = () => {
             onClick={() => toggleUtility("messages")}
           >
             <MessageSquareText size={22} strokeWidth={1.5} />
-            <span className="red-dot"></span>
+            {msgCount > 0 && <span className="red-dot"></span>}
           </button>
 
           <button
@@ -216,28 +271,58 @@ export const Header = () => {
               <div className="header-popover__header">
                 <div>
                   <strong>Hộp tin nội bộ</strong>
-                  <span>3 trao đổi cần theo dõi</span>
+                  <span>
+                    {msgCount > 0
+                      ? `${msgCount} tin nhắn chưa đọc`
+                      : "Không có tin mới"}
+                  </span>
                 </div>
-                <button type="button" aria-label="Soạn tin nhắn">
-                  <Send size={16} />
-                </button>
               </div>
               <div className="header-message-list">
-                <button type="button" onClick={() => goTo(reviewPath)}>
-                  <strong>Ban biên tập</strong>
-                  <span>Có phản hồi mới trong luồng xét duyệt bản name.</span>
-                  <time>5 phút trước</time>
-                </button>
-                <button type="button" onClick={() => goTo(schedulePath)}>
-                  <strong>Lịch sản xuất</strong>
-                  <span>Deadline tuần này đã được cập nhật.</span>
-                  <time>31 phút trước</time>
-                </button>
-                <button type="button" onClick={() => goTo("/profile")}>
-                  <strong>Hệ thống</strong>
-                  <span>Hồ sơ tài khoản đã đồng bộ thành công.</span>
-                  <time>Hôm qua</time>
-                </button>
+                {convLoading ? (
+                  <div className="header-notif__empty">
+                    <Loader2 size={18} className="header-notif__spin" />
+                    <span>Đang tải...</span>
+                  </div>
+                ) : conversations.length === 0 ? (
+                  <div className="header-notif__empty">
+                    <MessagesSquare size={28} strokeWidth={1.2} />
+                    <span>Chưa có cuộc trò chuyện nào</span>
+                  </div>
+                ) : (
+                  conversations.map((conv) => (
+                    <button
+                      type="button"
+                      key={conv.conversationId}
+                      onClick={() => handleOpenConversation(conv)}
+                    >
+                      <strong>
+                        {conv.otherUserName}
+                        {conv.unreadCount > 0 && (
+                          <span className="header-message-list__badge">
+                            {conv.unreadCount}
+                          </span>
+                        )}
+                      </strong>
+                      <span>
+                        {conv.lastMessagePreview ?? "Chưa có tin nhắn"}
+                      </span>
+                      {conv.lastMessageAt && (
+                        <time>
+                          {new Date(conv.lastMessageAt).toLocaleString(
+                            "vi-VN",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </time>
+                      )}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -386,6 +471,9 @@ export const Header = () => {
         onConfirm={handleConfirmLogout}
         onCancel={handleCancelLogout}
       />
+      {openChat && (
+        <ChatWindow conversation={openChat} onClose={() => setOpenChat(null)} />
+      )}
     </header>
   );
 };
