@@ -42,7 +42,9 @@ export default function ChatWindow({ conversation, onClose }: Props) {
   useEffect(() => {
     const unsubscribe = onChatMessage((msg) => {
       if (msg.conversationId !== conversation.conversationId) return;
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) =>
+        prev.some((m) => m.messageId === msg.messageId) ? prev : [...prev, msg],
+      );
 
       if (msg.senderId !== user?.id) {
         markConversationRead(conversation.conversationId).catch(console.error);
@@ -62,7 +64,12 @@ export default function ChatWindow({ conversation, onClose }: Props) {
     setSending(true);
     setInput("");
     try {
-      await sendChatMessage(conversation.conversationId, content);
+      const sent = await sendChatMessage(conversation.conversationId, content);
+      setMessages((prev) =>
+        prev.some((m) => m.messageId === sent.messageId)
+          ? prev
+          : [...prev, sent],
+      );
     } catch (err) {
       console.error("Gửi tin nhắn thất bại", err);
       setInput(content);
