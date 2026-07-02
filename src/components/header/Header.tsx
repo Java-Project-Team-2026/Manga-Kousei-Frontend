@@ -16,6 +16,8 @@ import {
   CheckCheck,
   Loader2,
   MessagesSquare,
+  Plus,
+  ArrowLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotificationCount } from "../../hooks/useNotificationCount";
@@ -31,7 +33,10 @@ import {
 } from "../../services/notificationSocket";
 import "./Header.scss";
 import {
+  fetchAvailableAdmins,
   fetchConversations,
+  startConversationWithAdmin,
+  type AdminContact,
   type ConversationItem,
 } from "../../services/chatService";
 import { useUnreadMessagesCount } from "../../hooks/useUnreadMessagesCount";
@@ -72,6 +77,10 @@ export const Header = () => {
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [convLoading, setConvLoading] = useState(false);
   const [openChat, setOpenChat] = useState<ConversationItem | null>(null);
+  const [showAdminPicker, setShowAdminPicker] = useState(false);
+  const [admins, setAdmins] = useState<AdminContact[]>([]);
+  const [adminsLoading, setAdminsLoading] = useState(false);
+  const [startingChatWith, setStartingChatWith] = useState<number | null>(null);
   const [notifLoading, setNotifLoading] = useState(false);
 
   const {
@@ -80,6 +89,16 @@ export const Header = () => {
     handleConfirmLogout,
     handleCancelLogout,
   } = useLogout();
+
+  useEffect(() => {
+    if (!showAdminPicker) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAdminsLoading(true);
+    fetchAvailableAdmins()
+      .then(setAdmins)
+      .catch(() => setAdmins([]))
+      .finally(() => setAdminsLoading(false));
+  }, [showAdminPicker]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -154,6 +173,30 @@ export const Header = () => {
     });
     return unsubscribe;
   }, [user?.id]);
+
+  const handleStartAdminChat = async (admin: AdminContact) => {
+    setStartingChatWith(admin.userId);
+    try {
+      const conv = await startConversationWithAdmin(admin.userId);
+      setConversations((prev) => {
+        const exists = prev.some(
+          (c) => c.conversationId === conv.conversationId,
+        );
+        return exists
+          ? prev.map((c) =>
+              c.conversationId === conv.conversationId ? conv : c,
+            )
+          : [conv, ...prev];
+      });
+      setShowAdminPicker(false);
+      setActiveUtility(null);
+      setOpenChat(conv);
+    } catch (err) {
+      console.error("Không bắt đầu được chat với Admin", err);
+    } finally {
+      setStartingChatWith(null);
+    }
+  };
 
   const handleOpenConversation = (conv: ConversationItem) => {
     setActiveUtility(null);
@@ -288,74 +331,153 @@ export const Header = () => {
             <div className="header-popover header-popover--utility header-popover--notif">
               <div className="header-popover__header">
                 <div>
-                  <strong>Hộp tin nội bộ</strong>
-                  <span>
-                    {msgCount > 0
-                      ? `${msgCount} tin nhắn chưa đọc`
-                      : "Không có tin mới"}
-                  </span>
+                  {showAdminPicker ? (
+                    <>
+                      <strong>Nhắn tin Admin</strong>
+                      <span>Chọn 1 Admin để bắt đầu trò chuyện</span>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Hộp tin nội bộ</strong>
+                      <span>
+                        {msgCount > 0
+                          ? `${msgCount} tin nhắn chưa đọc`
+                          : "Không có tin mới"}
+                      </span>
+                    </>
+                  )}
                 </div>
-              </div>
-              <div className="header-notif-list">
-                {convLoading ? (
-                  <div className="header-notif__empty">
-                    <Loader2 size={18} className="header-notif__spin" />
-                    <span>Đang tải...</span>
-                  </div>
-                ) : conversations.length === 0 ? (
-                  <div className="header-notif__empty">
-                    <MessagesSquare size={28} strokeWidth={1.2} />
-                    <span>Chưa có cuộc trò chuyện nào</span>
-                  </div>
-                ) : (
-                  conversations.map((conv) => (
-                    <button
-                      type="button"
-                      key={conv.conversationId}
-                      className={`header-chat-item ${conv.unreadCount > 0 ? "header-chat-item--unread" : ""}`}
-                      onClick={() => handleOpenConversation(conv)}
-                    >
-                      {conv.otherUserAvatarUrl ? (
-                        <img
-                          className="header-chat-item__avatar"
-                          src={conv.otherUserAvatarUrl}
-                          alt={conv.otherUserName}
-                        />
-                      ) : (
-                        <div
-                          className="header-chat-item__avatar header-chat-item__avatar--initials"
-                          style={{
-                            background: getAvatarColor(conv.otherUserName),
-                          }}
-                        >
-                          {getInitials(conv.otherUserName)}
-                        </div>
-                      )}
 
-                      <div className="header-chat-item__body">
-                        <div className="header-chat-item__top">
-                          <strong>{conv.otherUserName}</strong>
-                          {conv.lastMessageAt && (
-                            <time>
-                              {formatRelativeTime(conv.lastMessageAt)}
-                            </time>
-                          )}
-                        </div>
-                        <div className="header-chat-item__bottom">
-                          <small>
-                            {conv.lastMessagePreview ?? "Chưa có tin nhắn"}
-                          </small>
-                          {conv.unreadCount > 0 && (
-                            <span className="header-chat-item__badge">
-                              {conv.unreadCount > 9 ? "9+" : conv.unreadCount}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  ))
+                {user?.role === "TANTOU" && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminPicker((prev) => !prev)}
+                    aria-label={showAdminPicker ? "Quay lại" : "Nhắn tin Admin"}
+                  >
+                    {showAdminPicker ? (
+                      <ArrowLeft size={16} />
+                    ) : (
+                      <Plus size={16} />
+                    )}
+                  </button>
                 )}
               </div>
+
+              {showAdminPicker ? (
+                <div className="header-notif-list">
+                  {adminsLoading ? (
+                    <div className="header-notif__empty">
+                      <Loader2 size={18} className="header-notif__spin" />
+                      <span>Đang tải...</span>
+                    </div>
+                  ) : admins.length === 0 ? (
+                    <div className="header-notif__empty">
+                      <MessagesSquare size={28} strokeWidth={1.2} />
+                      <span>Chưa có Admin nào trong hệ thống</span>
+                    </div>
+                  ) : (
+                    admins.map((admin) => (
+                      <button
+                        type="button"
+                        key={admin.userId}
+                        className="header-chat-item"
+                        disabled={startingChatWith === admin.userId}
+                        onClick={() => handleStartAdminChat(admin)}
+                      >
+                        {admin.avatarUrl ? (
+                          <img
+                            className="header-chat-item__avatar"
+                            src={admin.avatarUrl}
+                            alt={admin.fullName}
+                          />
+                        ) : (
+                          <div
+                            className="header-chat-item__avatar header-chat-item__avatar--initials"
+                            style={{
+                              background: getAvatarColor(admin.fullName),
+                            }}
+                          >
+                            {getInitials(admin.fullName)}
+                          </div>
+                        )}
+                        <div className="header-chat-item__body">
+                          <div className="header-chat-item__top">
+                            <strong>{admin.fullName}</strong>
+                          </div>
+                          <div className="header-chat-item__bottom">
+                            <small>
+                              {startingChatWith === admin.userId
+                                ? "Đang mở..."
+                                : "Admin hệ thống"}
+                            </small>
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              ) : (
+                <div className="header-notif-list">
+                  {convLoading ? (
+                    <div className="header-notif__empty">
+                      <Loader2 size={18} className="header-notif__spin" />
+                      <span>Đang tải...</span>
+                    </div>
+                  ) : conversations.length === 0 ? (
+                    <div className="header-notif__empty">
+                      <MessagesSquare size={28} strokeWidth={1.2} />
+                      <span>Chưa có cuộc trò chuyện nào</span>
+                    </div>
+                  ) : (
+                    conversations.map((conv) => (
+                      <button
+                        type="button"
+                        key={conv.conversationId}
+                        className={`header-chat-item ${conv.unreadCount > 0 ? "header-chat-item--unread" : ""}`}
+                        onClick={() => handleOpenConversation(conv)}
+                      >
+                        {conv.otherUserAvatarUrl ? (
+                          <img
+                            className="header-chat-item__avatar"
+                            src={conv.otherUserAvatarUrl}
+                            alt={conv.otherUserName}
+                          />
+                        ) : (
+                          <div
+                            className="header-chat-item__avatar header-chat-item__avatar--initials"
+                            style={{
+                              background: getAvatarColor(conv.otherUserName),
+                            }}
+                          >
+                            {getInitials(conv.otherUserName)}
+                          </div>
+                        )}
+
+                        <div className="header-chat-item__body">
+                          <div className="header-chat-item__top">
+                            <strong>{conv.otherUserName}</strong>
+                            {conv.lastMessageAt && (
+                              <time>
+                                {formatRelativeTime(conv.lastMessageAt)}
+                              </time>
+                            )}
+                          </div>
+                          <div className="header-chat-item__bottom">
+                            <small>
+                              {conv.lastMessagePreview ?? "Chưa có tin nhắn"}
+                            </small>
+                            {conv.unreadCount > 0 && (
+                              <span className="header-chat-item__badge">
+                                {conv.unreadCount > 9 ? "9+" : conv.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           )}
 
