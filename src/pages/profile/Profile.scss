@@ -43,7 +43,9 @@
   place-items: center;
   border: 4px solid #ffffff;
   border-radius: 22px;
-  box-shadow: 0 0 0 1px #cbd5e1, 0 12px 24px rgba(15, 23, 42, 0.14);
+  box-shadow:
+    0 0 0 1px #cbd5e1,
+    0 12px 24px rgba(15, 23, 42, 0.14);
   color: #ffffff;
   overflow: visible;
 
@@ -74,7 +76,10 @@
   background: #ffffff;
   color: #0254b1;
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 
   &:hover {
     border-color: #0254b1;
@@ -168,8 +173,12 @@
   justify-content: center;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease,
-    color 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .profile-btn {
@@ -673,5 +682,30 @@
   .profile-avatar {
     width: 88px;
     height: 88px;
+  }
+}
+
+.profile-page--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 60vh;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.profile-page--error {
+  color: #dc2626;
+}
+
+.profile-spin {
+  animation: profile-spin-anim 0.9s linear infinite;
+}
+
+@keyframes profile-spin-anim {
+  to {
+    transform: rotate(360deg);
   }
 }
