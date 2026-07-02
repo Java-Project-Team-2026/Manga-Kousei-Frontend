@@ -1,24 +1,80 @@
+import { useEffect, useState } from "react";
 import {
-  BadgeCheck,
-  Bell,
-  CalendarDays,
   Camera,
   CheckCircle2,
   Clock3,
   Edit3,
-  FileText,
-  Globe2,
   KeyRound,
+  Loader2,
+  AlertTriangle,
   Mail,
-  MapPin,
-  Palette,
   ShieldCheck,
   Sparkles,
   UserRound,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { getAvatarColor, getInitials } from "../../utils";
+import api from "../../services/api";
+import {
+  fetchMyLogs,
+  type ActivityLogItem,
+} from "../../services/activityLogService";
+import { fetchMangakaReportStats } from "../../services/mangakaReportService";
+import EditProfileModal from "../../components/profile/EditProfileModal";
 import "./Profile.scss";
+
+interface ApiResp<T> {
+  data: T;
+  message: string;
+}
+
+interface UserDetail {
+  id: number;
+  fullName: string;
+  email: string;
+  avatarUrl: string | null;
+  phone: string | null;
+  bio: string | null;
+  roles: string[];
+  createdSeries: number;
+  editedSeries: number;
+  createdAt: string | null;
+  passwordChangedAt: string | null;
+}
+
+interface ProfileStat {
+  label: string;
+  value: string;
+  tone: "blue" | "amber" | "green" | "indigo";
+}
+
+interface TantouReportStats {
+  totalSeries: number;
+  pendingReviewChapters: number;
+  publishedChapters: number;
+  totalDeadlines: number;
+  overdueDeadlines: number;
+  submittedDeadlines: number;
+}
+
+interface AssistantIncome {
+  totalAmount: number;
+  taskCount?: number;
+}
+
+interface AssistantTaskItem {
+  taskId: number;
+  taskStatus: "todo" | "doing" | "review" | "done" | string;
+}
+
+interface AdminDashboardStats {
+  totalSeries: number;
+  pendingAdminProposals: number;
+  publishedChapters: number;
+  totalMangaka: number;
+  totalTantou: number;
+  totalAssistant: number;
+}
 
 const roleLabels = {
   ADMIN: "Administrator",
@@ -29,50 +85,181 @@ const roleLabels = {
 
 const roleDescriptions = {
   ADMIN: "Full access to studio operations, approvals, contracts, and reports.",
-  TANTOU: "Manages manga proposals, editorial reviews, creator assignments, and publication flow.",
-  MANGAKA: "Creates proposals, manages series progress, coordinates with editors and assistants.",
-  ASSISTANT: "Supports assigned production tasks, resources, delivery, and income tracking.",
+  TANTOU:
+    "Manages manga proposals, editorial reviews, creator assignments, and publication flow.",
+  MANGAKA:
+    "Creates proposals, manages series progress, coordinates with editors and assistants.",
+  ASSISTANT:
+    "Supports assigned production tasks, resources, delivery, and income tracking.",
 } as const;
 
-const profileStats = [
-  { label: "Active Works", value: "08", tone: "blue" },
-  { label: "Pending Reviews", value: "14", tone: "amber" },
-  { label: "Completed Tasks", value: "126", tone: "green" },
-  { label: "On-time Rate", value: "96%", tone: "indigo" },
-];
+const fetchUserDetail = (userId: number): Promise<UserDetail> =>
+  api.get<ApiResp<UserDetail>>(`/users/${userId}`).then((r) => r.data.data);
 
-const securityItems = [
-  { label: "Password", value: "Updated 18 days ago", icon: KeyRound },
-  { label: "Two-factor Auth", value: "Ready to enable", icon: ShieldCheck },
-  { label: "Notifications", value: "Email and in-app alerts", icon: Bell },
-];
+async function fetchRoleStats(role: string): Promise<ProfileStat[]> {
+  switch (role) {
+    case "MANGAKA": {
+      const s = await fetchMangakaReportStats();
+      return [
+        {
+          label: "Series đang quản lý",
+          value: String(s.totalSeries),
+          tone: "blue",
+        },
+        {
+          label: "Đang chờ nộp",
+          value: String(s.pendingDeadlines),
+          tone: "amber",
+        },
+        { label: "Đã nộp", value: String(s.submittedDeadlines), tone: "green" },
+        {
+          label: "Tỉ lệ hoàn thành",
+          value: `${s.completionRate}%`,
+          tone: "indigo",
+        },
+      ];
+    }
+    case "TANTOU": {
+      const s = await api
+        .get<ApiResp<TantouReportStats>>("/tantou/reports/stats")
+        .then((r) => r.data.data);
+      const onTimePct =
+        s.totalDeadlines > 0
+          ? Math.round(
+              ((s.totalDeadlines - s.overdueDeadlines) / s.totalDeadlines) *
+                100,
+            )
+          : 0;
+      return [
+        {
+          label: "Series phụ trách",
+          value: String(s.totalSeries),
+          tone: "blue",
+        },
+        {
+          label: "Chương chờ duyệt",
+          value: String(s.pendingReviewChapters),
+          tone: "amber",
+        },
+        {
+          label: "Chương đã đăng",
+          value: String(s.publishedChapters),
+          tone: "green",
+        },
+        { label: "Tỉ lệ đúng hạn", value: `${onTimePct}%`, tone: "indigo" },
+      ];
+    }
+    case "ASSISTANT": {
+      const [income, tasks] = await Promise.all([
+        api
+          .get<ApiResp<AssistantIncome>>("/assistant/income")
+          .then((r) => r.data.data),
+        api
+          .get<ApiResp<AssistantTaskItem[]>>("/assistant/tasks")
+          .then((r) => r.data.data ?? []),
+      ]);
+      const doing = tasks.filter((t) => t.taskStatus === "doing").length;
+      const review = tasks.filter((t) => t.taskStatus === "review").length;
+      const done = tasks.filter((t) => t.taskStatus === "done").length;
+      return [
+        { label: "Task đang làm", value: String(doing), tone: "blue" },
+        { label: "Chờ duyệt", value: String(review), tone: "amber" },
+        { label: "Đã hoàn thành", value: String(done), tone: "green" },
+        {
+          label: "Thu nhập tháng này",
+          value:
+            new Intl.NumberFormat("vi-VN").format(income.totalAmount ?? 0) +
+            " ₫",
+          tone: "indigo",
+        },
+      ];
+    }
+    case "ADMIN": {
+      const s = await api
+        .get<ApiResp<AdminDashboardStats>>("/admin/dashboard/stats")
+        .then((r) => r.data.data);
+      return [
+        { label: "Tổng series", value: String(s.totalSeries), tone: "blue" },
+        {
+          label: "Proposal chờ duyệt",
+          value: String(s.pendingAdminProposals),
+          tone: "amber",
+        },
+        {
+          label: "Chương đã đăng",
+          value: String(s.publishedChapters),
+          tone: "green",
+        },
+        {
+          label: "Tổng nhân sự",
+          value: String(s.totalMangaka + s.totalTantou + s.totalAssistant),
+          tone: "indigo",
+        },
+      ];
+    }
+    default:
+      return [];
+  }
+}
 
-const activityItems = [
-  {
-    title: "Proposal workflow synced",
-    detail: "Kousei editorial pipeline refreshed with latest review states.",
-    time: "Today, 09:24",
-  },
-  {
-    title: "Profile verification checked",
-    detail: "Account identity and role permissions are aligned.",
-    time: "Yesterday, 16:10",
-  },
-  {
-    title: "Production preferences updated",
-    detail: "Dashboard language, timezone, and delivery alerts confirmed.",
-    time: "Jun 12, 2026",
-  },
-];
+function formatRelativeDays(dateStr: string | null): string {
+  if (!dateStr) return "Chưa rõ";
+  const [d, m, y] = dateStr.split("/").map(Number);
+  const date = new Date(y, m - 1, d);
+  const diffDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  if (diffDays <= 0) return "Hôm nay";
+  if (diffDays === 1) return "Hôm qua";
+  return `${diffDays} ngày trước`;
+}
 
 function Profile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const [detail, setDetail] = useState<UserDetail | null>(null);
+  const [stats, setStats] = useState<ProfileStat[]>([]);
+  const [recentLogs, setRecentLogs] = useState<ActivityLogItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const displayName = user?.fullName || "MangaKousei User";
   const email = user?.email || "user@mangakousei.local";
-  const role = user?.role || "MANGAKA";
+  const role = (user?.role ?? "MANGAKA") as keyof typeof roleLabels;
   const initials = getInitials(displayName);
   const avatarColor = getAvatarColor(displayName);
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      fetchUserDetail(user.id),
+      fetchRoleStats(role),
+      fetchMyLogs({ category: "account", page: 0, size: 5 }),
+    ])
+      .then(([d, s, logs]) => {
+        setDetail(d);
+        setStats(s);
+        setRecentLogs(logs.content);
+      })
+      .catch(() => setError("Không thể tải dữ liệu hồ sơ. Vui lòng thử lại."))
+      .finally(() => setLoading(false));
+  }, [user, role]);
+
+  if (loading) {
+    return (
+      <main className="profile-page profile-page--center">
+        <Loader2 size={22} className="profile-spin" />
+        Đang tải hồ sơ...
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="profile-page profile-page--center profile-page--error">
+        <AlertTriangle size={18} />
+        {error}
+      </main>
+    );
+  }
 
   return (
     <main className="profile-page">
@@ -84,7 +271,12 @@ function Profile() {
             ) : (
               <span>{initials}</span>
             )}
-            <button className="profile-avatar__action" type="button" aria-label="Update avatar">
+            <button
+              className="profile-avatar__action"
+              type="button"
+              aria-label="Update avatar"
+              title="Tính năng đổi avatar đang được hoàn thiện"
+            >
               <Camera size={16} />
             </button>
           </div>
@@ -93,10 +285,6 @@ function Profile() {
             <span className="profile-eyebrow">Your Profile</span>
             <div className="profile-title-row">
               <h1>{displayName}</h1>
-              <span className="profile-verified">
-                <BadgeCheck size={16} />
-                Verified
-              </span>
             </div>
             <p>{roleDescriptions[role]}</p>
             <div className="profile-meta">
@@ -108,29 +296,31 @@ function Profile() {
                 <UserRound size={15} />
                 {roleLabels[role]}
               </span>
-              <span>
-                <MapPin size={15} />
-                Tokyo Production Hub
-              </span>
             </div>
           </div>
         </div>
 
         <div className="profile-hero__actions">
-          <button className="profile-btn profile-btn--ghost" type="button">
-            <ShieldCheck size={16} />
-            Security
-          </button>
-          <button className="profile-btn profile-btn--primary" type="button">
+          <button
+            className="profile-btn profile-btn--primary"
+            type="button"
+            onClick={() => setShowEditModal(true)}
+          >
             <Edit3 size={16} />
             Edit Profile
           </button>
         </div>
       </section>
 
-      <section className="profile-stats-grid" aria-label="Profile production overview">
-        {profileStats.map((stat) => (
-          <article className={`profile-stat profile-stat--${stat.tone}`} key={stat.label}>
+      <section
+        className="profile-stats-grid"
+        aria-label="Profile production overview"
+      >
+        {stats.map((stat) => (
+          <article
+            className={`profile-stat profile-stat--${stat.tone}`}
+            key={stat.label}
+          >
             <span>{stat.label}</span>
             <strong>{stat.value}</strong>
           </article>
@@ -145,9 +335,6 @@ function Profile() {
                 <span className="profile-section-kicker">Account</span>
                 <h2>Personal Information</h2>
               </div>
-              <button className="profile-icon-btn" type="button" aria-label="Edit personal information">
-                <Edit3 size={17} />
-              </button>
             </div>
 
             <div className="profile-info-grid">
@@ -164,50 +351,31 @@ function Profile() {
                 <strong>{roleLabels[role]}</strong>
               </div>
               <div className="profile-info-item">
+                <span>Phone</span>
+                <strong>{detail?.phone || "Chưa cập nhật"}</strong>
+              </div>
+              <div className="profile-info-item">
                 <span>Member ID</span>
-                <strong>MK-{String(user?.id || 1024).padStart(5, "0")}</strong>
+                <strong>{String(user?.id ?? 0).padStart(5, "0")}</strong>
               </div>
               <div className="profile-info-item">
-                <span>Timezone</span>
-                <strong>Asia/Tokyo UTC+09</strong>
+                <span>Member Since</span>
+                <strong>{detail?.createdAt ?? "—"}</strong>
               </div>
               <div className="profile-info-item">
-                <span>Language</span>
-                <strong>English / Japanese</strong>
+                <span>Password Last Changed</span>
+                <strong>
+                  {formatRelativeDays(detail?.passwordChangedAt ?? null)}
+                </strong>
               </div>
             </div>
-          </article>
 
-          <article className="profile-panel">
-            <div className="profile-panel__header">
-              <div>
-                <span className="profile-section-kicker">Production</span>
-                <h2>Current Workspace</h2>
-              </div>
-              <span className="profile-status-pill">In Sync</span>
-            </div>
-
-            <div className="profile-workspace">
-              <div className="profile-workspace__card">
-                <div className="profile-workspace__icon">
-                  <Palette size={21} />
-                </div>
-                <div>
-                  <span>Creative Team</span>
-                  <strong>MangaKousei Studio A</strong>
-                  <p>Editorial planning, manuscript review, chapter tracking, and resource coordination.</p>
-                </div>
-              </div>
-
-              <div className="profile-progress">
-                <div className="profile-progress__top">
-                  <span>Monthly Production Health</span>
-                  <strong>82%</strong>
-                </div>
-                <div className="profile-progress__bar" aria-hidden="true">
-                  <span />
-                </div>
-              </div>
+            <div className="profile-bio">
+              <span>Giới thiệu</span>
+              <p>
+                {detail?.bio ||
+                  'Chưa có mô tả. Bấm "Edit Profile" để thêm vài dòng giới thiệu về bản thân.'}
+              </p>
             </div>
           </article>
 
@@ -215,23 +383,37 @@ function Profile() {
             <div className="profile-panel__header">
               <div>
                 <span className="profile-section-kicker">Activity</span>
-                <h2>Recent Profile Events</h2>
+                <h2>Recent Account Events</h2>
               </div>
               <Clock3 size={18} />
             </div>
 
-            <div className="profile-timeline">
-              {activityItems.map((item) => (
-                <div className="profile-timeline__item" key={item.title}>
-                  <span className="profile-timeline__dot" />
-                  <div>
-                    <strong>{item.title}</strong>
-                    <p>{item.detail}</p>
-                    <time>{item.time}</time>
+            {recentLogs.length === 0 ? (
+              <p style={{ color: "#94a3b8", fontSize: 13 }}>
+                Chưa có hoạt động tài khoản nào.
+              </p>
+            ) : (
+              <div className="profile-timeline">
+                {recentLogs.map((log) => (
+                  <div className="profile-timeline__item" key={log.logId}>
+                    <span className="profile-timeline__dot" />
+                    <div>
+                      <strong>
+                        {log.actionType === "LOGIN"
+                          ? "Đăng nhập"
+                          : log.actionType === "UPDATE_PROFILE"
+                            ? "Cập nhật hồ sơ"
+                            : log.actionType === "CHANGE_PASSWORD"
+                              ? "Đổi mật khẩu"
+                              : log.actionType}
+                      </strong>
+                      <p>{log.detail}</p>
+                      <time>{log.createdAt}</time>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </article>
         </div>
 
@@ -252,49 +434,48 @@ function Profile() {
             </div>
 
             <div className="profile-security-list">
-              {securityItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div className="profile-security-item" key={item.label}>
-                    <span className="profile-security-item__icon">
-                      <Icon size={17} />
-                    </span>
-                    <div>
-                      <strong>{item.label}</strong>
-                      <p>{item.value}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </article>
-
-          <article className="profile-card">
-            <div className="profile-card__header">
-              <h2>Preferences</h2>
-              <Globe2 size={18} />
-            </div>
-
-            <div className="profile-preferences">
-              <div>
-                <CalendarDays size={17} />
-                <span>Deadline reminders</span>
-                <strong>On</strong>
+              <div className="profile-security-item">
+                <span className="profile-security-item__icon">
+                  <KeyRound size={17} />
+                </span>
+                <div>
+                  <strong>Password</strong>
+                  <p>
+                    Đổi lần cuối:{" "}
+                    {formatRelativeDays(detail?.passwordChangedAt ?? null)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <FileText size={17} />
-                <span>Review digest</span>
-                <strong>Daily</strong>
-              </div>
-              <div>
-                <Bell size={17} />
-                <span>System alerts</span>
-                <strong>Priority</strong>
+              <div className="profile-security-item">
+                <span className="profile-security-item__icon">
+                  <ShieldCheck size={17} />
+                </span>
+                <div>
+                  <strong>Xác thực</strong>
+                  <p>JWT qua cookie httpOnly</p>
+                </div>
               </div>
             </div>
           </article>
         </aside>
       </section>
+
+      {showEditModal && (
+        <EditProfileModal
+          currentFullName={displayName}
+          currentAvatarUrl={user?.avatarUrl ?? null}
+          currentPhone={detail?.phone ?? null}
+          currentBio={detail?.bio ?? null}
+          onClose={() => setShowEditModal(false)}
+          onSaved={({ fullName, avatarUrl, phone, bio }) => {
+            updateUser({ fullName, avatarUrl });
+            setDetail((prev) =>
+              prev ? { ...prev, fullName, phone, bio } : prev,
+            );
+            setShowEditModal(false);
+          }}
+        />
+      )}
     </main>
   );
 }
