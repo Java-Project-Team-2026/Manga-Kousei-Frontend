@@ -663,7 +663,6 @@ $shadow-navy: 5px 5px 0 $navy-deep;
   }
 }
 
-// ─── Responsive ─────────────────────────────────────────────────────────────
 @media (max-width: 1180px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
@@ -687,4 +686,37 @@ $shadow-navy: 5px 5px 0 $navy-deep;
       align-items: flex-start;
     }
   }
+}
+
+.mangaka-dashboard--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 60vh;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.md-error {
+  color: #dc2626;
+}
+
+.md-spin {
+  animation: md-spin-anim 0.9s linear infinite;
+}
+
+@keyframes md-spin-anim {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.md-empty-inline {
+  padding: 20px 8px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #94a3b8;
+  font-weight: 600;
 }

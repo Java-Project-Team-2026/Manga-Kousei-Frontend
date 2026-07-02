@@ -18,6 +18,8 @@ export interface MangakaSeries {
   approvedAt: string | null;
   scheduleType: "weekly" | "monthly" | null;
   dayValue: number | null;
+  totalPageDeadlines: number;
+  submittedPageDeadlines: number;
 }
 
 export const fetchMySeries = async (): Promise<MangakaSeries[]> => {
