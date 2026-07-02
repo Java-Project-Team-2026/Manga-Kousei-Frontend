@@ -36,6 +36,24 @@ import {
 } from "../../services/chatService";
 import { useUnreadMessagesCount } from "../../hooks/useUnreadMessagesCount";
 import ChatWindow from "../chat/ChatWindow";
+import { getAvatarColor, getInitials } from "../../utils";
+
+function formatRelativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const diffMin = Math.floor(diffMs / 60_000);
+
+  if (diffMin < 1) return "Vừa xong";
+  if (diffMin < 60) return `${diffMin} phút`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour} giờ`;
+  const diffDay = Math.floor(diffHour / 24);
+  if (diffDay === 1) return "Hôm qua";
+  if (diffDay < 7) return `${diffDay} ngày`;
+  return new Date(iso).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+  });
+}
 
 export const Header = () => {
   const { user } = useAuth();
@@ -267,7 +285,7 @@ export const Header = () => {
           )}
 
           {activeUtility === "messages" && (
-            <div className="header-popover header-popover--utility">
+            <div className="header-popover header-popover--utility header-popover--notif">
               <div className="header-popover__header">
                 <div>
                   <strong>Hộp tin nội bộ</strong>
@@ -278,7 +296,7 @@ export const Header = () => {
                   </span>
                 </div>
               </div>
-              <div className="header-message-list">
+              <div className="header-notif-list">
                 {convLoading ? (
                   <div className="header-notif__empty">
                     <Loader2 size={18} className="header-notif__spin" />
@@ -294,32 +312,46 @@ export const Header = () => {
                     <button
                       type="button"
                       key={conv.conversationId}
+                      className={`header-chat-item ${conv.unreadCount > 0 ? "header-chat-item--unread" : ""}`}
                       onClick={() => handleOpenConversation(conv)}
                     >
-                      <strong>
-                        {conv.otherUserName}
-                        {conv.unreadCount > 0 && (
-                          <span className="header-message-list__badge">
-                            {conv.unreadCount}
-                          </span>
-                        )}
-                      </strong>
-                      <span>
-                        {conv.lastMessagePreview ?? "Chưa có tin nhắn"}
-                      </span>
-                      {conv.lastMessageAt && (
-                        <time>
-                          {new Date(conv.lastMessageAt).toLocaleString(
-                            "vi-VN",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
-                        </time>
+                      {conv.otherUserAvatarUrl ? (
+                        <img
+                          className="header-chat-item__avatar"
+                          src={conv.otherUserAvatarUrl}
+                          alt={conv.otherUserName}
+                        />
+                      ) : (
+                        <div
+                          className="header-chat-item__avatar header-chat-item__avatar--initials"
+                          style={{
+                            background: getAvatarColor(conv.otherUserName),
+                          }}
+                        >
+                          {getInitials(conv.otherUserName)}
+                        </div>
                       )}
+
+                      <div className="header-chat-item__body">
+                        <div className="header-chat-item__top">
+                          <strong>{conv.otherUserName}</strong>
+                          {conv.lastMessageAt && (
+                            <time>
+                              {formatRelativeTime(conv.lastMessageAt)}
+                            </time>
+                          )}
+                        </div>
+                        <div className="header-chat-item__bottom">
+                          <small>
+                            {conv.lastMessagePreview ?? "Chưa có tin nhắn"}
+                          </small>
+                          {conv.unreadCount > 0 && (
+                            <span className="header-chat-item__badge">
+                              {conv.unreadCount > 9 ? "9+" : conv.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </button>
                   ))
                 )}
