@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Timer,
-  FileEdit,
+  AlertTriangle,
+  CalendarDays,
+  Loader2,
+  BookOpen,
   Users,
-  ArrowRight,
-  MoreHorizontal,
+  FileEdit,
+  Timer,
+  CheckCircle2,
+  ChevronRight,
   Star,
   Minus,
-  Loader2,
-  AlertTriangle,
+  BarChart3,
 } from "lucide-react";
 import "./MangakaDashboard.scss";
 import RecentActivityWidget from "../../components/activityLog/RecentActivityWidget";
@@ -31,13 +34,6 @@ import {
 } from "../../services/assistantAssignmentService";
 import { getAvatarColor, getInitials } from "../../utils";
 
-const today = new Date();
-const TODAY_LABEL = today.toLocaleDateString("vi-VN", {
-  weekday: "long",
-  day: "2-digit",
-  month: "2-digit",
-});
-
 export default function MangakaDashboard() {
   const navigate = useNavigate();
 
@@ -48,6 +44,13 @@ export default function MangakaDashboard() {
   const [assistants, setAssistants] = useState<AssistantAssignmentRes[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const now = new Date();
+  const dateLabel = now.toLocaleDateString("vi-VN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+  });
 
   useEffect(() => {
     Promise.all([
@@ -64,290 +67,291 @@ export default function MangakaDashboard() {
         setSeries(sr);
         setAssistants(a);
       })
-      .catch(() =>
-        setError("Không thể tải dữ liệu dashboard. Vui lòng thử lại."),
-      )
+      .catch(() => setError("Không thể tải dữ liệu. Vui lòng thử lại."))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
+  if (loading)
     return (
-      <div className="mangaka-dashboard mangaka-dashboard--center">
+      <div className="md-page md-page--center">
         <Loader2 size={22} className="md-spin" />
         Đang tải dữ liệu...
       </div>
     );
-  }
 
-  if (error) {
+  if (error)
     return (
-      <div className="mangaka-dashboard mangaka-dashboard--center md-error">
+      <div className="md-page md-page--center md-page--error">
         <AlertTriangle size={18} />
         {error}
       </div>
     );
-  }
 
-  const nearestDeadline = deadlines.find(
-    (d) => d.labelType === "overdue" || d.labelType === "due",
-  );
+  const statCards: {
+    label: string;
+    value: number;
+    icon: typeof Timer;
+    tone: string;
+    sub: string;
+    action?: () => void;
+  }[] = [
+    {
+      label: "Deadline gấp",
+      value: stats?.urgentDeadlineCount ?? 0,
+      icon: Timer,
+      tone: (stats?.urgentDeadlineCount ?? 0) > 0 ? "red" : "green",
+      sub:
+        (stats?.urgentDeadlineCount ?? 0) > 0
+          ? "Quá hạn hoặc đến hạn hôm nay"
+          : "Không có deadline gấp",
+      action: () => navigate("/mangaka/schedule"),
+    },
+    {
+      label: "Cần chỉnh sửa",
+      value: stats?.revisionCount ?? 0,
+      icon: FileEdit,
+      tone: (stats?.revisionCount ?? 0) > 0 ? "orange" : "green",
+      sub:
+        (stats?.revisionCount ?? 0) > 0
+          ? "Tantou yêu cầu sửa lại"
+          : "Không có gì cần sửa",
+      action: () => navigate("/mangaka/schedule"),
+    },
+    {
+      label: "Chờ bạn duyệt",
+      value: stats?.pendingReviewCount ?? 0,
+      icon: Users,
+      tone: (stats?.pendingReviewCount ?? 0) > 0 ? "blue" : "green",
+      sub: "Bài nộp từ Trợ lý",
+      action: () => navigate("/mangaka/series"),
+    },
+    {
+      label: "Series đang quản lý",
+      value: stats?.totalSeries ?? 0,
+      icon: BookOpen,
+      tone: "indigo",
+      sub: `${series.reduce((sum, s) => sum + s.chapterCount, 0)} chương tổng cộng`,
+      action: () => navigate("/mangaka/series"),
+    },
+  ];
 
-  const revisionDeadline = deadlines.find((d) => d.label === "SẮP ĐẾN") ?? null;
+  // Gộp deadline + revision thành 1 danh sách "cần xử lý ngay", ưu tiên
+  // overdue/due trước, tối đa 4 mục để không tràn card
+  const actionItems = deadlines
+    .filter((d) => d.labelType === "overdue" || d.labelType === "due")
+    .slice(0, 4);
 
   return (
-    <div className="mangaka-dashboard">
-      <div className="dashboard-hero">
-        <div className="hero-text">
+    <div className="md-page">
+      <div className="md-header">
+        <div className="md-header__left">
           <h1>Bảng điều khiển</h1>
-          <p>Chào buổi sáng! Đây là tổng quan studio của bạn hôm nay.</p>
+          <p>Tổng quan studio của bạn hôm nay.</p>
         </div>
-        <div className="hero-date">
-          <span>HÔM NAY</span>
-          <strong>{TODAY_LABEL}</strong>
+        <div className="md-header__badge">
+          <CalendarDays size={14} strokeWidth={2} />
+          {dateLabel}
         </div>
       </div>
 
-      <div className="dashboard-layout">
-        <div className="main-content">
-          <div className="alert-cards-grid">
+      <div className="md-stats">
+        {statCards.map((c) => {
+          const Icon = c.icon;
+          return (
             <div
-              className={`alert-card ${nearestDeadline ? "danger-card" : "info-card"}`}
+              key={c.label}
+              className={`md-stat md-stat--${c.tone} ${c.action ? "md-stat--clickable" : ""}`}
+              onClick={c.action}
             >
-              <div className="card-header">
-                <div className="icon-wrapper">
-                  <Timer size={20} />
+              <div className="md-stat__top">
+                <span className="md-stat__label">{c.label}</span>
+                <div className="md-stat__icon">
+                  <Icon size={17} strokeWidth={2} />
                 </div>
-                {nearestDeadline ? (
-                  <span className="badge-urgent">KHẨN CẤP</span>
-                ) : (
-                  <span className="time-text">Ổn định</span>
-                )}
               </div>
-              {nearestDeadline ? (
-                <>
-                  <p className="alert-text">
-                    <strong>
-                      Deadline{" "}
-                      {nearestDeadline.labelType === "overdue"
-                        ? "quá hạn"
-                        : "đến hạn"}
-                    </strong>
-                    <br />
-                    {nearestDeadline.series} cần nộp {nearestDeadline.title} —{" "}
-                    {nearestDeadline.timeTag}.
-                  </p>
-                  <button
-                    className="btn-outline-danger"
-                    onClick={() => navigate("/mangaka/schedule")}
-                  >
-                    Xử lý ngay
-                  </button>
-                </>
-              ) : (
-                <p className="alert-text">
-                  <strong>Không có deadline gấp</strong>
-                  <br />
-                  Mọi trang đều trong hạn nộp.
-                </p>
+              <div className="md-stat__value">{c.value}</div>
+              <div className="md-stat__sub">{c.sub}</div>
+              {c.action && (
+                <div className="md-stat__link">
+                  Xem chi tiết <ChevronRight size={12} />
+                </div>
               )}
             </div>
+          );
+        })}
+      </div>
 
-            <div className="alert-card warning-card">
-              <div className="card-header">
-                <div className="icon-wrapper">
-                  <FileEdit size={20} />
-                </div>
-                <span className="time-text">
-                  {stats?.revisionCount ?? 0} cần sửa
-                </span>
-              </div>
-              {(stats?.revisionCount ?? 0) > 0 ? (
-                <>
-                  <p className="alert-text">
-                    <strong>Có nội dung cần chỉnh sửa</strong>
-                    <br />
-                    {revisionDeadline
-                      ? `Tantou ${revisionDeadline.tantouName} yêu cầu sửa lại ${revisionDeadline.title} – ${revisionDeadline.series}.`
-                      : `${stats?.revisionCount} nhóm trang đang chờ bạn sửa lại theo yêu cầu Tantou.`}
-                  </p>
-                  <a
-                    href="#"
-                    className="link-action"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate("/mangaka/schedule");
-                    }}
-                  >
-                    Xem chi tiết <ArrowRight size={16} />
-                  </a>
-                </>
-              ) : (
-                <p className="alert-text">
-                  <strong>Không có gì cần sửa</strong>
-                  <br />
-                  Tất cả bài nộp đều đã được chấp thuận.
-                </p>
-              )}
+      <div className="md-grid">
+        <div className="md-col">
+          <div className="md-card md-pending">
+            <div className="md-pending__header">
+              <AlertTriangle size={17} strokeWidth={2.5} />
+              <span>Cần xử lý ngay</span>
             </div>
-
-            <div className="alert-card info-card">
-              <div className="card-header">
-                <div className="icon-wrapper">
-                  <Users size={20} />
-                </div>
-              </div>
-              <p className="alert-text">
-                <strong>Bottlenecks</strong>
-                <br />
-                {(stats?.pendingReviewCount ?? 0) > 0
-                  ? `${stats?.pendingReviewCount} bài nộp từ Trợ lý đang chờ duyệt.`
-                  : "Không có bài nộp nào đang chờ duyệt."}
-              </p>
-              {(stats?.pendingReviewCount ?? 0) > 0 && (
+            <div className="md-pending__list">
+              {actionItems.map((d) => (
                 <button
-                  className="btn-primary"
-                  onClick={() => navigate("/mangaka/series")}
+                  key={d.deadlineId}
+                  className={`md-pending__item md-pending__item--${d.labelType === "overdue" ? "red" : "orange"}`}
+                  onClick={() => navigate("/mangaka/schedule")}
                 >
-                  Duyệt file ngay
+                  <span className="md-pending__item-dot" />
+                  <div>
+                    <strong>{d.title}</strong>
+                    <span>
+                      {d.series} · {d.timeTag}
+                    </span>
+                  </div>
+                  <ChevronRight size={14} />
+                </button>
+              ))}
+              {(stats?.revisionCount ?? 0) > 0 && (
+                <button
+                  className="md-pending__item md-pending__item--orange"
+                  onClick={() => navigate("/mangaka/schedule")}
+                >
+                  <span className="md-pending__item-dot" />
+                  <div>
+                    <strong>{stats?.revisionCount} nhóm trang</strong>
+                    <span>Tantou yêu cầu chỉnh sửa lại</span>
+                  </div>
+                  <ChevronRight size={14} />
                 </button>
               )}
+              {actionItems.length === 0 &&
+                (stats?.revisionCount ?? 0) === 0 && (
+                  <div className="md-pending__empty">
+                    <CheckCircle2 size={20} />
+                    <span>Không có mục nào cần xử lý!</span>
+                  </div>
+                )}
             </div>
           </div>
 
-          <div className="bottom-grid">
-            <div className="progress-card panel-card">
-              <div className="panel-header">
-                <h3>TIẾN ĐỘ CÁC SERIES</h3>
-                <MoreHorizontal
-                  className="icon-more"
-                  size={20}
-                  onClick={() => navigate("/mangaka/series")}
-                  style={{ cursor: "pointer" }}
-                />
-              </div>
-
-              <div className="progress-list">
-                {series.length === 0 ? (
-                  <div className="md-empty-inline">Chưa có series nào.</div>
-                ) : (
-                  series.slice(0, 5).map((s) => {
-                    const total = s.totalPageDeadlines;
-                    const submitted = s.submittedPageDeadlines;
-                    const pct =
-                      total > 0 ? Math.round((submitted / total) * 100) : 0;
-                    return (
-                      <div className="progress-item" key={s.seriesId}>
-                        <div className="item-info">
-                          <span className="series-name">{s.title}</span>
-                          <span
-                            className={`status-text ${pct >= 80 ? "highlight" : ""}`}
-                          >
-                            {total > 0
-                              ? `${submitted}/${total} trang (${pct}%)`
-                              : (s.seriesStatus ?? "Chưa có deadline")}
-                          </span>
-                        </div>
-                        <div className="progress-bar">
-                          <div
-                            className={`fill ${pct >= 80 ? "blue" : "light-blue"}`}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            <div className="right-subgrid">
-              <div className="assistant-card panel-card">
-                <div className="panel-header line-gray">
-                  <h3>TRỢ LÝ ĐANG CỘNG TÁC</h3>
-                </div>
-                <div className="assistant-list">
-                  {assistants.length === 0 ? (
-                    <div className="md-empty-inline">Chưa có trợ lý nào.</div>
-                  ) : (
-                    assistants.map((a) => (
-                      <div className="assistant-item" key={a.assignmentId}>
-                        <div className="avatar-container">
-                          {a.assistantAvatarUrl ? (
-                            <img
-                              src={a.assistantAvatarUrl}
-                              alt={a.assistantName}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                borderRadius: "50%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                background: getAvatarColor(a.assistantName),
-                                color: "#fff",
-                                fontSize: 11,
-                                fontWeight: 800,
-                              }}
-                            >
-                              {getInitials(a.assistantName)}
-                            </div>
-                          )}
-                        </div>
-                        <span>{a.assistantName}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className="ranking-card panel-card">
-                <div className="panel-header bg-blue">
-                  <h3>BẢNG XẾP HẠNG SERIES CỦA BẠN</h3>
-                </div>
-                <div className="ranking-list">
-                  {ranking.length === 0 ? (
-                    <div className="md-empty-inline">
-                      Chưa có dữ liệu xếp hạng.
-                    </div>
-                  ) : (
-                    ranking.map((r, idx) => (
-                      <div
-                        className={`ranking-item ${idx === 0 ? "top-1" : ""}`}
-                        key={r.seriesId}
-                      >
-                        <span className="rank-num">{idx + 1}</span>
-                        <span className="rank-name">
-                          {r.title}
-                          {r.latestChapter != null
-                            ? ` · Ch.${r.latestChapter}`
-                            : ""}
-                        </span>
-                        {r.voteCount > 0 ? (
-                          <Star
-                            className="trend-up"
-                            size={16}
-                            strokeWidth={2.5}
-                          />
-                        ) : (
-                          <Minus
-                            className="trend-flat"
-                            size={16}
-                            strokeWidth={2.5}
-                          />
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
+          <div className="md-card">
+            <RecentActivityWidget />
           </div>
         </div>
 
-        <RecentActivityWidget />
+        <div className="md-col">
+          <div className="md-card md-progress">
+            <div className="md-card__head">
+              <div className="md-card__title">
+                <BarChart3 size={15} strokeWidth={2} />
+                Tiến độ các series
+              </div>
+            </div>
+            <div className="md-progress__list">
+              {series.length === 0 ? (
+                <div className="md-progress__empty">Chưa có series nào.</div>
+              ) : (
+                series.slice(0, 5).map((s) => {
+                  const total = s.totalPageDeadlines;
+                  const submitted = s.submittedPageDeadlines;
+                  const pct =
+                    total > 0 ? Math.round((submitted / total) * 100) : 0;
+                  return (
+                    <div className="md-progress__item" key={s.seriesId}>
+                      <div className="md-progress__top">
+                        <strong>{s.title}</strong>
+                        <span>
+                          {total > 0
+                            ? `${submitted}/${total} trang`
+                            : "Chưa có deadline"}
+                        </span>
+                      </div>
+                      <div className="md-progress__bar">
+                        <div
+                          className={`md-progress__fill ${pct >= 80 ? "md-progress__fill--high" : ""}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          <div className="md-card md-collab">
+            <div className="md-card__head">
+              <div className="md-card__title">
+                <Users size={15} strokeWidth={2} />
+                Trợ lý đang cộng tác
+              </div>
+            </div>
+            <div className="md-collab__list">
+              {assistants.length === 0 ? (
+                <div className="md-collab__empty">Chưa có trợ lý nào.</div>
+              ) : (
+                assistants.map((a) => (
+                  <div className="md-collab__item" key={a.assignmentId}>
+                    {a.assistantAvatarUrl ? (
+                      <img
+                        className="md-collab__avatar"
+                        src={a.assistantAvatarUrl}
+                        alt={a.assistantName}
+                      />
+                    ) : (
+                      <div
+                        className="md-collab__avatar md-collab__avatar--initials"
+                        style={{ background: getAvatarColor(a.assistantName) }}
+                      >
+                        {getInitials(a.assistantName)}
+                      </div>
+                    )}
+                    <span>{a.assistantName}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="md-card md-ranking">
+            <div className="md-card__head">
+              <div className="md-card__title">
+                <Star size={15} strokeWidth={2} />
+                Bảng xếp hạng series của bạn
+              </div>
+            </div>
+            <div className="md-ranking__list">
+              {ranking.length === 0 ? (
+                <div className="md-ranking__empty">
+                  Chưa có dữ liệu xếp hạng.
+                </div>
+              ) : (
+                ranking.map((r, idx) => (
+                  <div
+                    key={r.seriesId}
+                    className={`md-rank-item ${idx === 0 ? "md-rank-item--top" : ""}`}
+                  >
+                    <span className="md-rank-item__num">#{idx + 1}</span>
+                    <div className="md-rank-item__body">
+                      <strong>{r.title}</strong>
+                      <span>
+                        {r.latestChapter != null
+                          ? `Ch.${r.latestChapter}`
+                          : "Chưa có chương"}
+                        {" · "}
+                        {r.voteCount.toLocaleString()} vote
+                        {r.rating > 0 ? ` · ⭐ ${r.rating.toFixed(1)}` : ""}
+                      </span>
+                    </div>
+                    <div
+                      className={`md-rank-item__trend ${r.voteCount > 0 ? "md-rank-item__trend--voted" : ""}`}
+                    >
+                      {r.voteCount > 0 ? (
+                        <Star size={13} />
+                      ) : (
+                        <Minus size={13} />
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
