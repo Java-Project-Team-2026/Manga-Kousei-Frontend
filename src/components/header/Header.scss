@@ -735,3 +735,165 @@
   font-size: 10.5px;
   font-weight: 800;
 }
+
+[data-theme="dark"] {
+  .header-container {
+    background-color: var(--color-bg-surface);
+    border-bottom-color: var(--color-border);
+  }
+
+  .search-box {
+    background-color: var(--color-bg-surface-alt);
+  }
+
+  .search-input {
+    color: var(--color-text-primary);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+  }
+
+  .header-divider,
+  .divider {
+    background-color: var(--color-border);
+  }
+
+  .icon-btn {
+    color: var(--color-text-secondary);
+
+    &:hover {
+      background-color: var(--color-bg-surface-alt);
+      color: var(--color-text-primary);
+    }
+
+    &.active {
+      background-color: var(--color-brand-soft);
+      color: var(--color-brand-accent);
+    }
+  }
+
+  .user-name {
+    color: var(--color-text-primary);
+  }
+
+  .user-role {
+    color: var(--color-text-secondary);
+  }
+
+  .user-profile:hover {
+    background-color: var(--color-bg-surface-alt);
+  }
+
+  .header-popover,
+  .profile-popup {
+    background-color: var(--color-bg-surface);
+    border-color: var(--color-border);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  }
+
+  .header-popover--utility::before {
+    background: var(--color-bg-surface);
+    border-color: var(--color-border);
+  }
+
+  .header-popover__header {
+    border-bottom-color: var(--color-border);
+
+    strong {
+      color: var(--color-text-primary);
+    }
+    span {
+      color: var(--color-text-secondary);
+    }
+    button {
+      background: var(--color-bg-surface);
+      border-color: var(--color-border);
+      color: var(--color-brand-accent);
+
+      &:hover {
+        background: var(--color-brand-soft);
+        border-color: var(--color-brand-accent);
+      }
+    }
+  }
+
+  .header-action-list button,
+  .header-message-list button,
+  .header-notice-list button,
+  .header-chat-item,
+  .header-notif-item {
+    background: var(--color-bg-surface);
+    color: var(--color-text-secondary);
+
+    strong {
+      color: var(--color-text-primary);
+    }
+    span,
+    small {
+      color: var(--color-text-secondary);
+    }
+    time {
+      color: var(--color-text-muted);
+    }
+
+    &:hover {
+      background: var(--color-bg-surface-alt);
+      color: var(--color-brand-accent);
+    }
+  }
+
+  .header-chat-item--unread,
+  .header-notif-item--unread {
+    background: var(--color-brand-soft);
+
+    &:hover {
+      background: var(--color-brand-soft);
+      filter: brightness(1.15);
+    }
+  }
+
+  .header-notif__mark-all {
+    border-color: var(--color-border);
+    color: var(--color-brand-accent);
+
+    &:hover {
+      background: var(--color-brand-soft);
+    }
+  }
+
+  .header-notif__empty {
+    color: var(--color-text-muted);
+  }
+
+  .popup-user-name {
+    color: var(--color-text-primary);
+  }
+  .popup-user-email,
+  .popup-user-role {
+    color: var(--color-text-secondary);
+  }
+
+  .popup-manage-btn {
+    background-color: transparent;
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+
+    &:hover {
+      background-color: var(--color-bg-surface-alt);
+      border-color: var(--color-text-muted);
+    }
+  }
+
+  .popup-divider {
+    background-color: var(--color-border);
+  }
+
+  .popup-menu-item {
+    color: var(--color-text-secondary);
+
+    &:hover {
+      background-color: var(--color-bg-surface-alt);
+    }
+  }
+}
