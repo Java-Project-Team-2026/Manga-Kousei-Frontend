@@ -614,19 +614,124 @@
   }
 }
 
-.header-message-list__badge {
+// Thêm vào cuối src/components/header/Header.scss
+// (nếu trước đó bạn đã thêm khối .header-message-list__badge từ lần trước,
+// XOÁ nó đi -- không dùng nữa, đã thay bằng .header-chat-item bên dưới)
+
+.header-chat-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 9px 10px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+
+  &--unread {
+    background: #eff6ff;
+
+    &:hover {
+      background: #dbeafe;
+    }
+
+    .header-chat-item__top strong {
+      color: #0f172a;
+    }
+
+    .header-chat-item__bottom small {
+      color: #1e293b;
+      font-weight: 700;
+    }
+  }
+}
+
+.header-chat-item__avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  &--initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+  }
+}
+
+.header-chat-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.header-chat-item__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+
+  strong {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  time {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 700;
+  }
+}
+
+.header-chat-item__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  small {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.header-chat-item__badge {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 16px;
-  height: 16px;
+  min-width: 18px;
+  height: 18px;
   padding: 0 5px;
-  margin-left: 6px;
   border-radius: 999px;
-  background: #ef4444;
+  background: #0254b1;
   color: #fff;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 800;
-  line-height: 16px;
-  vertical-align: middle;
 }

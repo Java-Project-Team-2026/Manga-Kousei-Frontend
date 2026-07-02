@@ -618,50 +618,6 @@ $shadow-card-doing:
   }
 }
 
-.resourceGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.resourceItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 18px 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-
-    .resourceItemIcon {
-      color: #16a34a;
-    }
-  }
-}
-
-.resourceItemIcon {
-  color: $gray-500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.resourceItemLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: #334155;
-  text-align: center;
-  line-height: 1.3;
-}
-
 .incomeCard {
   background: $white;
   border: 1px solid $border;
@@ -748,4 +704,106 @@ $shadow-card-doing:
   color: $gray-400;
   text-align: right;
   margin-top: 6px;
+}
+
+.collabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: $blue-accent;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.collabEmpty {
+  padding: 20px 8px;
+  text-align: center;
+  font-size: 12.5px;
+  color: $gray-400;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.collabList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.collabItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 6px;
+  border-radius: $radius-md;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f8fafc;
+  }
+}
+
+.collabAvatar {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.collabInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+
+  strong {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: $gray-900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  span {
+    font-size: 11px;
+    color: $gray-400;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}
+
+.collabChatBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: $blue-accent;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: $blue-accent;
+    border-color: $blue-accent;
+    color: #fff;
+  }
 }

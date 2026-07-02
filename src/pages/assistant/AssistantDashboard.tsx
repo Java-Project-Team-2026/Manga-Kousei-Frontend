@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   FileText,
   SquarePen,
-  FolderOpen,
   Wallet,
   Clock,
   Hourglass,
@@ -12,10 +11,9 @@ import {
   MoreHorizontal,
   Download,
   Upload,
-  UserRoundSearch,
-  Boxes,
-  Pencil,
   Megaphone,
+  Users,
+  MessageSquareText,
 } from "lucide-react";
 import styles from "./AssistantDashboard.module.scss";
 import {
@@ -27,6 +25,16 @@ import {
   type NotificationItem,
 } from "../../services/notificationService";
 import api from "../../services/api";
+import {
+  fetchMyActiveCollaborations,
+  type AssistantAssignmentRes,
+} from "../../services/assistantAssignmentService";
+import {
+  fetchConversations,
+  type ConversationItem,
+} from "../../services/chatService";
+import { getAvatarColor, getInitials } from "../../utils";
+import ChatWindow from "../../components/chat/ChatWindow";
 
 interface Notification {
   icon: "edit" | "file";
@@ -54,11 +62,6 @@ interface KanbanColumn {
   cards: KanbanCard[];
 }
 
-interface Resource {
-  icon: "user" | "layers" | "brush";
-  label: string;
-}
-
 interface IncomeMonthRes {
   month: string;
   monthLabel: string;
@@ -70,12 +73,6 @@ interface IncomeMonthRes {
 interface ApiResp<T> {
   data: T;
 }
-
-const resources: Resource[] = [
-  { icon: "user", label: "Character Sheets" },
-  { icon: "layers", label: "3D Backgrounds" },
-  { icon: "brush", label: "Custom Brushes" },
-];
 
 const columnLabels: Record<KanbanColumn["id"], string> = {
   todo: "CHỜ LÀM",
@@ -188,19 +185,6 @@ const renderNotifIcon = (type: Notification["icon"]) => {
       return <SquarePen size={15} className={styles.notifIconEdit} />;
     case "file":
       return <FileText size={15} className={styles.notifIconFile} />;
-    default:
-      return null;
-  }
-};
-
-const renderResourceIcon = (type: Resource["icon"]) => {
-  switch (type) {
-    case "user":
-      return <UserRoundSearch size={22} />;
-    case "layers":
-      return <Boxes size={22} />;
-    case "brush":
-      return <Pencil size={22} />;
     default:
       return null;
   }
@@ -381,23 +365,66 @@ const KanbanBoard: React.FC<{ columns: KanbanColumn[] }> = ({ columns }) => (
   </section>
 );
 
-const ResourceVault: React.FC = () => (
+const CollaboratorsCard: React.FC<{
+  collaborators: AssistantAssignmentRes[];
+  conversations: ConversationItem[];
+  onOpenChat: (conv: ConversationItem) => void;
+}> = ({ collaborators, conversations, onOpenChat }) => (
   <div className={styles.resourceCard}>
     <div className={styles.resourceHeader}>
-      <FolderOpen size={18} className={styles.resourceIcon} />
-      <h3 className={styles.resourceTitle}>Kho tài nguyên</h3>
-      <button className={styles.resourceLink}>Xem tất cả</button>
+      <Users size={18} className={styles.resourceIcon} />
+      <h3 className={styles.resourceTitle}>Đang cộng tác cùng</h3>
+      <span className={styles.collabCount}>{collaborators.length}</span>
     </div>
-    <div className={styles.resourceGrid}>
-      {resources.map((r, i) => (
-        <button key={i} className={styles.resourceItem}>
-          <div className={styles.resourceItemIcon}>
-            {renderResourceIcon(r.icon)}
-          </div>
-          <span className={styles.resourceItemLabel}>{r.label}</span>
-        </button>
-      ))}
-    </div>
+
+    {collaborators.length === 0 ? (
+      <div className={styles.collabEmpty}>
+        Bạn chưa cộng tác cùng Mangaka nào. Chờ lời mời từ Mangaka nhé!
+      </div>
+    ) : (
+      <div className={styles.collabList}>
+        {collaborators.map((c) => {
+          const conv = conversations.find(
+            (cv) => cv.otherUserId === c.mangakaId,
+          );
+
+          return (
+            <div key={c.assignmentId} className={styles.collabItem}>
+              {c.mangakaAvatarUrl ? (
+                <img
+                  className={styles.collabAvatar}
+                  src={c.mangakaAvatarUrl}
+                  alt={c.mangakaName}
+                />
+              ) : (
+                <div
+                  className={styles.collabAvatar}
+                  style={{ background: getAvatarColor(c.mangakaName) }}
+                >
+                  {getInitials(c.mangakaName)}
+                </div>
+              )}
+
+              <div className={styles.collabInfo}>
+                <strong>{c.mangakaName}</strong>
+                <span>Mangaka</span>
+              </div>
+
+              {conv && (
+                <button
+                  type="button"
+                  className={styles.collabChatBtn}
+                  onClick={() => onOpenChat(conv)}
+                >
+                  <MessageSquareText size={14} />
+                  Nhắn tin
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    )}
   </div>
 );
 
@@ -445,6 +472,11 @@ const AssistantDashboard: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [income, setIncome] = useState<IncomeMonthRes | null>(null);
   const [loading, setLoading] = useState(true);
+  const [collaborators, setCollaborators] = useState<AssistantAssignmentRes[]>(
+    [],
+  );
+  const [conversations, setConversations] = useState<ConversationItem[]>([]);
+  const [openChat, setOpenChat] = useState<ConversationItem | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -455,10 +487,18 @@ const AssistantDashboard: React.FC = () => {
       setError(null);
 
       try {
-        const [taskData, notificationData, incomeRes] = await Promise.all([
+        const [
+          taskData,
+          notificationData,
+          incomeRes,
+          invitationData,
+          conversationData,
+        ] = await Promise.all([
           fetchMyTasks(),
           fetchMyNotifications(),
           api.get<ApiResp<IncomeMonthRes>>("/assistant/income"),
+          fetchMyActiveCollaborations(),
+          fetchConversations(),
         ]);
 
         if (!isMounted) return;
@@ -466,6 +506,8 @@ const AssistantDashboard: React.FC = () => {
         setTasks(taskData);
         setNotifications(notificationData.slice(0, 3).map(toNotification));
         setIncome(incomeRes.data.data);
+        setCollaborators(invitationData.filter((i) => i.status === "active"));
+        setConversations(conversationData);
       } catch {
         if (isMounted) {
           setError("Không thể tải dữ liệu dashboard.");
@@ -502,7 +544,8 @@ const AssistantDashboard: React.FC = () => {
         <p className={styles.pageSubtitle}>
           {loading
             ? "Đang tải dữ liệu công việc của bạn..."
-            : error || "Chào buổi sáng, đây là tóm tắt công việc của bạn hôm nay."}
+            : error ||
+              "Chào buổi sáng, đây là tóm tắt công việc của bạn hôm nay."}
         </p>
       </div>
 
@@ -514,9 +557,16 @@ const AssistantDashboard: React.FC = () => {
       <KanbanBoard columns={kanbanColumns} />
 
       <div className={styles.bottomRow}>
-        <ResourceVault />
+        <CollaboratorsCard
+          collaborators={collaborators}
+          conversations={conversations}
+          onOpenChat={setOpenChat}
+        />
         <IncomeCard income={income} />
       </div>
+      {openChat && (
+        <ChatWindow conversation={openChat} onClose={() => setOpenChat(null)} />
+      )}
     </div>
   );
 };

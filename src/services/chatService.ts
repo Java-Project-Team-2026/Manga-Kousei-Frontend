@@ -1,4 +1,3 @@
-// src/services/chatService.ts
 import api from "./api";
 
 interface ApiResponse<T> {
@@ -28,11 +27,17 @@ export interface ChatMessageItem {
   createdAt: string;
 }
 
+export interface AdminContact {
+  userId: number;
+  fullName: string;
+  avatarUrl: string | null;
+}
+
 interface SpringPage<T> {
   content: T[];
   totalElements: number;
   totalPages: number;
-  number: number; // trang hiện tại (0-based)
+  number: number;
   size: number;
   last: boolean;
 }
@@ -65,3 +70,15 @@ export const sendChatMessage = (
 
 export const markConversationRead = (conversationId: number): Promise<void> =>
   api.patch(`/chat/conversations/${conversationId}/read`);
+
+export const fetchAvailableAdmins = (): Promise<AdminContact[]> =>
+  api
+    .get<ApiResponse<AdminContact[]>>("/chat/admins")
+    .then((r) => r.data.data ?? []);
+
+export const startConversationWithAdmin = (
+  adminId: number,
+): Promise<ConversationItem> =>
+  api
+    .post<ApiResponse<ConversationItem>>(`/chat/conversations/start/${adminId}`)
+    .then((r) => r.data.data);

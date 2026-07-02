@@ -63,6 +63,13 @@ export const fetchMyInvitations = (): Promise<AssistantAssignmentRes[]> =>
     .get<ApiResponse<AssistantAssignmentRes[]>>("/assistant/invitations")
     .then((r) => r.data.data ?? []);
 
+export const fetchMyActiveCollaborations = (): Promise<
+  AssistantAssignmentRes[]
+> =>
+  api
+    .get<ApiResponse<AssistantAssignmentRes[]>>("/assistant/invitations/active")
+    .then((r) => r.data.data ?? []);
+
 export const countPendingInvitations = (): Promise<number> =>
   api
     .get<ApiResponse<number>>("/assistant/invitations/count")
