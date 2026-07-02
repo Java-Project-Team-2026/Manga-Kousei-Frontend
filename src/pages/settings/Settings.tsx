@@ -11,12 +11,12 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import "./Settings.scss";
+import { useTheme } from "../../hooks/useTheme";
 
 type ThemeMode = "system" | "light" | "dark";
 type DensityMode = "comfortable" | "compact";
 
 interface SettingsState {
-  theme: ThemeMode;
   density: DensityMode;
   language: string;
   timezone: string;
@@ -25,7 +25,6 @@ interface SettingsState {
 }
 
 const defaultSettings: SettingsState = {
-  theme: "system",
   density: "comfortable",
   language: "vi",
   timezone: "Asia/Ho_Chi_Minh",
@@ -72,6 +71,7 @@ function Settings() {
   const { user } = useAuth();
   const [settings, setSettings] = useState<SettingsState>(readStoredSettings);
   const [saved, setSaved] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const userRole = user?.role || "USER";
   const displayName = user?.fullName || "Manga Kousei User";
@@ -139,7 +139,7 @@ function Settings() {
             <MonitorCog size={20} />
           </span>
           <div>
-            <strong>{themeLabels[settings.theme]}</strong>
+            <strong>{themeLabels[theme]}</strong>
             <p>Chế độ giao diện</p>
           </div>
         </article>
@@ -181,25 +181,25 @@ function Settings() {
               aria-label="Chế độ màu"
             >
               <button
-                className={settings.theme === "system" ? "active" : ""}
+                className={theme === "system" ? "active" : ""}
                 type="button"
-                onClick={() => updateSetting("theme", "system")}
+                onClick={() => setTheme("system")}
               >
                 <MonitorCog size={16} />
                 Hệ thống
               </button>
               <button
-                className={settings.theme === "light" ? "active" : ""}
+                className={theme === "light" ? "active" : ""}
                 type="button"
-                onClick={() => updateSetting("theme", "light")}
+                onClick={() => setTheme("light")}
               >
                 <Sun size={16} />
                 Sáng
               </button>
               <button
-                className={settings.theme === "dark" ? "active" : ""}
+                className={theme === "dark" ? "active" : ""}
                 type="button"
-                onClick={() => updateSetting("theme", "dark")}
+                onClick={() => setTheme("dark")}
               >
                 <Moon size={16} />
                 Tối
