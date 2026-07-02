@@ -13,11 +13,13 @@ interface Props {
   currentFullName: string;
   currentAvatarUrl: string | null;
   currentPhone: string | null;
+  currentBio: string | null;
   onClose: () => void;
   onSaved: (result: {
     fullName: string;
     avatarUrl: string | null;
     phone: string | null;
+    bio: string | null;
   }) => void;
 }
 
@@ -29,19 +31,23 @@ export default function EditProfileModal({
   currentFullName,
   currentAvatarUrl,
   currentPhone,
+  currentBio,
   onClose,
   onSaved,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<Tab>("info");
 
+  // ─── Tab "Thông tin" ───
   const [fullName, setFullName] = useState(currentFullName);
   const [phone, setPhone] = useState(currentPhone ?? "");
+  const [bio, setBio] = useState(currentBio ?? "");
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [savingInfo, setSavingInfo] = useState(false);
   const [infoError, setInfoError] = useState<string | null>(null);
 
+  // ─── Tab "Mật khẩu" ───
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -90,6 +96,7 @@ export default function EditProfileModal({
       const result = await updateMyProfile({
         fullName: trimmedName,
         phone: trimmedPhone,
+        bio: bio.trim(),
         ...(avatarUrl ? { avatarUrl } : {}),
       });
 
@@ -97,6 +104,7 @@ export default function EditProfileModal({
         fullName: result.fullName,
         avatarUrl: result.avatarUrl,
         phone: result.phone,
+        bio: result.bio,
       });
     } catch (err) {
       console.error("Cập nhật hồ sơ thất bại", err);
@@ -220,6 +228,20 @@ export default function EditProfileModal({
                   onChange={(e) => setPhone(e.target.value)}
                   maxLength={15}
                   placeholder="Chưa cập nhật"
+                />
+              </label>
+
+              <label className="epm-field">
+                <span>
+                  Giới thiệu
+                  <em className="epm-field__count">{bio.length}/500</em>
+                </span>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={500}
+                  rows={4}
+                  placeholder="Vài dòng giới thiệu về bạn..."
                 />
               </label>
 

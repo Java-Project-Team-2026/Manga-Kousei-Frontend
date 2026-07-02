@@ -9,6 +9,7 @@ export interface UpdateProfileReq {
   fullName?: string;
   avatarUrl?: string;
   phone?: string;
+  bio?: string;
 }
 
 export interface UserProfileRes {
@@ -17,6 +18,7 @@ export interface UserProfileRes {
   email: string;
   avatarUrl: string | null;
   phone: string | null;
+  bio: string | null;
   roles: string[];
 }
 
@@ -32,7 +34,5 @@ export const updateMyProfile = (
     .patch<ApiResp<UserProfileRes>>("/users/me", body)
     .then((r) => r.data.data);
 
-// Tái dùng endpoint đã có sẵn từ trước (Settings.tsx cũ có thể đang gọi
-// riêng lẻ) -- gộp vào chung modal Edit Profile cho tiện.
 export const changeMyPassword = (body: ChangePasswordReq): Promise<void> =>
   api.patch("/users/me/password", body).then(() => undefined);

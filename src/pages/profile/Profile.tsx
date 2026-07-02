@@ -34,6 +34,7 @@ interface UserDetail {
   email: string;
   avatarUrl: string | null;
   phone: string | null;
+  bio: string | null;
   roles: string[];
   createdSeries: number;
   editedSeries: number;
@@ -368,6 +369,14 @@ function Profile() {
                 </strong>
               </div>
             </div>
+
+            <div className="profile-bio">
+              <span>Giới thiệu</span>
+              <p>
+                {detail?.bio ||
+                  'Chưa có mô tả. Bấm "Edit Profile" để thêm vài dòng giới thiệu về bản thân.'}
+              </p>
+            </div>
           </article>
 
           <article className="profile-panel">
@@ -456,10 +465,13 @@ function Profile() {
           currentFullName={displayName}
           currentAvatarUrl={user?.avatarUrl ?? null}
           currentPhone={detail?.phone ?? null}
+          currentBio={detail?.bio ?? null}
           onClose={() => setShowEditModal(false)}
-          onSaved={({ fullName, avatarUrl, phone }) => {
+          onSaved={({ fullName, avatarUrl, phone, bio }) => {
             updateUser({ fullName, avatarUrl });
-            setDetail((prev) => (prev ? { ...prev, fullName, phone } : prev));
+            setDetail((prev) =>
+              prev ? { ...prev, fullName, phone, bio } : prev,
+            );
             setShowEditModal(false);
           }}
         />

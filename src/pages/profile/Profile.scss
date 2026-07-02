@@ -709,3 +709,50 @@
     transform: rotate(360deg);
   }
 }
+
+.profile-page--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 60vh;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.profile-page--error {
+  color: #dc2626;
+}
+
+.profile-spin {
+  animation: profile-spin-anim 0.9s linear infinite;
+}
+
+@keyframes profile-spin-anim {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.profile-bio {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+
+  span {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin: 0;
+    color: #334155;
+    font-size: 13.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+}
