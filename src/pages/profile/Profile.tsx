@@ -20,6 +20,7 @@ import {
   type ActivityLogItem,
 } from "../../services/activityLogService";
 import { fetchMangakaReportStats } from "../../services/mangakaReportService";
+import EditProfileModal from "../../components/profile/EditProfileModal";
 import "./Profile.scss";
 
 interface ApiResp<T> {
@@ -32,6 +33,7 @@ interface UserDetail {
   fullName: string;
   email: string;
   avatarUrl: string | null;
+  phone: string | null;
   roles: string[];
   createdSeries: number;
   editedSeries: number;
@@ -210,12 +212,13 @@ function formatRelativeDays(dateStr: string | null): string {
 }
 
 function Profile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [detail, setDetail] = useState<UserDetail | null>(null);
   const [stats, setStats] = useState<ProfileStat[]>([]);
   const [recentLogs, setRecentLogs] = useState<ActivityLogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const displayName = user?.fullName || "MangaKousei User";
   const email = user?.email || "user@mangakousei.local";
@@ -300,8 +303,7 @@ function Profile() {
           <button
             className="profile-btn profile-btn--primary"
             type="button"
-            disabled
-            title="Sắp ra mắt"
+            onClick={() => setShowEditModal(true)}
           >
             <Edit3 size={16} />
             Edit Profile
@@ -346,6 +348,10 @@ function Profile() {
               <div className="profile-info-item">
                 <span>Primary Role</span>
                 <strong>{roleLabels[role]}</strong>
+              </div>
+              <div className="profile-info-item">
+                <span>Phone</span>
+                <strong>{detail?.phone || "Chưa cập nhật"}</strong>
               </div>
               <div className="profile-info-item">
                 <span>Member ID</span>
@@ -444,6 +450,20 @@ function Profile() {
           </article>
         </aside>
       </section>
+
+      {showEditModal && (
+        <EditProfileModal
+          currentFullName={displayName}
+          currentAvatarUrl={user?.avatarUrl ?? null}
+          currentPhone={detail?.phone ?? null}
+          onClose={() => setShowEditModal(false)}
+          onSaved={({ fullName, avatarUrl, phone }) => {
+            updateUser({ fullName, avatarUrl });
+            setDetail((prev) => (prev ? { ...prev, fullName, phone } : prev));
+            setShowEditModal(false);
+          }}
+        />
+      )}
     </main>
   );
 }
