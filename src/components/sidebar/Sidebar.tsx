@@ -13,7 +13,6 @@ import {
   CircleHelp,
   LogOut,
   BookOpen,
-  Banknote,
   Calendar,
   Users,
   LineChart,
@@ -81,11 +80,6 @@ export const Sidebar = () => {
         path: "admin/approvals",
         label: "Xét duyệt dự án mới",
         icon: ClipboardCheck,
-      },
-      {
-        path: "admin/contracts",
-        label: "Tài chính & hợp đồng",
-        icon: Banknote,
       },
       {
         path: "admin/personnel",
