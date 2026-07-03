@@ -34,6 +34,7 @@ import AssistantInvitations from "./pages/assistant/AssistantInvitations/Assista
 import MangakaPageEditor from "./pages/mangaka/MangakaPageEditor/MangakaPageEditor.tsx";
 import AssistantTasks from "./pages/assistant/AssistantTasks/AssistantTasks.tsx";
 import AdminPersonnel from "./pages/admin/AdminPersonnel.tsx";
+import Help from "./pages/help/Help.tsx";
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
         >
           <Route path="/profile" element={<Profile />} />
           <Route path="/setting" element={<Settings />} />
+          <Route path="/help" element={<Help />} />
           <Route path="/activity-history" element={<ActivityHistory />} />
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>

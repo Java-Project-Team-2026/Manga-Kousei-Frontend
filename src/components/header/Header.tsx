@@ -10,9 +10,6 @@ import {
   UserRound,
   LogOut,
   History,
-  Settings,
-  ShieldCheck,
-  BookOpenCheck,
   CheckCheck,
   Loader2,
   MessagesSquare,
@@ -65,7 +62,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   const [activeUtility, setActiveUtility] = useState<
-    "help" | "messages" | "notifications" | null
+    "messages" | "notifications" | null
   >(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const utilityRef = useRef<HTMLDivElement>(null);
@@ -241,17 +238,7 @@ export const Header = () => {
     navigate(path);
   };
 
-  const role = user?.role;
-  const reviewPath =
-    role === "ADMIN"
-      ? "/admin/proposal-review"
-      : role === "TANTOU"
-        ? "/tantou/proposal-review"
-        : role === "MANGAKA"
-          ? "/mangaka/series"
-          : "/dashboard";
-
-  const toggleUtility = (panel: "help" | "messages" | "notifications") => {
+  const toggleUtility = (panel: "messages" | "notifications") => {
     setShowPopup(false);
     setActiveUtility((current) => (current === panel ? null : panel));
   };
@@ -270,10 +257,10 @@ export const Header = () => {
       <div className="header-right">
         <div className="icon-group" ref={utilityRef}>
           <button
-            className={`icon-btn ${activeUtility === "help" ? "active" : ""}`}
+            className="icon-btn"
             type="button"
             aria-label="Mở trợ giúp"
-            onClick={() => toggleUtility("help")}
+            onClick={() => goTo("/help")}
           >
             <CircleHelp size={22} strokeWidth={1.5} />
           </button>
@@ -301,31 +288,6 @@ export const Header = () => {
               </span>
             )}
           </button>
-
-          {activeUtility === "help" && (
-            <div className="header-popover header-popover--utility">
-              <div className="header-popover__header">
-                <div>
-                  <strong>Trợ giúp nhanh</strong>
-                  <span>Các lối tắt thường dùng</span>
-                </div>
-              </div>
-              <div className="header-action-list">
-                <button type="button" onClick={() => goTo("/setting")}>
-                  <Settings size={17} />
-                  <span>Cài đặt hệ thống</span>
-                </button>
-                <button type="button" onClick={handleProfileClick}>
-                  <ShieldCheck size={17} />
-                  <span>Kiểm tra hồ sơ & bảo mật</span>
-                </button>
-                <button type="button" onClick={() => goTo(reviewPath)}>
-                  <BookOpenCheck size={17} />
-                  <span>Mở khu vực xét duyệt</span>
-                </button>
-              </div>
-            </div>
-          )}
 
           {activeUtility === "messages" && (
             <div className="header-popover header-popover--utility header-popover--notif">
