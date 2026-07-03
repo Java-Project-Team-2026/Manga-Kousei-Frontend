@@ -25,14 +25,41 @@ $shadow-soft:
   min-height: calc(100vh - 70px);
   width: 100%;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 85% 6%, rgba(6, 182, 212, 0.16), transparent 28%),
-    radial-gradient(circle at 10% 0%, rgba(124, 58, 237, 0.15), transparent 28%),
-    linear-gradient(180deg, #eef4ff 0, rgba(244, 247, 251, 0) 300px),
-    $page-bg;
+  background: var(--color-bg-page);
   padding: 34px 40px 48px;
-  color: $ink;
+  color: var(--color-text-primary);
   font-family: Inter, "Segoe UI", Arial, sans-serif;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  [data-theme="dark"] & {
+    background: var(--color-bg-page);
+  }
+
+  background-image:
+    radial-gradient(circle at 85% 6%, rgba(6, 182, 212, 0.16), transparent 28%),
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(124, 58, 237, 0.15),
+      transparent 28%
+    ),
+    linear-gradient(180deg, #eef4ff 0, rgba(244, 247, 251, 0) 300px);
+
+  [data-theme="dark"] & {
+    background-image:
+      radial-gradient(
+        circle at 85% 6%,
+        rgba(6, 182, 212, 0.08),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 10% 0%,
+        rgba(124, 58, 237, 0.07),
+        transparent 28%
+      ),
+      linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0, transparent 300px);
+  }
 
   *,
   *::before,
@@ -65,11 +92,22 @@ $shadow-soft:
   border-radius: 24px;
   overflow: hidden;
   background:
-    linear-gradient(115deg, rgba(15, 23, 42, 0.92) 0%, rgba(23, 38, 68, 0.86) 48%, rgba(20, 92, 200, 0.32) 100%),
+    linear-gradient(
+      115deg,
+      rgba(15, 23, 42, 0.92) 0%,
+      rgba(23, 38, 68, 0.86) 48%,
+      rgba(20, 92, 200, 0.32) 100%
+    ),
     url("https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?q=80&w=1600&auto=format&fit=crop");
   background-position: center;
   background-size: cover;
   box-shadow: $shadow-soft;
+
+  // Dark mode hero background - giữ nguyên vì đã tối
+  [data-theme="dark"] & {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .hero-text {
@@ -178,6 +216,12 @@ $shadow-soft:
   &:hover {
     transform: translateY(-2px);
   }
+
+  [data-theme="dark"] & {
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .btn-outline {
@@ -219,10 +263,16 @@ $shadow-soft:
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 20px;
   overflow: hidden;
-  background: #111827;
+  background: var(--color-bg-surface-alt);
   box-shadow:
     0 22px 48px rgba(0, 0, 0, 0.28),
     0 0 0 8px rgba(255, 255, 255, 0.08);
+
+  [data-theme="dark"] & {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: var(--color-bg-surface-alt);
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.5);
+  }
 
   img {
     width: 100%;
@@ -236,7 +286,11 @@ $shadow-soft:
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(180deg, rgba(2, 6, 23, 0.03) 0%, rgba(2, 6, 23, 0.88) 100%),
+      linear-gradient(
+        180deg,
+        rgba(2, 6, 23, 0.03) 0%,
+        rgba(2, 6, 23, 0.88) 100%
+      ),
       linear-gradient(90deg, rgba(2, 6, 23, 0.42), transparent 58%);
   }
 
@@ -263,6 +317,7 @@ $shadow-soft:
       line-height: 1.55;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
     }
 
     .hero-panel__meta {
@@ -300,6 +355,12 @@ $shadow-soft:
       color: $ink;
       font-size: 12px;
       font-weight: 900;
+
+      [data-theme="dark"] & {
+        background: var(--color-bg-surface);
+        color: var(--color-text-primary);
+        border-color: var(--color-border);
+      }
     }
   }
 
@@ -310,7 +371,7 @@ $shadow-soft:
     place-items: center;
     align-content: center;
     gap: 12px;
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--color-text-muted);
     font-size: 13px;
     font-weight: 800;
     text-align: center;
@@ -325,11 +386,21 @@ $shadow-soft:
   width: min(100%, 1360px);
   margin: 0 auto 24px;
   padding: 12px;
-  border: 1px solid $line;
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: $shadow-soft;
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
   backdrop-filter: blur(10px);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  [data-theme="dark"] & {
+    background: var(--color-bg-surface);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-card);
+  }
 }
 
 .search-box {
@@ -341,18 +412,18 @@ $shadow-soft:
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: $faint;
+    color: var(--color-text-muted);
     pointer-events: none;
   }
 
   input {
     width: 100%;
     min-height: 44px;
-    border: 1px solid $line;
+    border: 1px solid var(--color-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--color-bg-surface-alt);
     padding: 10px 14px 10px 42px;
-    color: $ink;
+    color: var(--color-text-primary);
     font-size: 14px;
     font-weight: 700;
     outline: none;
@@ -361,12 +432,16 @@ $shadow-soft:
       box-shadow 160ms ease;
 
     &::placeholder {
-      color: $faint;
+      color: var(--color-text-muted);
     }
 
     &:focus {
-      border-color: $blue;
+      border-color: var(--color-brand);
       box-shadow: 0 0 0 4px rgba(20, 92, 200, 0.12);
+    }
+
+    [data-theme="dark"] &:focus {
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
     }
   }
 }
@@ -378,9 +453,12 @@ $shadow-soft:
   min-width: 0;
   overflow-x: auto;
   padding: 4px;
-  border: 1px solid $line;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--color-bg-surface-alt);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .filter-tab {
@@ -388,7 +466,7 @@ $shadow-soft:
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: $slate;
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 900;
   padding: 8px 15px;
@@ -399,13 +477,18 @@ $shadow-soft:
     box-shadow 160ms ease;
 
   &:hover {
-    background: #fff;
+    background: var(--color-bg-surface);
   }
 
   &.active {
-    background: linear-gradient(135deg, $blue 0%, $violet 100%);
+    background: linear-gradient(135deg, var(--color-brand) 0%, $violet 100%);
     color: #fff;
     box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+
+    [data-theme="dark"] & {
+      background: linear-gradient(135deg, var(--color-brand) 0%, #8b5cf6 100%);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+    }
   }
 }
 
@@ -418,7 +501,7 @@ $shadow-soft:
   margin: 28px auto 16px;
 
   span {
-    color: $blue;
+    color: var(--color-brand);
     font-size: 12px;
     font-weight: 950;
     text-transform: uppercase;
@@ -426,14 +509,14 @@ $shadow-soft:
 
   h2 {
     margin-top: 5px;
-    color: $ink;
+    color: var(--color-text-primary);
     font-size: 24px;
     font-weight: 950;
     line-height: 1.15;
   }
 
   p {
-    color: $muted;
+    color: var(--color-text-secondary);
     font-size: 13px;
     font-weight: 800;
     white-space: nowrap;
@@ -455,21 +538,26 @@ $shadow-soft:
   display: flex;
   min-width: 0;
   flex-direction: column;
-  border: 1px solid $line;
+  border: 1px solid var(--color-border);
   border-radius: 18px;
   overflow: hidden;
-  background: $surface;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
   cursor: pointer;
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
-    border-color 180ms ease;
+    border-color 180ms ease,
+    background-color 0.2s ease;
 
   &:hover {
-    border-color: rgba(20, 92, 200, 0.35);
-    box-shadow: $shadow-card;
+    border-color: var(--color-brand);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
     transform: translateY(-4px);
+
+    [data-theme="dark"] & {
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.4);
+    }
 
     .card-cover img {
       transform: scale(1.05);
@@ -480,6 +568,11 @@ $shadow-soft:
       transform: translateY(0);
     }
   }
+
+  [data-theme="dark"] & {
+    border-color: var(--color-border);
+    background: var(--color-bg-surface);
+  }
 }
 
 .card-cover {
@@ -488,7 +581,7 @@ $shadow-soft:
   min-height: 0;
   overflow: hidden;
   flex-shrink: 0;
-  background: $line;
+  background: var(--color-border);
 
   img {
     width: 100%;
@@ -563,6 +656,11 @@ $shadow-soft:
   transition:
     opacity 180ms ease,
     transform 180ms ease;
+
+  [data-theme="dark"] & {
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+  }
 }
 
 .card-body {
@@ -577,7 +675,7 @@ $shadow-soft:
   min-width: 0;
 
   h2 {
-    color: $ink;
+    color: var(--color-text-primary);
     font-size: 17px;
     font-weight: 950;
     line-height: 1.25;
@@ -589,12 +687,13 @@ $shadow-soft:
     min-height: 40px;
     margin-top: 7px;
     overflow: hidden;
-    color: $muted;
+    color: var(--color-text-secondary);
     font-size: 13px;
     font-weight: 600;
     line-height: 1.55;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 }
 
@@ -609,18 +708,26 @@ $shadow-soft:
   max-width: 140px;
   overflow: hidden;
   padding: 4px 9px;
-  border: 1px solid $line;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: #f8fafc;
-  color: $slate;
+  background: var(--color-bg-surface-alt);
+  color: var(--color-text-secondary);
   font-size: 11px;
   font-weight: 850;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 
   &--more {
-    background: #ecfeff;
-    color: #0e7490;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
+
+    [data-theme="dark"] & {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--color-brand-accent);
+    }
   }
 }
 
@@ -639,14 +746,15 @@ $shadow-soft:
   gap: 8px;
   padding: 10px;
   border-radius: 10px;
-  background: #f8fafc;
-  color: $slate;
+  background: var(--color-bg-surface-alt);
+  color: var(--color-text-secondary);
   font-size: 12px;
   font-weight: 850;
+  transition: background-color 0.2s ease;
 
   svg {
     flex-shrink: 0;
-    color: $blue;
+    color: var(--color-brand);
   }
 
   span {
@@ -664,7 +772,8 @@ $shadow-soft:
   gap: 10px;
   margin-top: 16px;
   padding: 13px 16px 16px;
-  border-top: 1px solid $line;
+  border-top: 1px solid var(--color-border);
+  transition: border-color 0.2s ease;
 }
 
 .card-tantou {
@@ -677,11 +786,14 @@ $shadow-soft:
 .tantou-avatar {
   width: 34px;
   height: 34px;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-bg-surface);
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-  box-shadow: 0 0 0 1px $line;
+  box-shadow: 0 0 0 1px var(--color-border);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &--initials {
     display: flex;
@@ -694,7 +806,7 @@ $shadow-soft:
 }
 
 .tantou-role {
-  color: $faint;
+  color: var(--color-text-muted);
   font-size: 10px;
   font-weight: 950;
   letter-spacing: 0.08em;
@@ -706,7 +818,7 @@ $shadow-soft:
   max-width: 150px;
   margin-top: 3px;
   overflow: hidden;
-  color: $ink;
+  color: var(--color-text-primary);
   font-size: 13px;
   font-weight: 900;
   line-height: 1.25;
@@ -718,14 +830,14 @@ $shadow-soft:
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: $muted;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
 
   svg {
-    color: $faint;
+    color: var(--color-text-muted);
   }
 }
 
@@ -737,16 +849,19 @@ $shadow-soft:
   place-items: center;
   align-content: center;
   gap: 14px;
-  border: 1px dashed $line-strong;
+  border: 1px dashed var(--color-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
-  color: $muted;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
   font-size: 14px;
   font-weight: 800;
   text-align: center;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 
   svg {
-    color: $faint;
+    color: var(--color-text-muted);
   }
 }
 
