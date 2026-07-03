@@ -15,7 +15,7 @@ import {
   Users,
   MessageSquareText,
 } from "lucide-react";
-import styles from "./AssistantDashboard.module.scss";
+import "./AssistantDashboard.scss";
 import {
   fetchMyTasks,
   type AssistantTaskRes,
@@ -182,59 +182,59 @@ const buildKanbanColumns = (tasks: AssistantTaskRes[]): KanbanColumn[] => {
 const renderNotifIcon = (type: Notification["icon"]) => {
   switch (type) {
     case "edit":
-      return <SquarePen size={15} className={styles.notifIconEdit} />;
+      return <SquarePen size={15} className="notifIconEdit" />;
     case "file":
-      return <FileText size={15} className={styles.notifIconFile} />;
+      return <FileText size={15} className="notifIconFile" />;
     default:
       return null;
   }
 };
 
 const DeadlineAlert: React.FC<{ count: number }> = ({ count }) => (
-  <div className={styles.deadlineAlert}>
-    <div className={styles.deadlineTop}>
-      <span className={styles.deadlineBadge}>
-        <BellRing size={14} strokeWidth={2.5} className={styles.deadlineIcon} />
+  <div className="deadlineAlert">
+    <div className="deadlineTop">
+      <span className="deadlineBadge">
+        <BellRing size={14} strokeWidth={2.5} className="deadlineIcon" />
         DEADLINE GẤP (24H)
       </span>
     </div>
-    <div className={styles.deadlineCount}>{count}</div>
-    <div className={styles.deadlineLabel}>Trang cần nộp hôm nay</div>
-    <div className={styles.deadlineDivider} />
-    <button className={styles.deadlineLink}>Xem chi tiết →</button>
+    <div className="deadlineCount">{count}</div>
+    <div className="deadlineLabel">Trang cần nộp hôm nay</div>
+    <div className="deadlineDivider" />
+    <button className="deadlineLink">Xem chi tiết →</button>
   </div>
 );
 
 const NotificationPanel: React.FC<{ notifications: Notification[] }> = ({
   notifications,
 }) => (
-  <div className={styles.notifPanel}>
-    <div className={styles.notifHeader}>
-      <Megaphone size={16} className={styles.notifBellIcon} />
-      <span className={styles.notifTitle}>THÔNG BÁO TỪ MANGAKA</span>
-      <span className={styles.notifBadge}>{notifications.length} Mới</span>
+  <div className="notifPanel">
+    <div className="notifHeader">
+      <Megaphone size={16} className="notifBellIcon" />
+      <span className="notifTitle">THÔNG BÁO TỪ MANGAKA</span>
+      <span className="notifBadge">{notifications.length} Mới</span>
     </div>
-    <div className={styles.notifList}>
+    <div className="notifList">
       {notifications.length === 0 ? (
-        <div className={styles.notifItem}>
-          <div className={styles.notifItemBody}>
-            <div className={styles.notifItemTitle}>Chưa có thông báo mới</div>
-            <div className={styles.notifItemDesc}>
+        <div className="notifItem">
+          <div className="notifItemBody">
+            <div className="notifItemTitle">Chưa có thông báo mới</div>
+            <div className="notifItemDesc">
               Các cập nhật từ Mangaka sẽ xuất hiện tại đây.
             </div>
           </div>
         </div>
       ) : (
         notifications.map((n, i) => (
-          <div key={i} className={styles.notifItem}>
-            <div className={styles.notifItemIconWrapper}>
+          <div key={i} className="notifItem">
+            <div className="notifItemIconWrapper">
               {renderNotifIcon(n.icon)}
             </div>
-            <div className={styles.notifItemBody}>
-              <div className={styles.notifItemTitle}>{n.title}</div>
-              <div className={styles.notifItemDesc}>{n.desc}</div>
+            <div className="notifItemBody">
+              <div className="notifItemTitle">{n.title}</div>
+              <div className="notifItemDesc">{n.desc}</div>
             </div>
-            <span className={styles.notifTime}>{n.time}</span>
+            <span className="notifTime">{n.time}</span>
           </div>
         ))
       )}
@@ -247,64 +247,52 @@ const KanbanCardComponent: React.FC<{ card: KanbanCard; colId: string }> = ({
   colId,
 }) => (
   <div
-    className={`${styles.kanbanCard} ${card.action === "Nộp kết quả" ? styles.kanbanCardActiveStyle : ""} ${card.done ? styles.kanbanCardDone : ""}`}
+    className={`kanbanCard ${card.action === "Nộp kết quả" ? "kanbanCardActiveStyle" : ""} ${card.done ? "kanbanCardDone" : ""}`}
   >
-    <div className={styles.kanbanCardTop}>
-      <span className={styles.kanbanTag}>{card.tag}</span>
+    <div className="kanbanCardTop">
+      <span className="kanbanTag">{card.tag}</span>
       {card.warning && (
-        <AlertTriangle
-          size={15}
-          strokeWidth={2.5}
-          className={styles.kanbanWarning}
-        />
+        <AlertTriangle size={15} strokeWidth={2.5} className="kanbanWarning" />
       )}
       {card.urgent && (
-        <Hourglass
-          size={15}
-          strokeWidth={2.5}
-          className={styles.kanbanUrgentIcon}
-        />
+        <Hourglass size={15} strokeWidth={2.5} className="kanbanUrgentIcon" />
       )}
-      {colId === "todo" && (
-        <MoreHorizontal size={16} className={styles.kanbanMenu} />
-      )}
+      {colId === "todo" && <MoreHorizontal size={16} className="kanbanMenu" />}
     </div>
 
     {card.done ? (
-      <div className={styles.titleWrapper}>
-        <div className={styles.kanbanDoneCheckRow}>
+      <div className="titleWrapper">
+        <div className="kanbanDoneCheckRow">
           {card.done && (
             <CheckCircle2
               size={16}
               strokeWidth={2.5}
-              className={styles.innerDoneIcon}
+              className="innerDoneIcon"
             />
           )}
-          <div className={`${styles.kanbanTitle} ${styles.kanbanTitleDone}`}>
-            {card.title}
-          </div>
+          <div className={`kanbanTitle kanbanTitleDone`}>{card.title}</div>
         </div>
-        <div className={styles.kanbanChapterDone}>{card.chapter}</div>
+        <div className="kanbanChapterDone">{card.chapter}</div>
       </div>
     ) : (
-      <div className={styles.titleWrapper}>
-        <div className={styles.kanbanChapter}>{card.chapter}</div>
-        <div className={styles.kanbanTitle}>{card.title}</div>
+      <div className="titleWrapper">
+        <div className="kanbanChapter">{card.chapter}</div>
+        <div className="kanbanTitle">{card.title}</div>
       </div>
     )}
 
     {card.deadline && (
-      <div className={styles.kanbanDeadline}>
-        <Clock size={12} strokeWidth={2.5} className={styles.kanbanClockIcon} />
+      <div className="kanbanDeadline">
+        <Clock size={12} strokeWidth={2.5} className="kanbanClockIcon" />
         Hạn: {card.deadline}
       </div>
     )}
     {card.submittedAt && (
-      <div className={styles.kanbanSubmitted}>{card.submittedAt}</div>
+      <div className="kanbanSubmitted">{card.submittedAt}</div>
     )}
     {card.action && (
       <button
-        className={`${styles.kanbanAction} ${colId === "doing" ? styles.kanbanActionPrimary : styles.kanbanActionSecondary}`}
+        className={`kanbanAction ${colId === "doing" ? "kanbanActionPrimary" : "kanbanActionSecondary"}`}
       >
         {card.action === "Nộp kết quả" ? (
           <Upload size={13} strokeWidth={2.5} />
@@ -318,37 +306,30 @@ const KanbanCardComponent: React.FC<{ card: KanbanCard; colId: string }> = ({
 );
 
 const KanbanBoard: React.FC<{ columns: KanbanColumn[] }> = ({ columns }) => (
-  <section className={styles.kanbanSection}>
-    <div className={styles.kanbanSectionHeader}>
-      <h2 className={styles.sectionTitle}>Tiến độ công việc</h2>
-      <button className={styles.kanbanFullscreen}>Mở toàn màn hình</button>
+  <section className="kanbanSection">
+    <div className="kanbanSectionHeader">
+      <h2 className="sectionTitle">Tiến độ công việc</h2>
+      <button className="kanbanFullscreen">Mở toàn màn hình</button>
     </div>
-    <div className={styles.kanbanWrapperContainer}>
-      <div className={styles.circleBgDecoration} />
+    <div className="kanbanWrapperContainer">
+      <div className="circleBgDecoration" />
 
-      <div className={styles.kanbanBoard}>
+      <div className="kanbanBoard">
         {columns.map((col) => (
-          <div
-            key={col.id}
-            className={`${styles.kanbanCol} ${styles[`kanbanCol_${col.id}`]}`}
-          >
-            <div className={styles.kanbanColHeader}>
-              <span
-                className={`${styles.kanbanColLabel} ${styles[`kanbanColLabel_${col.id}`]}`}
-              >
+          <div key={col.id} className={`kanbanCol ${`kanbanCol_${col.id}`}`}>
+            <div className="kanbanColHeader">
+              <span className={`kanbanColLabel ${`kanbanColLabel_${col.id}`}`}>
                 {col.label}
               </span>
-              <span
-                className={`${styles.kanbanColCount} ${styles[`kanbanColCount_${col.id}`]}`}
-              >
+              <span className={`kanbanColCount ${`kanbanColCount_${col.id}`}`}>
                 {col.count}
               </span>
             </div>
-            <div className={styles.kanbanCards}>
+            <div className="kanbanCards">
               {col.cards.length === 0 ? (
-                <div className={styles.kanbanCard}>
-                  <div className={styles.kanbanTitle}>Không có task</div>
-                  <div className={styles.kanbanChapter}>
+                <div className="kanbanCard">
+                  <div className="kanbanTitle">Không có task</div>
+                  <div className="kanbanChapter">
                     Cột này hiện chưa có công việc.
                   </div>
                 </div>
@@ -370,42 +351,42 @@ const CollaboratorsCard: React.FC<{
   conversations: ConversationItem[];
   onOpenChat: (conv: ConversationItem) => void;
 }> = ({ collaborators, conversations, onOpenChat }) => (
-  <div className={styles.resourceCard}>
-    <div className={styles.resourceHeader}>
-      <Users size={18} className={styles.resourceIcon} />
-      <h3 className={styles.resourceTitle}>Đang cộng tác cùng</h3>
-      <span className={styles.collabCount}>{collaborators.length}</span>
+  <div className="resourceCard">
+    <div className="resourceHeader">
+      <Users size={18} className="resourceIcon" />
+      <h3 className="resourceTitle">Đang cộng tác cùng</h3>
+      <span className="collabCount">{collaborators.length}</span>
     </div>
 
     {collaborators.length === 0 ? (
-      <div className={styles.collabEmpty}>
+      <div className="collabEmpty">
         Bạn chưa cộng tác cùng Mangaka nào. Chờ lời mời từ Mangaka nhé!
       </div>
     ) : (
-      <div className={styles.collabList}>
+      <div className="collabList">
         {collaborators.map((c) => {
           const conv = conversations.find(
             (cv) => cv.otherUserId === c.mangakaId,
           );
 
           return (
-            <div key={c.assignmentId} className={styles.collabItem}>
+            <div key={c.assignmentId} className="collabItem">
               {c.mangakaAvatarUrl ? (
                 <img
-                  className={styles.collabAvatar}
+                  className="collabAvatar"
                   src={c.mangakaAvatarUrl}
                   alt={c.mangakaName}
                 />
               ) : (
                 <div
-                  className={styles.collabAvatar}
+                  className="collabAvatar"
                   style={{ background: getAvatarColor(c.mangakaName) }}
                 >
                   {getInitials(c.mangakaName)}
                 </div>
               )}
 
-              <div className={styles.collabInfo}>
+              <div className="collabInfo">
                 <strong>{c.mangakaName}</strong>
                 <span>Mangaka</span>
               </div>
@@ -413,7 +394,7 @@ const CollaboratorsCard: React.FC<{
               {conv && (
                 <button
                   type="button"
-                  className={styles.collabChatBtn}
+                  className="collabChatBtn"
                   onClick={() => onOpenChat(conv)}
                 >
                   <MessageSquareText size={14} />
@@ -431,26 +412,24 @@ const CollaboratorsCard: React.FC<{
 const IncomeCard: React.FC<{ income: IncomeMonthRes | null }> = ({
   income,
 }) => (
-  <div className={styles.incomeCard}>
-    <div className={styles.incomeHeader}>
-      <Wallet size={18} className={styles.incomeIcon} />
-      <h3 className={styles.incomeTitle}>Thu nhập tháng này</h3>
+  <div className="incomeCard">
+    <div className="incomeHeader">
+      <Wallet size={18} className="incomeIcon" />
+      <h3 className="incomeTitle">Thu nhập tháng này</h3>
     </div>
-    <div className={styles.incomeLabel}>DỰ KIẾN NHẬN</div>
-    <div className={styles.incomeMain}>
-      <div className={styles.incomeAmount}>
-        {formatVnd(income?.totalAmount ?? 0)}
-      </div>
-      <div className={styles.incomeBreakdown}>
+    <div className="incomeLabel">DỰ KIẾN NHẬN</div>
+    <div className="incomeMain">
+      <div className="incomeAmount">{formatVnd(income?.totalAmount ?? 0)}</div>
+      <div className="incomeBreakdown">
         <span>{income?.taskCount ?? 0} task đã duyệt</span>
-        <span className={styles.incomeBonus}>
+        <span className="incomeBonus">
           {income?.monthLabel ?? "Tháng hiện tại"}
         </span>
       </div>
     </div>
-    <div className={styles.incomeTrack}>
+    <div className="incomeTrack">
       <div
-        className={styles.incomeFill}
+        className="incomeFill"
         style={{
           width:
             income && income.prevMonthAmount > 0
@@ -461,7 +440,7 @@ const IncomeCard: React.FC<{ income: IncomeMonthRes | null }> = ({
         }}
       />
     </div>
-    <div className={styles.incomeGoal}>
+    <div className="incomeGoal">
       Tháng trước: {formatVnd(income?.prevMonthAmount ?? 0)}
     </div>
   </div>
@@ -538,35 +517,40 @@ const AssistantDashboard: React.FC = () => {
   );
 
   return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Bảng điều khiển</h1>
-        <p className={styles.pageSubtitle}>
-          {loading
-            ? "Đang tải dữ liệu công việc của bạn..."
-            : error ||
-              "Chào buổi sáng, đây là tóm tắt công việc của bạn hôm nay."}
-        </p>
-      </div>
+    <div className="assistant-dashboard">
+      <div className="page">
+        <div className="pageHeader">
+          <h1 className="pageTitle">Bảng điều khiển</h1>
+          <p className="pageSubtitle">
+            {loading
+              ? "Đang tải dữ liệu công việc của bạn..."
+              : error ||
+                "Chào buổi sáng, đây là tóm tắt công việc của bạn hôm nay."}
+          </p>
+        </div>
 
-      <div className={styles.topRow}>
-        <DeadlineAlert count={urgentDeadlineCount} />
-        <NotificationPanel notifications={notifications} />
-      </div>
+        <div className="topRow">
+          <DeadlineAlert count={urgentDeadlineCount} />
+          <NotificationPanel notifications={notifications} />
+        </div>
 
-      <KanbanBoard columns={kanbanColumns} />
+        <KanbanBoard columns={kanbanColumns} />
 
-      <div className={styles.bottomRow}>
-        <CollaboratorsCard
-          collaborators={collaborators}
-          conversations={conversations}
-          onOpenChat={setOpenChat}
-        />
-        <IncomeCard income={income} />
+        <div className="bottomRow">
+          <CollaboratorsCard
+            collaborators={collaborators}
+            conversations={conversations}
+            onOpenChat={setOpenChat}
+          />
+          <IncomeCard income={income} />
+        </div>
+        {openChat && (
+          <ChatWindow
+            conversation={openChat}
+            onClose={() => setOpenChat(null)}
+          />
+        )}
       </div>
-      {openChat && (
-        <ChatWindow conversation={openChat} onClose={() => setOpenChat(null)} />
-      )}
     </div>
   );
 };
