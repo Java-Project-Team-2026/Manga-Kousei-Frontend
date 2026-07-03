@@ -7,7 +7,6 @@ import { MainLayout } from "./components/layouts/MainLayout";
 import TantouDashboard from "./pages/tantou/TantouDashboard";
 import { DashboardRedirect } from "./pages/redirect/DashboardRedirect";
 import AdminApprovalsPage from "./pages/admin/AdminApprovals";
-import AdminContracts from "./pages/admin/AdminContracts";
 import { Unauthorized } from "./pages/others/Unauthorized";
 import { NotFound } from "./pages/others/NotFound";
 import TantouManage from "./pages/tantou/TantouManage";
@@ -64,7 +63,6 @@ function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="approvals" element={<AdminApprovalsPage />} />
-            <Route path="contracts" element={<AdminContracts />} />
             <Route path="proposal-review" element={<AdminProposalReview />} />
             <Route
               path="/admin/proposal-review/:proposalId"

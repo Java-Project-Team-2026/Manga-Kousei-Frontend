@@ -84,7 +84,7 @@ const roleLabels = {
 } as const;
 
 const roleDescriptions = {
-  ADMIN: "Full access to studio operations, approvals, contracts, and reports.",
+  ADMIN: "Full access to studio operations, approvals, and reports.",
   TANTOU:
     "Manages manga proposals, editorial reviews, creator assignments, and publication flow.",
   MANGAKA:

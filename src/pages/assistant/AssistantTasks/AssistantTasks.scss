@@ -1,31 +1,12 @@
-$bg: #f4f7fb;
-$ink: #111827;
-$navy: #0d2544;
-$blue: #0b66c6;
-$blue-soft: #edf4ff;
-$border-soft: #e2e8f0;
-$border: #c5cedd;
-$text-muted: #5d6473;
-$text-faint: #7a808d;
-$text-sub: #4b5563;
-$green: #16a34a;
-$green-bg: #f0fdf4;
-$red: #dc2626;
-$red-bg: #fff1f1;
-$orange: #c2410c;
-$orange-bg: #fff7ed;
-$purple: #7c3aed;
-$purple-bg: #faf5ff;
-$shadow-card:
-  0 1px 2px rgba(15, 23, 42, 0.04),
-  0 4px 12px rgba(15, 23, 42, 0.05);
-
 .at-page {
   min-height: calc(100vh - 70px);
-  background: $bg;
+  background: var(--color-bg-page);
   padding: 28px 28px 48px;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
-  color: $ink;
+  color: var(--color-text-primary);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 
   *,
   *::before,
@@ -43,18 +24,23 @@ $shadow-card:
 }
 
 .at-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 22px;
 
   h1 {
     font-size: 24px;
     font-weight: 950;
-    color: $navy;
-    margin-bottom: 4px;
+    color: var(--color-text-primary);
+    margin: 0 0 4px;
   }
   p {
     font-size: 13.5px;
     font-weight: 600;
-    color: $text-muted;
+    color: var(--color-text-secondary);
+    margin: 0;
   }
 }
 
@@ -73,19 +59,19 @@ $shadow-card:
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #fff;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 14px 16px;
-  box-shadow: $shadow-card;
+  box-shadow: var(--shadow-card);
   cursor: pointer;
   transition: all 150ms;
 
   &:hover {
-    border-color: $border;
+    border-color: var(--color-border);
   }
   &--on {
-    border-color: $blue;
+    border-color: var(--color-brand);
     box-shadow: 0 0 0 3px rgba(11, 102, 198, 0.08);
   }
 }
@@ -99,27 +85,39 @@ $shadow-card:
   flex-shrink: 0;
 
   &.at-s--todo {
-    background: #f1f5f9;
-    color: $text-sub;
+    background: var(--color-bg-surface-alt);
+    color: var(--color-text-secondary);
   }
   &.at-s--doing {
-    background: $blue-soft;
-    color: $blue;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
   }
   &.at-s--review {
-    background: $orange-bg;
-    color: $orange;
+    background: #fff7ed;
+    color: #c2410c;
   }
   &.at-s--done {
-    background: $green-bg;
-    color: $green;
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+}
+
+// Dark mode cho stat icons
+[data-theme="dark"] .at-stat-icon {
+  &.at-s--review {
+    background: rgba(194, 65, 12, 0.15);
+    color: #fb923c;
+  }
+  &.at-s--done {
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
   }
 }
 
 .at-stat-value {
   font-size: 20px;
   font-weight: 950;
-  color: $navy;
+  color: var(--color-text-primary);
   line-height: 1;
   margin-bottom: 2px;
 }
@@ -127,7 +125,7 @@ $shadow-card:
 .at-stat-label {
   font-size: 11.5px;
   font-weight: 700;
-  color: $text-faint;
+  color: var(--color-text-muted);
 }
 
 .at-search {
@@ -137,13 +135,13 @@ $shadow-card:
   max-width: 400px;
   height: 40px;
   padding: 0 14px;
-  background: #fff;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   margin-bottom: 20px;
 
   svg {
-    color: $text-faint;
+    color: var(--color-text-muted);
     flex-shrink: 0;
   }
 
@@ -153,15 +151,15 @@ $shadow-card:
     outline: none;
     font-size: 13px;
     font-weight: 600;
-    color: $ink;
+    color: var(--color-text-primary);
     background: transparent;
     &::placeholder {
-      color: $text-faint;
+      color: var(--color-text-muted);
     }
   }
 
   &:focus-within {
-    border-color: $blue;
+    border-color: var(--color-brand);
     box-shadow: 0 0 0 3px rgba(11, 102, 198, 0.08);
   }
 }
@@ -173,15 +171,17 @@ $shadow-card:
 }
 
 .at-task {
-  background: #fff;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  box-shadow: $shadow-card;
+  box-shadow: var(--shadow-card);
   overflow: hidden;
-  transition: border-color 150ms;
+  transition:
+    border-color 150ms,
+    background-color 0.2s ease;
 
   &--open {
-    border-color: $blue;
+    border-color: var(--color-brand);
   }
 
   &__head {
@@ -194,8 +194,9 @@ $shadow-card:
     background: transparent;
     text-align: left;
     transition: background 120ms;
+    color: var(--color-text-primary);
     &:hover {
-      background: #fafbff;
+      background: var(--color-bg-surface-alt);
     }
   }
 
@@ -206,8 +207,8 @@ $shadow-card:
     flex-shrink: 0;
     border-radius: 6px;
     overflow: hidden;
-    border: 1px solid $border-soft;
-    background: $border-soft;
+    border: 1px solid var(--color-border);
+    background: var(--color-border);
 
     img {
       width: 100%;
@@ -219,7 +220,7 @@ $shadow-card:
 
   &__region-overlay {
     position: absolute;
-    border: 2px solid $blue;
+    border: 2px solid var(--color-brand);
     background: rgba(59, 130, 246, 0.2);
     border-radius: 2px;
     pointer-events: none;
@@ -240,20 +241,20 @@ $shadow-card:
   &__type {
     font-size: 15px;
     font-weight: 950;
-    color: $navy;
+    color: var(--color-text-primary);
   }
 
   &__context {
     font-size: 12px;
     font-weight: 700;
-    color: $text-faint;
+    color: var(--color-text-muted);
     margin-bottom: 4px;
   }
 
   &__desc {
     font-size: 12.5px;
     font-weight: 600;
-    color: $text-muted;
+    color: var(--color-text-secondary);
     line-height: 1.5;
     margin-bottom: 6px;
     display: -webkit-box;
@@ -276,7 +277,7 @@ $shadow-card:
     gap: 5px;
     font-size: 11.5px;
     font-weight: 700;
-    color: $text-sub;
+    color: var(--color-text-secondary);
   }
 
   &__deadline {
@@ -285,10 +286,10 @@ $shadow-card:
     gap: 4px;
     font-size: 11.5px;
     font-weight: 700;
-    color: $text-faint;
+    color: var(--color-text-muted);
 
     &--overdue {
-      color: $red;
+      color: #dc2626;
       font-weight: 900;
     }
   }
@@ -299,18 +300,18 @@ $shadow-card:
     gap: 4px;
     font-size: 11.5px;
     font-weight: 700;
-    color: $purple;
+    color: #7c3aed;
   }
 
   &__chevron {
-    color: $text-faint;
+    color: var(--color-text-muted);
     flex-shrink: 0;
     transition: transform 200ms;
   }
 
   &__panel {
-    border-top: 1px solid $border-soft;
-    background: #fafbff;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-surface-alt);
     padding: 16px;
   }
 
@@ -334,20 +335,31 @@ $shadow-card:
   flex-shrink: 0;
 
   &.at-s--todo {
-    background: #f1f5f9;
-    color: $text-sub;
+    background: var(--color-bg-surface-alt);
+    color: var(--color-text-secondary);
   }
   &.at-s--doing {
-    background: $blue-soft;
-    color: $blue;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
   }
   &.at-s--review {
-    background: $orange-bg;
-    color: $orange;
+    background: #fff7ed;
+    color: #c2410c;
   }
   &.at-s--done {
-    background: $green-bg;
-    color: $green;
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+}
+
+[data-theme="dark"] .at-status-pill {
+  &.at-s--review {
+    background: rgba(194, 65, 12, 0.15);
+    color: #fb923c;
+  }
+  &.at-s--done {
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
   }
 }
 
@@ -385,37 +397,37 @@ $shadow-card:
   }
 
   &--start {
-    border: 1px solid $blue;
-    background: $blue-soft;
-    color: $blue;
+    border: 1px solid var(--color-brand);
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
     &:hover:not(:disabled) {
-      background: $blue;
+      background: var(--color-brand);
       color: #fff;
     }
   }
 
   &--submit {
     border: 0;
-    background: $blue;
+    background: var(--color-brand);
     color: #fff;
     &:hover:not(:disabled) {
-      background: #0758ad;
+      background: var(--color-brand-accent);
     }
   }
 
   &--ghost {
-    border: 1px solid $border-soft;
-    background: #fff;
-    color: $text-sub;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-surface);
+    color: var(--color-text-secondary);
     &:hover:not(:disabled) {
-      border-color: $border;
+      border-color: var(--color-border);
     }
   }
 }
 
 .at-submit-form {
-  background: #fff;
-  border: 1px solid $blue;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-brand);
   border-radius: 10px;
   margin-bottom: 14px;
   overflow: hidden;
@@ -426,10 +438,10 @@ $shadow-card:
     align-items: center;
     justify-content: space-between;
     padding: 10px 14px;
-    border-bottom: 1px solid $border-soft;
+    border-bottom: 1px solid var(--color-border);
     font-size: 13px;
     font-weight: 900;
-    color: $navy;
+    color: var(--color-text-primary);
 
     button {
       display: grid;
@@ -438,11 +450,11 @@ $shadow-card:
       height: 24px;
       border: 0;
       border-radius: 4px;
-      background: $bg;
-      color: $text-faint;
+      background: var(--color-bg-page);
+      color: var(--color-text-muted);
       &:hover {
-        color: $red;
-        background: $red-bg;
+        color: #dc2626;
+        background: #fff1f1;
       }
     }
   }
@@ -459,8 +471,12 @@ $shadow-card:
     justify-content: flex-end;
     gap: 8px;
     padding: 10px 14px;
-    border-top: 1px solid $border-soft;
+    border-top: 1px solid var(--color-border);
   }
+}
+
+[data-theme="dark"] .at-submit-form {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
 }
 
 .at-upload-zone {
@@ -469,19 +485,19 @@ $shadow-card:
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 2px dashed $border;
+  border: 2px dashed var(--color-border);
   border-radius: 8px;
   padding: 20px;
   cursor: pointer;
-  color: $text-faint;
+  color: var(--color-text-muted);
   font-size: 12.5px;
   font-weight: 600;
   transition: all 150ms;
 
   &:hover {
-    border-color: $blue;
-    color: $blue;
-    background: $blue-soft;
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
   }
 
   &__preview {
@@ -494,7 +510,7 @@ $shadow-card:
   &__hint {
     font-size: 11px;
     font-weight: 500;
-    color: $border;
+    color: var(--color-border);
   }
 }
 
@@ -508,21 +524,23 @@ $shadow-card:
     font-weight: 900;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: $text-faint;
+    color: var(--color-text-muted);
   }
 
   textarea {
-    border: 1px solid $border-soft;
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 8px 10px;
     font-size: 12.5px;
     font-weight: 600;
-    color: $ink;
+    color: var(--color-text-primary);
+    background: var(--color-bg-surface);
     outline: none;
     font-family: inherit;
     resize: vertical;
+    transition: border-color 150ms;
     &:focus {
-      border-color: $blue;
+      border-color: var(--color-brand);
     }
   }
 }
@@ -532,7 +550,7 @@ $shadow-card:
     font-size: 11px;
     font-weight: 900;
     letter-spacing: 0.06em;
-    color: $text-faint;
+    color: var(--color-text-muted);
     margin-bottom: 10px;
     text-transform: uppercase;
   }
@@ -541,7 +559,7 @@ $shadow-card:
   &__empty {
     font-size: 12.5px;
     font-weight: 600;
-    color: $text-faint;
+    color: var(--color-text-muted);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -559,9 +577,12 @@ $shadow-card:
   display: flex;
   gap: 12px;
   padding: 10px;
-  background: #fff;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 
   &__thumb {
     width: 52px;
@@ -569,7 +590,7 @@ $shadow-card:
     flex-shrink: 0;
     border-radius: 6px;
     object-fit: cover;
-    border: 1px solid $border-soft;
+    border: 1px solid var(--color-border);
   }
 
   &__info {
@@ -588,13 +609,13 @@ $shadow-card:
   &__date {
     font-size: 11px;
     font-weight: 700;
-    color: $text-faint;
+    color: var(--color-text-muted);
   }
 
   &__note {
     font-size: 12px;
     font-weight: 600;
-    color: $text-muted;
+    color: var(--color-text-secondary);
     line-height: 1.5;
     margin-bottom: 3px;
   }
@@ -602,7 +623,7 @@ $shadow-card:
   &__reviewer {
     font-size: 11px;
     font-weight: 700;
-    color: $text-faint;
+    color: var(--color-text-muted);
   }
 }
 
@@ -616,16 +637,31 @@ $shadow-card:
   border-radius: 999px;
 
   &.sub-pending {
-    background: $orange-bg;
-    color: $orange;
+    background: #fff7ed;
+    color: #c2410c;
   }
   &.sub-approved {
-    background: $green-bg;
-    color: $green;
+    background: #f0fdf4;
+    color: #16a34a;
   }
   &.sub-rejected {
-    background: $red-bg;
-    color: $red;
+    background: #fff1f1;
+    color: #dc2626;
+  }
+}
+
+[data-theme="dark"] .at-sub-badge {
+  &.sub-pending {
+    background: rgba(194, 65, 12, 0.15);
+    color: #fb923c;
+  }
+  &.sub-approved {
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
+  }
+  &.sub-rejected {
+    background: rgba(220, 38, 38, 0.15);
+    color: #f87171;
   }
 }
 
@@ -638,9 +674,9 @@ $shadow-card:
   height: 200px;
   font-size: 14px;
   font-weight: 600;
-  color: $text-faint;
+  color: var(--color-text-muted);
   svg {
-    color: $border-soft;
+    color: var(--color-border);
   }
 }
 
@@ -653,25 +689,10 @@ $shadow-card:
   }
 }
 
-.at-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 4px;
-
-  h1 {
-    margin: 0 0 4px;
-  }
-  p {
-    margin: 0;
-  }
-}
-
 .at-view-toggle {
   display: flex;
   gap: 3px;
-  background: #f1f5f9;
+  background: var(--color-bg-surface-alt);
   border-radius: 8px;
   padding: 3px;
   flex-shrink: 0;
@@ -686,18 +707,18 @@ $shadow-card:
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #94a3b8;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover {
-    color: #334155;
-    background: #e2e8f0;
+    color: var(--color-text-secondary);
+    background: var(--color-border);
   }
 
   &--active {
-    background: #fff;
-    color: #0b66c6;
+    background: var(--color-bg-surface);
+    color: var(--color-brand);
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
   }
 }
@@ -710,8 +731,8 @@ $shadow-card:
 }
 
 .at-kanban__col {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--color-bg-surface-alt);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   overflow: hidden;
   min-height: 120px;
@@ -722,27 +743,39 @@ $shadow-card:
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
 
   &--todo {
-    background: #fafafa;
+    background: var(--color-bg-surface-alt);
   }
   &--doing {
     background: #fffbeb;
   }
   &--review {
-    background: #eff6ff;
+    background: var(--color-brand-soft);
   }
   &--done {
     background: #f0fdf4;
   }
 }
 
+[data-theme="dark"] .at-kanban__head {
+  &--doing {
+    background: rgba(245, 158, 11, 0.08);
+  }
+  &--review {
+    background: rgba(11, 102, 198, 0.1);
+  }
+  &--done {
+    background: rgba(22, 163, 74, 0.08);
+  }
+}
+
 .at-kanban__count {
   font-size: 11px;
   font-weight: 800;
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
   padding: 1px 7px;
   border-radius: 20px;
 }
@@ -758,18 +791,19 @@ $shadow-card:
   padding: 20px 8px;
   text-align: center;
   font-size: 12px;
-  color: #cbd5e1;
+  color: var(--color-text-muted);
 }
 
 .at-kcard {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 11px 12px;
   cursor: pointer;
   transition:
     box-shadow 0.15s,
-    transform 0.15s;
+    transform 0.15s,
+    background-color 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -789,18 +823,18 @@ $shadow-card:
   &__title {
     font-size: 12.5px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     line-height: 1.4;
 
     span {
-      color: #94a3b8;
+      color: var(--color-text-muted);
       font-weight: 500;
     }
   }
 
   &__series {
     font-size: 11.5px;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -808,7 +842,7 @@ $shadow-card:
 
   &__desc {
     font-size: 11.5px;
-    color: #64748b;
+    color: var(--color-text-secondary);
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -830,9 +864,9 @@ $shadow-card:
     align-items: center;
     gap: 5px;
     padding-top: 7px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--color-border);
     font-size: 11.5px;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin-top: 2px;
   }
 }
@@ -845,16 +879,21 @@ $shadow-card:
   align-items: center;
   justify-content: center;
   z-index: 1000;
+
+  [data-theme="dark"] & {
+    background: rgba(0, 0, 0, 0.6);
+  }
 }
 
 .at-modal {
-  background: #fff;
+  background: var(--color-bg-surface);
   border-radius: 14px;
   width: 540px;
   max-width: calc(100vw - 32px);
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+  transition: background-color 0.2s ease;
 }
 
 .at-modal__head {
@@ -863,25 +902,25 @@ $shadow-card:
   justify-content: space-between;
   gap: 12px;
   padding: 18px 20px 14px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
-  background: #fff;
+  background: var(--color-bg-surface);
   z-index: 1;
 
   button {
     background: none;
     border: none;
     cursor: pointer;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     display: flex;
     align-items: center;
     border-radius: 6px;
     padding: 4px;
     flex-shrink: 0;
     &:hover {
-      background: #f1f5f9;
-      color: #334155;
+      background: var(--color-bg-surface-alt);
+      color: var(--color-text-secondary);
     }
   }
 }
@@ -889,12 +928,12 @@ $shadow-card:
 .at-modal__title {
   font-size: 15px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text-primary);
 }
 
 .at-modal__sub {
   font-size: 12.5px;
-  color: #64748b;
+  color: var(--color-text-secondary);
   margin-top: 3px;
 }
 

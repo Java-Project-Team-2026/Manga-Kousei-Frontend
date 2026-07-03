@@ -1,27 +1,12 @@
-$bg: #f4f7fb;
-$ink: #111827;
-$navy: #0d2544;
-$blue: #0b66c6;
-$blue-soft: #edf4ff;
-$border-soft: #e2e8f0;
-$text-muted: #5d6473;
-$text-faint: #7a808d;
-$text-sub: #4b5563;
-$green: #16a34a;
-$green-bg: #f0fdf4;
-$red: #dc2626;
-$red-bg: #fff1f1;
-$orange: #c2410c;
-$shadow-card:
-  0 1px 2px rgba(15, 23, 42, 0.04),
-  0 4px 12px rgba(15, 23, 42, 0.05);
-
 .ai-page {
   min-height: calc(100vh - 70px);
-  background: $bg;
+  background: var(--color-bg-page);
   padding: 32px 32px 48px;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
-  color: $ink;
+  color: var(--color-text-primary);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 
   *,
   *::before,
@@ -44,7 +29,7 @@ $shadow-card:
   &__title {
     font-size: 24px;
     font-weight: 950;
-    color: $navy;
+    color: var(--color-text-primary);
     margin-bottom: 5px;
     letter-spacing: -0.02em;
   }
@@ -52,7 +37,7 @@ $shadow-card:
   &__sub {
     font-size: 13.5px;
     font-weight: 600;
-    color: $text-muted;
+    color: var(--color-text-secondary);
   }
 }
 
@@ -67,11 +52,11 @@ $shadow-card:
     font-weight: 900;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: $text-faint;
+    color: var(--color-text-muted);
     margin-bottom: 12px;
 
     svg {
-      color: $orange;
+      color: #c2410c;
     }
   }
 }
@@ -87,11 +72,14 @@ $shadow-card:
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #fff;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 14px 16px;
-  box-shadow: $shadow-card;
+  box-shadow: var(--shadow-card);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 
   &--pending {
     border-color: #fde68a;
@@ -107,7 +95,7 @@ $shadow-card:
     display: block;
     font-size: 14.5px;
     font-weight: 900;
-    color: $navy;
+    color: var(--color-text-primary);
     margin-bottom: 3px;
   }
 
@@ -117,10 +105,10 @@ $shadow-card:
     gap: 4px;
     font-size: 12px;
     font-weight: 600;
-    color: $text-faint;
+    color: var(--color-text-muted);
 
     svg {
-      color: $orange;
+      color: #c2410c;
     }
   }
 
@@ -131,13 +119,18 @@ $shadow-card:
   }
 }
 
+[data-theme="dark"] .ai-card--pending {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+
 .ai-avatar {
   width: 46px;
   height: 46px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-  border: 1.5px solid $border-soft;
+  border: 1.5px solid var(--color-border);
 
   &--initials {
     display: flex;
@@ -166,25 +159,31 @@ $shadow-card:
   }
 
   &--reject {
-    border: 1px solid $border-soft;
-    background: #fff;
-    color: $text-sub;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-surface);
+    color: var(--color-text-secondary);
     &:hover:not(:disabled) {
-      border-color: $red;
-      color: $red;
-      background: $red-bg;
+      border-color: #dc2626;
+      color: #dc2626;
+      background: #fff1f1;
     }
   }
 
   &--accept {
     border: 0;
-    background: $blue;
-    color: #fff;
+    background: var(--color-brand);
+    color: #ffffff;
     box-shadow: 0 2px 6px rgba(11, 102, 198, 0.25);
     &:hover:not(:disabled) {
-      background: #0758ad;
+      background: var(--color-brand-accent);
       transform: translateY(-1px);
     }
+  }
+}
+
+[data-theme="dark"] .ai-btn--reject {
+  &:hover:not(:disabled) {
+    background: rgba(220, 38, 38, 0.12);
   }
 }
 
@@ -200,12 +199,23 @@ $shadow-card:
   flex-shrink: 0;
 
   &--active {
-    background: $green-bg;
-    color: $green;
+    background: #f0fdf4;
+    color: #16a34a;
   }
   &--rejected {
-    background: #f8fafc;
-    color: $text-sub;
+    background: var(--color-bg-surface-alt);
+    color: var(--color-text-secondary);
+  }
+}
+
+[data-theme="dark"] .ai-status-badge {
+  &--active {
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
+  }
+  &--rejected {
+    background: var(--color-bg-surface-alt);
+    color: var(--color-text-secondary);
   }
 }
 
@@ -218,9 +228,9 @@ $shadow-card:
   height: 200px;
   font-size: 14px;
   font-weight: 600;
-  color: $text-faint;
+  color: var(--color-text-muted);
 
   svg {
-    color: $border-soft;
+    color: var(--color-border);
   }
 }

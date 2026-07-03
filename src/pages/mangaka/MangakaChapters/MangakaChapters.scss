@@ -22,10 +22,13 @@ $shadow-block: 3px 3px 0 $navy-deep;
 
 .mc-page {
   min-height: calc(100vh - 70px);
-  background: $bg;
+  background: var(--color-bg-page);
   padding: 32px 32px 48px;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
-  color: $ink;
+  color: var(--color-text-primary);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 
   *,
   *::before,
@@ -44,8 +47,9 @@ $shadow-block: 3px 3px 0 $navy-deep;
   }
   a {
     text-decoration: none;
-    color: $blue;
+    color: var(--color-brand);
     font-weight: 700;
+    transition: color 0.2s ease;
   }
   a:hover {
     text-decoration: underline;
@@ -58,14 +62,17 @@ $shadow-block: 3px 3px 0 $navy-deep;
   gap: 5px;
   font-size: 12.5px;
   font-weight: 700;
-  color: $text-faint;
+  color: var(--color-text-muted);
   margin-bottom: 12px;
+  transition: color 0.2s ease;
 
   svg {
-    color: $border;
+    color: var(--color-border);
+    transition: color 0.2s ease;
   }
   span {
-    color: $text-muted;
+    color: var(--color-text-secondary);
+    transition: color 0.2s ease;
   }
 }
 
@@ -83,15 +90,17 @@ $shadow-block: 3px 3px 0 $navy-deep;
   &__title {
     font-size: 24px;
     font-weight: 950;
-    color: $navy;
+    color: var(--color-text-primary);
     letter-spacing: -0.02em;
     margin-bottom: 4px;
+    transition: color 0.2s ease;
   }
 
   &__sub {
     font-size: 13.5px;
     font-weight: 600;
-    color: $text-muted;
+    color: var(--color-text-secondary);
+    transition: color 0.2s ease;
   }
 }
 
@@ -102,18 +111,23 @@ $shadow-block: 3px 3px 0 $navy-deep;
   padding: 10px 18px;
   border: 0;
   border-radius: 6px;
-  background: $blue;
+  background: var(--color-brand);
   color: #fff;
   font-size: 13px;
   font-weight: 900;
   box-shadow: $shadow-block;
   transition:
     background 160ms,
-    transform 160ms;
+    transform 160ms,
+    box-shadow 160ms;
   white-space: nowrap;
 
+  [data-theme="dark"] & {
+    box-shadow: 3px 3px 0 rgba(15, 23, 42, 0.6);
+  }
+
   &:hover:not(:disabled) {
-    background: #0758ad;
+    background: var(--color-brand-accent);
     transform: translateY(-1px);
   }
   &:disabled {
@@ -129,37 +143,48 @@ $shadow-block: 3px 3px 0 $navy-deep;
   align-items: center;
   gap: 7px;
   padding: 9px 16px;
-  border: 1px solid $border-soft;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: #fff;
-  color: $text-sub;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 700;
   transition: all 160ms;
 
   &:hover {
-    border-color: $border;
-    color: $ink;
+    border-color: var(--color-brand);
+    color: var(--color-text-primary);
   }
 }
 
 .mc-form-card {
-  background: #fff;
-  border: 1px solid $blue;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-brand);
   border-radius: 12px;
   box-shadow: 0 0 0 3px rgba(11, 102, 198, 0.08);
   margin-bottom: 20px;
   overflow: hidden;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  [data-theme="dark"] & {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  }
 
   &__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px;
-    border-bottom: 1px solid $border-soft;
+    border-bottom: 1px solid var(--color-border);
     font-size: 14px;
     font-weight: 900;
-    color: $navy;
+    color: var(--color-text-primary);
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease;
 
     button {
       display: grid;
@@ -168,11 +193,15 @@ $shadow-block: 3px 3px 0 $navy-deep;
       height: 28px;
       border: 0;
       border-radius: 6px;
-      background: $bg;
-      color: $text-faint;
+      background: var(--color-bg-surface-alt);
+      color: var(--color-text-muted);
+      transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+
       &:hover {
-        background: $border-soft;
-        color: $ink;
+        background: var(--color-border);
+        color: var(--color-text-primary);
       }
     }
   }
@@ -193,6 +222,11 @@ $shadow-block: 3px 3px 0 $navy-deep;
     font-size: 12.5px;
     font-weight: 600;
     color: $red;
+
+    [data-theme="dark"] & {
+      background: rgba(220, 38, 38, 0.12);
+      border-color: rgba(220, 38, 38, 0.3);
+    }
   }
 
   &__footer {
@@ -200,7 +234,8 @@ $shadow-block: 3px 3px 0 $navy-deep;
     justify-content: flex-end;
     gap: 10px;
     padding: 14px 18px;
-    border-top: 1px solid $border-soft;
+    border-top: 1px solid var(--color-border);
+    transition: border-color 0.2s ease;
   }
 }
 
@@ -214,7 +249,8 @@ $shadow-block: 3px 3px 0 $navy-deep;
     font-weight: 900;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: $text-faint;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
 
     span {
       color: $red;
@@ -223,24 +259,31 @@ $shadow-block: 3px 3px 0 $navy-deep;
   }
 
   input {
-    border: 1px solid $border-soft;
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 9px 12px;
     font-size: 13.5px;
     font-weight: 600;
-    color: $ink;
+    color: var(--color-text-primary);
+    background: var(--color-bg-surface-alt);
     outline: none;
     transition:
       border-color 160ms,
-      box-shadow 160ms;
+      box-shadow 160ms,
+      background-color 0.2s ease,
+      color 0.2s ease;
 
     &::placeholder {
-      color: $text-faint;
+      color: var(--color-text-muted);
       font-weight: 500;
     }
     &:focus {
-      border-color: $blue;
+      border-color: var(--color-brand);
       box-shadow: 0 0 0 3px rgba(11, 102, 198, 0.1);
+
+      [data-theme="dark"] & {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
     }
   }
 }
@@ -248,9 +291,10 @@ $shadow-block: 3px 3px 0 $navy-deep;
 .mc-optional {
   font-weight: 500;
   font-size: 10px;
-  color: $text-faint !important;
+  color: var(--color-text-muted) !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
+  transition: color 0.2s ease;
 }
 
 .mc-list {
@@ -260,15 +304,18 @@ $shadow-block: 3px 3px 0 $navy-deep;
 }
 
 .mc-chapter {
-  background: #fff;
-  border: 1px solid $border-soft;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  box-shadow: $shadow-card;
+  box-shadow: var(--shadow-card);
   overflow: hidden;
-  transition: border-color 160ms;
+  transition:
+    border-color 160ms,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &--open {
-    border-color: $blue;
+    border-color: var(--color-brand);
   }
 
   &__head {
@@ -283,7 +330,7 @@ $shadow-block: 3px 3px 0 $navy-deep;
     transition: background 120ms;
 
     &:hover {
-      background: $bg;
+      background: var(--color-bg-surface-alt);
     }
   }
 
@@ -293,9 +340,12 @@ $shadow-block: 3px 3px 0 $navy-deep;
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    background: $blue-soft;
-    color: $blue;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
     flex-shrink: 0;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
   }
 
   &__info {
@@ -313,16 +363,18 @@ $shadow-block: 3px 3px 0 $navy-deep;
   &__number {
     font-size: 15px;
     font-weight: 950;
-    color: $navy;
+    color: var(--color-text-primary);
+    transition: color 0.2s ease;
   }
 
   &__title {
     font-size: 14px;
     font-weight: 700;
-    color: $text-muted;
+    color: var(--color-text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.2s ease;
   }
 
   &__meta {
@@ -337,7 +389,8 @@ $shadow-block: 3px 3px 0 $navy-deep;
     gap: 4px;
     font-size: 11.5px;
     font-weight: 700;
-    color: $text-faint;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
   }
 
   &__progress {
@@ -348,9 +401,11 @@ $shadow-block: 3px 3px 0 $navy-deep;
   }
 
   &__chevron {
-    color: $text-faint;
+    color: var(--color-text-muted);
     flex-shrink: 0;
-    transition: transform 200ms;
+    transition:
+      transform 200ms,
+      color 0.2s ease;
   }
 }
 
@@ -362,26 +417,44 @@ $shadow-block: 3px 3px 0 $navy-deep;
   letter-spacing: 0.04em;
   padding: 2px 9px;
   border-radius: 999px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 
   &.cs-draft {
-    background: #f1f5f9;
-    color: $text-sub;
+    background: var(--color-bg-surface-alt);
+    color: var(--color-text-secondary);
   }
   &.cs-progress {
-    background: #eff6ff;
-    color: $blue;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
   }
   &.cs-submitted {
     background: $green-bg;
     color: $green;
+
+    [data-theme="dark"] & {
+      background: rgba(22, 163, 74, 0.18);
+      color: #4ade80;
+    }
   }
   &.cs-pending {
     background: $orange-bg;
     color: $orange;
+
+    [data-theme="dark"] & {
+      background: rgba(194, 65, 12, 0.18);
+      color: #fb923c;
+    }
   }
   &.cs-published {
-    background: #f0fdf4;
+    background: $green-bg;
     color: #15803d;
+
+    [data-theme="dark"] & {
+      background: rgba(22, 163, 74, 0.12);
+      color: #4ade80;
+    }
   }
 }
 
@@ -389,35 +462,43 @@ $shadow-block: 3px 3px 0 $navy-deep;
   width: 80px;
   height: 5px;
   border-radius: 999px;
-  background: $border-soft;
+  background: var(--color-border);
   overflow: hidden;
+  transition: background-color 0.2s ease;
 
   &__fill {
     height: 100%;
     border-radius: 999px;
-    background: $blue;
-    transition: width 400ms ease;
+    background: var(--color-brand);
+    transition:
+      width 400ms ease,
+      background-color 0.2s ease;
   }
 }
 
 .mc-progress-label {
   font-size: 11.5px;
   font-weight: 800;
-  color: $text-faint;
+  color: var(--color-text-muted);
   white-space: nowrap;
+  transition: color 0.2s ease;
 }
 
 .mc-deadlines {
-  border-top: 1px solid $border-soft;
-  background: #fafbff;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-surface-alt);
   padding: 14px 18px 16px;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 
   &__empty {
     font-size: 13px;
     font-weight: 600;
-    color: $text-faint;
+    color: var(--color-text-muted);
     text-align: center;
     padding: 12px 0;
+    transition: color 0.2s ease;
   }
 
   &__head {
@@ -429,9 +510,12 @@ $shadow-block: 3px 3px 0 $navy-deep;
     font-weight: 900;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: $text-faint;
-    border-bottom: 1px solid $border-soft;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
     margin-bottom: 8px;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease;
   }
 }
 
@@ -445,13 +529,14 @@ $shadow-block: 3px 3px 0 $navy-deep;
   transition: background 120ms;
 
   &:hover {
-    background: #fff;
+    background: var(--color-bg-surface);
   }
 
   &__pages {
     font-size: 13px;
     font-weight: 800;
-    color: $ink;
+    color: var(--color-text-primary);
+    transition: color 0.2s ease;
   }
 
   &__date {
@@ -460,10 +545,12 @@ $shadow-block: 3px 3px 0 $navy-deep;
     gap: 5px;
     font-size: 12.5px;
     font-weight: 700;
-    color: $text-sub;
+    color: var(--color-text-secondary);
+    transition: color 0.2s ease;
 
     svg {
-      color: $text-faint;
+      color: var(--color-text-muted);
+      transition: color 0.2s ease;
     }
   }
 }
@@ -475,18 +562,36 @@ $shadow-block: 3px 3px 0 $navy-deep;
   font-weight: 900;
   padding: 2px 9px;
   border-radius: 999px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 
   &.ds-pending {
     background: $orange-bg;
     color: $orange;
+
+    [data-theme="dark"] & {
+      background: rgba(194, 65, 12, 0.18);
+      color: #fb923c;
+    }
   }
   &.ds-submitted {
     background: $green-bg;
     color: $green;
+
+    [data-theme="dark"] & {
+      background: rgba(22, 163, 74, 0.18);
+      color: #4ade80;
+    }
   }
   &.ds-late {
     background: $red-bg;
     color: $red;
+
+    [data-theme="dark"] & {
+      background: rgba(220, 38, 38, 0.18);
+      color: #f87171;
+    }
   }
 }
 
@@ -495,17 +600,17 @@ $shadow-block: 3px 3px 0 $navy-deep;
   align-items: center;
   gap: 5px;
   padding: 6px 12px;
-  border: 1px solid $blue;
+  border: 1px solid var(--color-brand);
   border-radius: 6px;
-  background: $blue-soft;
-  color: $blue;
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
   font-size: 12px;
   font-weight: 800;
   transition: all 160ms;
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    background: $blue;
+    background: var(--color-brand);
     color: #fff;
   }
   &:disabled {
@@ -518,12 +623,22 @@ $shadow-block: 3px 3px 0 $navy-deep;
   font-size: 11.5px;
   font-weight: 700;
   color: $green;
+  transition: color 0.2s ease;
+
+  [data-theme="dark"] & {
+    color: #4ade80;
+  }
 }
 
 .mc-late-label {
   font-size: 11.5px;
   font-weight: 800;
   color: $red;
+  transition: color 0.2s ease;
+
+  [data-theme="dark"] & {
+    color: #f87171;
+  }
 }
 
 .mc-empty {
@@ -535,10 +650,12 @@ $shadow-block: 3px 3px 0 $navy-deep;
   height: 200px;
   font-size: 14px;
   font-weight: 600;
-  color: $text-faint;
+  color: var(--color-text-muted);
+  transition: color 0.2s ease;
 
   svg {
-    color: $border-soft;
+    color: var(--color-border);
+    transition: color 0.2s ease;
   }
 }
 
@@ -549,18 +666,22 @@ $shadow-block: 3px 3px 0 $navy-deep;
   padding: 5px 11px;
   border: 1px solid #bfdbfe;
   border-radius: 6px;
-  background: #edf4ff;
-  color: #0b66c6;
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
   font-size: 11.5px;
   font-weight: 800;
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 150ms;
 
+  [data-theme="dark"] & {
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
   &:hover {
-    background: #0b66c6;
+    background: var(--color-brand);
     color: #fff;
-    border-color: #0b66c6;
+    border-color: var(--color-brand);
   }
 }
 
@@ -576,6 +697,15 @@ $shadow-block: 3px 3px 0 $navy-deep;
   gap: 7px;
   font-size: 12.5px;
   line-height: 1.55;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  [data-theme="dark"] & {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.25);
+    border-left-color: #f59e0b;
+  }
 
   &__icon {
     flex-shrink: 0;
@@ -585,9 +715,19 @@ $shadow-block: 3px 3px 0 $navy-deep;
   &__text {
     color: #78350f;
     white-space: pre-wrap;
+    transition: color 0.2s ease;
+
+    [data-theme="dark"] & {
+      color: #fbbf24;
+    }
+
     strong {
       font-weight: 700;
       color: #92400e;
+
+      [data-theme="dark"] & {
+        color: #f59e0b;
+      }
     }
   }
 }
