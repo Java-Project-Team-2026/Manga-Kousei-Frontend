@@ -1,16 +1,4 @@
-$blue: #0b66c6;
-$blue-soft: #edf4ff;
-$navy: #0d2544;
-$navy-deep: #102447;
-$border-soft: #e2e8f0;
-$text-faint: #7a808d;
-$text-sub: #4b5563;
-$ink: #111827;
-$red: #dc2626;
-$red-bg: #fff1f1;
-$bg: #f4f7fb;
-$shadow-block: 3px 3px 0 $navy-deep;
-
+// ESM Modal - với dark mode support
 .esm-overlay {
   position: fixed;
   inset: 0;
@@ -23,8 +11,12 @@ $shadow-block: 3px 3px 0 $navy-deep;
   padding: 20px;
 }
 
+[data-theme="dark"] .esm-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 .esm-modal {
-  background: #fff;
+  background: var(--color-bg-surface);
   border-radius: 16px;
   width: 100%;
   max-width: 560px;
@@ -39,13 +31,19 @@ $shadow-block: 3px 3px 0 $navy-deep;
   *::after {
     box-sizing: border-box;
   }
+
   button {
     cursor: pointer;
     font: inherit;
   }
+
   p {
     margin: 0;
   }
+}
+
+[data-theme="dark"] .esm-modal {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes esm-in {
@@ -64,13 +62,13 @@ $shadow-block: 3px 3px 0 $navy-deep;
   align-items: center;
   justify-content: space-between;
   padding: 18px 22px 16px;
-  border-bottom: 1px solid $border-soft;
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 
   h2 {
     font-size: 17px;
     font-weight: 950;
-    color: $navy;
+    color: var(--color-text-primary);
     margin: 0;
     letter-spacing: -0.01em;
   }
@@ -81,16 +79,24 @@ $shadow-block: 3px 3px 0 $navy-deep;
   place-items: center;
   width: 32px;
   height: 32px;
-  border: 1px solid $border-soft;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fff;
-  color: $text-faint;
+  background: var(--color-bg-surface);
+  color: var(--color-text-muted);
   transition: all 160ms;
 
   &:hover {
-    background: $red-bg;
-    border-color: $red;
-    color: $red;
+    background: rgba(220, 38, 38, 0.08);
+    border-color: #dc2626;
+    color: #dc2626;
+  }
+}
+
+[data-theme="dark"] .esm-close {
+  &:hover {
+    background: rgba(248, 113, 113, 0.08);
+    border-color: #f87171;
+    color: #f87171;
   }
 }
 
@@ -114,32 +120,36 @@ $shadow-block: 3px 3px 0 $navy-deep;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: $text-faint;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
 .esm-required {
-  color: $red;
+  color: #dc2626;
+}
+
+[data-theme="dark"] .esm-required {
+  color: #f87171;
 }
 
 .esm-hint-inline {
   font-size: 11px;
   font-weight: 600;
-  color: $blue;
+  color: var(--color-brand);
   letter-spacing: 0;
   text-transform: none;
 }
 
 .esm-input,
 .esm-textarea {
-  border: 1px solid $border-soft;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 10px 13px;
   font-size: 13.5px;
   font-weight: 600;
-  color: $ink;
+  color: var(--color-text-primary);
   outline: none;
   width: 100%;
   transition:
@@ -147,15 +157,25 @@ $shadow-block: 3px 3px 0 $navy-deep;
     box-shadow 160ms;
   font-family: inherit;
   resize: vertical;
+  background: var(--color-bg-surface);
 
   &::placeholder {
-    color: $text-faint;
+    color: var(--color-text-muted);
     font-weight: 500;
   }
 
   &:focus {
-    border-color: $blue;
+    border-color: var(--color-brand);
     box-shadow: 0 0 0 3px rgba(11, 102, 198, 0.1);
+  }
+}
+
+[data-theme="dark"] .esm-input,
+[data-theme="dark"] .esm-textarea {
+  background: var(--color-bg-surface-alt);
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
 }
 
@@ -166,17 +186,23 @@ $shadow-block: 3px 3px 0 $navy-deep;
 .esm-hint {
   font-size: 11.5px;
   font-weight: 600;
-  color: $text-faint;
+  color: var(--color-text-muted);
 }
 
 .esm-error {
   padding: 9px 13px;
-  background: $red-bg;
+  background: rgba(220, 38, 38, 0.08);
   border: 1px solid rgba(220, 38, 38, 0.2);
   border-radius: 8px;
   font-size: 12.5px;
   font-weight: 600;
-  color: $red;
+  color: #dc2626;
+}
+
+[data-theme="dark"] .esm-error {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.2);
+  color: #f87171;
 }
 
 .esm-cover-upload {
@@ -192,9 +218,9 @@ $shadow-block: 3px 3px 0 $navy-deep;
   flex-shrink: 0;
   border-radius: 10px;
   overflow: hidden;
-  border: 1.5px solid $border-soft;
+  border: 1.5px solid var(--color-border);
   cursor: pointer;
-  background: $bg;
+  background: var(--color-bg-surface-alt);
 
   img {
     width: 100%;
@@ -215,14 +241,14 @@ $shadow-block: 3px 3px 0 $navy-deep;
   justify-content: center;
   gap: 8px;
   height: 100%;
-  color: $text-faint;
+  color: var(--color-text-muted);
   font-size: 11.5px;
   font-weight: 700;
   text-align: center;
   padding: 10px;
 
   svg {
-    color: #c5cedd;
+    color: var(--color-border);
   }
 }
 
@@ -242,6 +268,10 @@ $shadow-block: 3px 3px 0 $navy-deep;
   transition: opacity 200ms;
 }
 
+[data-theme="dark"] .esm-cover-overlay {
+  background: rgba(59, 130, 246, 0.75);
+}
+
 .esm-genre-grid {
   display: flex;
   flex-wrap: wrap;
@@ -256,21 +286,36 @@ $shadow-block: 3px 3px 0 $navy-deep;
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 700;
-  border: 1px solid $border-soft;
-  background: $bg;
-  color: $text-sub;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-surface-alt);
+  color: var(--color-text-secondary);
   transition: all 160ms;
+  cursor: pointer;
 
   &:hover {
-    border-color: $blue;
-    color: $blue;
-    background: $blue-soft;
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
   }
 
   &--on {
-    background: $blue;
-    border-color: $blue;
-    color: #fff;
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #ffffff;
+
+    &:hover {
+      background: var(--color-brand-accent);
+      border-color: var(--color-brand-accent);
+      color: #ffffff;
+    }
+  }
+}
+
+[data-theme="dark"] .esm-genre-chip {
+  &--on {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #ffffff;
   }
 }
 
@@ -280,7 +325,7 @@ $shadow-block: 3px 3px 0 $navy-deep;
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: $text-faint;
+  color: var(--color-text-muted);
 }
 
 .esm-footer {
@@ -288,7 +333,7 @@ $shadow-block: 3px 3px 0 $navy-deep;
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 22px;
-  border-top: 1px solid $border-soft;
+  border-top: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
@@ -309,23 +354,36 @@ $shadow-block: 3px 3px 0 $navy-deep;
   }
 
   &--ghost {
-    border: 1px solid $border-soft;
-    background: #fff;
-    color: $text-sub;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-surface);
+    color: var(--color-text-secondary);
+
     &:hover:not(:disabled) {
-      border-color: #94a3b8;
-      color: $ink;
+      border-color: var(--color-text-muted);
+      color: var(--color-text-primary);
     }
   }
 
   &--save {
     border: 0;
-    background: $blue;
-    color: #fff;
-    box-shadow: $shadow-block;
+    background: var(--color-brand);
+    color: #ffffff;
+    box-shadow: 3px 3px 0 var(--color-bg-page);
+
     &:hover:not(:disabled) {
-      background: #0758ad;
+      background: var(--color-brand-accent);
       transform: translateY(-1px);
+      box-shadow: 4px 4px 0 var(--color-bg-page);
+    }
+  }
+}
+
+[data-theme="dark"] .esm-btn {
+  &--save {
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
     }
   }
 }
@@ -337,5 +395,82 @@ $shadow-block: 3px 3px 0 $navy-deep;
 @keyframes esm-spin-anim {
   to {
     transform: rotate(360deg);
+  }
+}
+
+// Responsive styles
+@media (max-width: 640px) {
+  .esm-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 12px;
+    margin: 0;
+  }
+
+  .esm-header,
+  .esm-footer {
+    padding: 14px 16px;
+  }
+
+  .esm-body {
+    padding: 16px;
+  }
+
+  .esm-cover-upload {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .esm-cover-preview {
+    width: 140px;
+    height: 187px;
+  }
+
+  .esm-genre-grid {
+    gap: 5px;
+  }
+
+  .esm-genre-chip {
+    font-size: 11.5px;
+    padding: 4px 10px;
+  }
+
+  .esm-btn {
+    padding: 8px 16px;
+    font-size: 12.5px;
+  }
+
+  .esm-footer {
+    flex-wrap: wrap;
+
+    .esm-btn {
+      flex: 1;
+      min-width: 80px;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .esm-header h2 {
+    font-size: 15px;
+  }
+
+  .esm-body {
+    gap: 14px;
+  }
+
+  .esm-field {
+    gap: 6px;
+  }
+
+  .esm-input,
+  .esm-textarea {
+    padding: 8px 11px;
+    font-size: 12.5px;
+  }
+
+  .esm-cover-preview {
+    width: 110px;
+    height: 147px;
   }
 }
