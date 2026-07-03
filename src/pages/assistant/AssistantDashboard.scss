@@ -1,47 +1,6 @@
-$blue: #0052cc;
-$blue-accent: #2563eb;
-$blue-lt: #eff6ff;
-$blue-mid: #bfdbfe;
-$green: #10b981;
-$green-lt: #e6f4ea;
-$orange: #4f46e5;
-$orange-lt: #eef2ff;
-$red: #dc2626;
-
-$bg: #f4f7fc;
-$white: #ffffff;
-$border: #e2e8f0;
-
-$gray-100: #f8fafc;
-$gray-200: #e2e8f0;
-$gray-400: #94a3b8;
-$gray-500: #64748b;
-$gray-600: #475569;
-$gray-700: #475569;
-$gray-900: #0f172a;
-
-$radius-sm: 6px;
-$radius-md: 10px;
-
-$shadow-flat: 0px 2px 8px rgba(0, 0, 0, 0.04);
-
-$shadow-deadline:
-  3px 3px 0px 0px #c21d1d,
-  0px 12px 24px -4px rgba(220, 38, 38, 0.15),
-  0px 4px 12px rgba(0, 0, 0, 0.03);
-
-$shadow-notif-panel:
-  3px 3px 0px 0px #cbd5e1,
-  0px 10px 20px -4px rgba(15, 23, 42, 0.06),
-  0px 4px 12px rgba(0, 0, 0, 0.02);
-
-$shadow-card-doing:
-  3px 3px 12px 0px rgba(37, 99, 235, 0.18),
-  0px 1px 3px 0px rgba(37, 99, 235, 0.08);
-
 .assistant-dashboard {
   .page {
-    background: $bg;
+    background: var(--color-bg-page);
     min-height: 100vh;
     padding: 32px 36px 48px;
     display: flex;
@@ -51,8 +10,11 @@ $shadow-card-doing:
       "Inter",
       -apple-system,
       sans-serif;
-    color: $gray-900;
+    color: var(--color-text-primary);
     box-sizing: border-box;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
   }
 
   *,
@@ -70,14 +32,14 @@ $shadow-card-doing:
   .pageTitle {
     font-size: 26px;
     font-weight: 700;
-    color: $gray-900;
+    color: var(--color-text-primary);
     margin: 0;
     letter-spacing: -0.5px;
   }
 
   .pageSubtitle {
     font-size: 13px;
-    color: $gray-500;
+    color: var(--color-text-secondary);
     margin: 0;
   }
 
@@ -93,13 +55,13 @@ $shadow-card-doing:
   }
 
   .deadlineAlert {
-    background: $white;
+    background: var(--color-bg-surface);
     border: 1.5px solid #dc2626;
-    border-radius: $radius-md;
+    border-radius: var(--radius-md, 10px);
     padding: 22px 20px;
     display: flex;
     flex-direction: column;
-    box-shadow: $shadow-deadline;
+    box-shadow: var(--shadow-card);
     position: relative;
   }
 
@@ -126,20 +88,20 @@ $shadow-card-doing:
   .deadlineCount {
     font-size: 46px;
     font-weight: 700;
-    color: $gray-900;
+    color: var(--color-text-primary);
     line-height: 1;
     margin: 14px 0 6px;
   }
 
   .deadlineLabel {
     font-size: 13px;
-    color: $gray-500;
+    color: var(--color-text-secondary);
     margin-bottom: 20px;
   }
 
   .deadlineDivider {
     height: 1px;
-    background-color: #d7d7d7;
+    background-color: var(--color-border);
     width: 100%;
     margin-bottom: 14px;
   }
@@ -147,7 +109,7 @@ $shadow-card-doing:
   .deadlineLink {
     background: none;
     border: none;
-    color: $blue-accent;
+    color: var(--color-brand);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -162,11 +124,11 @@ $shadow-card-doing:
   }
 
   .notifPanel {
-    background: $white;
-    border: 1.5px solid #94a3b8;
-    border-radius: $radius-md;
+    background: var(--color-bg-surface);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md, 10px);
     padding: 22px 20px;
-    box-shadow: $shadow-notif-panel;
+    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -177,18 +139,18 @@ $shadow-card-doing:
     align-items: center;
     gap: 8px;
     padding-bottom: 14px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
     margin-bottom: 16px;
   }
 
   .notifBellIcon {
-    color: $gray-900;
+    color: var(--color-text-primary);
   }
 
   .notifTitle {
     font-size: 12px;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--color-text-primary);
     letter-spacing: 0.5px;
     flex: 1;
   }
@@ -196,8 +158,8 @@ $shadow-card-doing:
   .notifBadge {
     font-size: 11px;
     font-weight: 700;
-    color: $white;
-    background: $blue-accent;
+    color: #ffffff;
+    background: var(--color-brand);
     padding: 3px 8px;
     border-radius: 4px;
   }
@@ -216,8 +178,8 @@ $shadow-card-doing:
     border-radius: 6px;
 
     &:first-child {
-      background: #ecf4ff;
-      border: 1px solid #d6e4ff;
+      background: var(--color-brand-soft);
+      border: 1px solid var(--color-border);
     }
   }
 
@@ -232,10 +194,10 @@ $shadow-card-doing:
     margin-top: 2px;
 
     .notifIconEdit {
-      color: #0052cc;
+      color: var(--color-brand);
     }
     .notifIconFile {
-      color: #64748b;
+      color: var(--color-text-muted);
     }
   }
 
@@ -249,20 +211,20 @@ $shadow-card-doing:
   .notifItemTitle {
     font-size: 13px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     line-height: 1.4;
   }
 
   .notifItemDesc {
     font-size: 12px;
-    color: #475569;
+    color: var(--color-text-secondary);
     line-height: 1.4;
   }
 
   .notifTime {
     font-size: 11px;
     font-weight: 500;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     white-space: nowrap;
     margin-top: 2px;
     flex-shrink: 0;
@@ -283,14 +245,14 @@ $shadow-card-doing:
   .sectionTitle {
     font-size: 19px;
     font-weight: 700;
-    color: $gray-900;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
   .kanbanFullscreen {
     background: none;
     border: none;
-    color: $blue-accent;
+    color: var(--color-brand);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -310,7 +272,7 @@ $shadow-card-doing:
     position: absolute;
     width: 140px;
     height: 140px;
-    background-color: #dbeafe;
+    background-color: var(--color-brand-soft);
     border-radius: 50%;
     top: -45px;
     left: 31%;
@@ -342,7 +304,7 @@ $shadow-card-doing:
 
   .kanbanCol {
     background: transparent;
-    border-radius: $radius-md;
+    border-radius: var(--radius-md, 10px);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -350,8 +312,8 @@ $shadow-card-doing:
 
   .kanbanCol_review {
     .kanbanCards {
-      border: 1px dashed #cbd5e1;
-      border-radius: $radius-md;
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-md, 10px);
       padding: 12px;
       min-height: 140px;
     }
@@ -362,7 +324,7 @@ $shadow-card-doing:
     align-items: center;
     justify-content: space-between;
     padding-bottom: 8px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--color-border);
     margin-bottom: 4px;
   }
 
@@ -373,19 +335,19 @@ $shadow-card-doing:
   }
 
   .kanbanColLabel_todo {
-    color: #64748b;
+    color: var(--color-text-secondary);
   }
   .kanbanColLabel_doing {
-    color: #1d4ed8;
-    border-bottom: 2px solid #1d4ed8;
+    color: var(--color-brand);
+    border-bottom: 2px solid var(--color-brand);
     padding-bottom: 2px;
     margin-bottom: -10px;
   }
   .kanbanColLabel_review {
-    color: #4f46e5;
+    color: #6d28d9;
   }
   .kanbanColLabel_done {
-    color: #475569;
+    color: var(--color-text-secondary);
   }
 
   .kanbanColCount {
@@ -400,21 +362,29 @@ $shadow-card-doing:
   }
 
   .kanbanColCount_todo {
-    background: #e2e8f0;
-    color: #64748b;
+    background: var(--color-border);
+    color: var(--color-text-secondary);
   }
   .kanbanColCount_doing {
-    background: #2563eb;
-    color: $white;
+    background: var(--color-brand);
+    color: #ffffff;
   }
   .kanbanColCount_review {
-    background: #eef2ff;
-    color: #4f46e5;
+    background: #f5f3ff;
+    color: #6d28d9;
     border: 1px solid #c7d2fe;
   }
   .kanbanColCount_done {
-    background: #e2e8f0;
-    color: #64748b;
+    background: var(--color-border);
+    color: var(--color-text-secondary);
+  }
+
+  [data-theme="dark"] & {
+    .kanbanColCount_review {
+      background: rgba(109, 40, 217, 0.2);
+      color: #c4b5fd;
+      border-color: #6d28d9;
+    }
   }
 
   .kanbanCards {
@@ -424,19 +394,21 @@ $shadow-card-doing:
   }
 
   .kanbanCard {
-    background: $white;
-    border: 1px solid #e2e8f0;
-    border-radius: $radius-sm;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm, 6px);
     padding: 16px;
     display: flex;
     flex-direction: column;
-    box-shadow: $shadow-flat;
+    box-shadow: var(--shadow-card);
     position: relative;
   }
 
   .kanbanCardActiveStyle {
-    border: 2px solid #0052cc !important;
-    box-shadow: $shadow-card-doing !important;
+    border: 2px solid var(--color-brand) !important;
+    box-shadow:
+      0 3px 12px 0px rgba(37, 99, 235, 0.18),
+      0 1px 3px 0px rgba(37, 99, 235, 0.08) !important;
   }
 
   .kanbanCardTop {
@@ -449,8 +421,8 @@ $shadow-card-doing:
   .kanbanTag {
     font-size: 10px;
     font-weight: 700;
-    color: #2563eb;
-    background-color: #eff6ff;
+    color: var(--color-brand);
+    background-color: var(--color-brand-soft);
     padding: 2px 6px;
     border-radius: 4px;
   }
@@ -464,10 +436,10 @@ $shadow-card-doing:
   }
 
   .kanbanMenu {
-    color: $gray-400;
+    color: var(--color-text-muted);
     cursor: pointer;
     &:hover {
-      color: $gray-700;
+      color: var(--color-text-secondary);
     }
   }
 
@@ -481,19 +453,19 @@ $shadow-card-doing:
   .kanbanChapter {
     font-size: 11px;
     font-weight: 600;
-    color: $gray-500;
+    color: var(--color-text-secondary);
   }
 
   .kanbanChapterDone {
     font-size: 11px;
-    color: $gray-400;
+    color: var(--color-text-muted);
     margin-left: 24px;
   }
 
   .kanbanTitle {
     font-size: 14px;
     font-weight: 700;
-    color: $gray-900;
+    color: var(--color-text-primary);
     line-height: 1.4;
   }
 
@@ -510,7 +482,7 @@ $shadow-card-doing:
   }
 
   .kanbanTitleDone {
-    color: $gray-500;
+    color: var(--color-text-secondary);
     font-weight: 600;
   }
 
@@ -519,17 +491,17 @@ $shadow-card-doing:
     align-items: center;
     gap: 5px;
     font-size: 11px;
-    color: $gray-600;
+    color: var(--color-text-secondary);
     font-weight: 500;
   }
 
   .kanbanClockIcon {
-    color: $gray-400;
+    color: var(--color-text-muted);
   }
 
   .kanbanSubmitted {
     font-size: 12px;
-    color: $gray-400;
+    color: var(--color-text-muted);
     font-style: italic;
   }
 
@@ -549,19 +521,19 @@ $shadow-card-doing:
   }
 
   .kanbanActionPrimary {
-    background: #0052cc;
-    color: $white;
+    background: var(--color-brand);
+    color: #ffffff;
     &:hover {
-      background: #0043a4;
+      background: var(--color-brand-accent);
     }
   }
 
   .kanbanActionSecondary {
-    background: $white;
-    color: $gray-700;
-    border: 1px solid #cbd5e1;
+    background: var(--color-bg-surface);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
     &:hover {
-      background: $gray-100;
+      background: var(--color-bg-surface-alt);
     }
   }
 
@@ -577,11 +549,11 @@ $shadow-card-doing:
   }
 
   .resourceCard {
-    background: $white;
-    border: 1px solid $border;
-    border-radius: $radius-md;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 10px);
     padding: 22px 20px;
-    box-shadow: $shadow-flat;
+    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -594,13 +566,13 @@ $shadow-card-doing:
   }
 
   .resourceIcon {
-    color: $gray-900;
+    color: var(--color-text-primary);
   }
 
   .resourceTitle {
     font-size: 17px;
     font-weight: 700;
-    color: $gray-900;
+    color: var(--color-text-primary);
     margin: 0;
     flex: 1;
   }
@@ -608,7 +580,7 @@ $shadow-card-doing:
   .resourceLink {
     background: none;
     border: none;
-    color: $blue-accent;
+    color: var(--color-brand);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -620,11 +592,11 @@ $shadow-card-doing:
   }
 
   .incomeCard {
-    background: $white;
-    border: 1px solid $border;
-    border-radius: $radius-md;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 10px);
     padding: 22px 20px;
-    box-shadow: $shadow-flat;
+    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
   }
@@ -637,20 +609,20 @@ $shadow-card-doing:
   }
 
   .incomeIcon {
-    color: $gray-900;
+    color: var(--color-text-primary);
   }
 
   .incomeTitle {
     font-size: 17px;
     font-weight: 700;
-    color: $gray-900;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
   .incomeLabel {
     font-size: 10px;
     font-weight: 700;
-    color: $gray-400;
+    color: var(--color-text-muted);
     letter-spacing: 0.5px;
     margin-bottom: 4px;
   }
@@ -666,7 +638,7 @@ $shadow-card-doing:
   .incomeAmount {
     font-size: 34px;
     font-weight: 800;
-    color: $gray-900;
+    color: var(--color-text-primary);
     letter-spacing: -0.5px;
     line-height: 1.1;
   }
@@ -677,18 +649,18 @@ $shadow-card-doing:
     align-items: flex-end;
     gap: 2px;
     font-size: 12px;
-    color: $gray-500;
+    color: var(--color-text-secondary);
   }
 
   .incomeBonus {
-    color: #2563eb;
+    color: var(--color-brand);
     font-weight: 600;
   }
 
   .incomeTrack {
     width: 100%;
     height: 6px;
-    background: #e2e8f0;
+    background: var(--color-border);
     border-radius: 3px;
     overflow: hidden;
     margin-top: 4px;
@@ -696,13 +668,13 @@ $shadow-card-doing:
 
   .incomeFill {
     height: 100%;
-    background: #0052cc;
+    background: var(--color-brand);
     border-radius: 3px;
   }
 
   .incomeGoal {
     font-size: 11px;
-    color: $gray-400;
+    color: var(--color-text-muted);
     text-align: right;
     margin-top: 6px;
   }
@@ -715,8 +687,8 @@ $shadow-card-doing:
     height: 20px;
     padding: 0 6px;
     border-radius: 999px;
-    background: #eff6ff;
-    color: $blue-accent;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
     font-size: 11px;
     font-weight: 800;
   }
@@ -725,7 +697,7 @@ $shadow-card-doing:
     padding: 20px 8px;
     text-align: center;
     font-size: 12.5px;
-    color: $gray-400;
+    color: var(--color-text-muted);
     font-weight: 500;
     line-height: 1.5;
   }
@@ -741,11 +713,11 @@ $shadow-card-doing:
     align-items: center;
     gap: 10px;
     padding: 9px 6px;
-    border-radius: $radius-md;
+    border-radius: var(--radius-md, 10px);
     transition: background 0.15s;
 
     &:hover {
-      background: #f8fafc;
+      background: var(--color-bg-surface-alt);
     }
   }
 
@@ -773,7 +745,7 @@ $shadow-card-doing:
     strong {
       font-size: 13.5px;
       font-weight: 700;
-      color: $gray-900;
+      color: var(--color-text-primary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -781,7 +753,7 @@ $shadow-card-doing:
 
     span {
       font-size: 11px;
-      color: $gray-400;
+      color: var(--color-text-muted);
       font-weight: 600;
       text-transform: uppercase;
     }
@@ -793,19 +765,22 @@ $shadow-card-doing:
     align-items: center;
     gap: 5px;
     padding: 6px 10px;
-    border: 1px solid #dbeafe;
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    background: #eff6ff;
-    color: $blue-accent;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
     font-size: 11.5px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
 
     &:hover {
-      background: $blue-accent;
-      border-color: $blue-accent;
-      color: #fff;
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+      color: #ffffff;
     }
   }
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
 }
