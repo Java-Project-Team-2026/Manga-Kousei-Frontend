@@ -3,6 +3,7 @@ import api from "../services/api";
 import { uploadImageToCloudinary } from "../utils/imageUpload";
 import { useGenres } from "./useGenres";
 import type { Character, CreateWorkFormData } from "../types/createWork";
+import { peekDraftSavedAt, useDraftAutosave } from "./useDraftAutosave";
 
 type FormAction =
   | {
@@ -18,7 +19,8 @@ type FormAction =
       key: keyof Character;
       value: string;
     }
-  | { type: "RESET_FORM" };
+  | { type: "RESET_FORM" }
+  | { type: "LOAD_DRAFT"; data: Partial<CreateWorkFormData> };
 
 const initialState: CreateWorkFormData = {
   title: "",
@@ -60,6 +62,8 @@ const formReducer = (
       };
     case "RESET_FORM":
       return initialState;
+    case "LOAD_DRAFT":
+      return { ...state, ...action.data };
     default:
       return state;
   }
@@ -75,6 +79,48 @@ export const useCreateWorkForm = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const genresList = useGenres();
+
+  const draftPayload = useMemo(
+    () => ({
+      form: {
+        title: form.title,
+        genreIds: form.genreIds,
+        targetAudience: form.targetAudience,
+        synopsis: form.synopsis,
+        characters: form.characters,
+        nameSummary: form.nameSummary,
+      },
+      step,
+    }),
+    [form, step],
+  );
+
+  const [draftSavedAt, setDraftSavedAt] = useState<number | null>(() =>
+    peekDraftSavedAt("create-work"),
+  );
+
+  const draftAutosaveEnabled = draftSavedAt === null;
+
+  const { loadDraft, clearDraft } = useDraftAutosave(
+    "create-work",
+    draftPayload,
+    1000,
+    draftAutosaveEnabled,
+  );
+
+  const restoreDraft = useCallback(() => {
+    const draft = loadDraft();
+    if (draft) {
+      dispatch({ type: "LOAD_DRAFT", data: draft.form });
+      setStep(draft.step ?? 1);
+    }
+    setDraftSavedAt(null);
+  }, [loadDraft]);
+
+  const discardDraft = useCallback(() => {
+    clearDraft();
+    setDraftSavedAt(null);
+  }, [clearDraft]);
 
   const updateField = useCallback(
     <K extends keyof CreateWorkFormData>(
@@ -108,7 +154,8 @@ export const useCreateWorkForm = () => {
     setSubmitted(false);
     setStep(1);
     setSubmitError(null);
-  }, [form.sketchPreview]);
+    clearDraft();
+  }, [form.sketchPreview, clearDraft]);
 
   const submitProposal = useCallback(
     async (tantouId: number | null) => {
@@ -144,6 +191,7 @@ export const useCreateWorkForm = () => {
         const response = await api.post("/proposals", payload);
         if (response.status === 200 || response.status === 201) {
           setSubmitted(true);
+          clearDraft();
         } else {
           throw new Error("Gửi proposal thất bại, mã lỗi: " + response.status);
         }
@@ -156,7 +204,7 @@ export const useCreateWorkForm = () => {
         setIsSubmitting(false);
       }
     },
-    [form],
+    [form, clearDraft],
   );
 
   const canProceed = useMemo(() => {
@@ -205,5 +253,8 @@ export const useCreateWorkForm = () => {
     resetForm,
     setStep: handleSetStep,
     canProceed,
+    draftSavedAt,
+    restoreDraft,
+    discardDraft,
   };
 };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, FileClock, X } from "lucide-react";
 import "./CreateWork.scss";
 import { useCreateWorkForm } from "../../hooks/useCreateWorkForm";
 import { StepIndicator } from "./StepIndicator";
@@ -27,18 +27,33 @@ export default function CreateWork() {
     setStep,
     canProceed,
     genresList,
+    draftSavedAt,
+    restoreDraft,
+    discardDraft,
   } = useCreateWorkForm();
 
   const [selectedTantouId, setSelectedTantouId] = useState<number | null>(null);
+  const [nowAtMount] = useState(() => Date.now());
 
   const canProceedStep4 = step !== 4 || selectedTantouId !== null;
   const effectiveCanProceed = canProceed && canProceedStep4;
+
+  const draftMinutesAgo =
+    draftSavedAt != null
+      ? Math.floor((nowAtMount - draftSavedAt) / 60_000)
+      : null;
 
   useEffect(() => {
     return () => {
       if (form.sketchPreview) URL.revokeObjectURL(form.sketchPreview);
     };
   }, [form.sketchPreview]);
+
+  const formatDraftTime = (diffMin: number) => {
+    if (diffMin < 1) return "vừa xong";
+    if (diffMin < 60) return `${diffMin} phút trước`;
+    return `${Math.floor(diffMin / 60)} giờ trước`;
+  };
 
   if (submitted) {
     return (
@@ -133,6 +148,31 @@ export default function CreateWork() {
           onSubmit={() => submitProposal(selectedTantouId)}
         />
       </div>
+      {draftSavedAt && draftMinutesAgo !== null && !submitted && (
+        <div className="cw-draft-banner">
+          <FileClock size={18} />
+          <div className="cw-draft-banner__text">
+            <strong>Phát hiện bản nháp chưa hoàn tất</strong>
+            <span>
+              Lưu {formatDraftTime(draftMinutesAgo)} -- khôi phục lại để tiếp
+              tục?
+            </span>
+          </div>
+          <div className="cw-draft-banner__actions">
+            <button type="button" onClick={restoreDraft}>
+              Khôi phục
+            </button>
+            <button
+              type="button"
+              className="cw-draft-banner__dismiss"
+              onClick={discardDraft}
+              aria-label="Bỏ qua"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
