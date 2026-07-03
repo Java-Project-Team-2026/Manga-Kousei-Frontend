@@ -10,14 +10,11 @@ import {
   Sun,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
-import "./Settings.scss";
 import { useTheme } from "../../hooks/useTheme";
-
-type ThemeMode = "system" | "light" | "dark";
-type DensityMode = "comfortable" | "compact";
+import { landingOptionsByRole } from "../../constants/landingOptions";
+import "./Settings.scss";
 
 interface SettingsState {
-  density: DensityMode;
   language: string;
   timezone: string;
   dashboardLanding: string;
@@ -25,7 +22,6 @@ interface SettingsState {
 }
 
 const defaultSettings: SettingsState = {
-  density: "comfortable",
   language: "vi",
   timezone: "Asia/Ho_Chi_Minh",
   dashboardLanding: "dashboard",
@@ -41,15 +37,10 @@ const roleLabels: Record<string, string> = {
   ASSISTANT: "Trợ lý sản xuất",
 };
 
-const themeLabels: Record<ThemeMode, string> = {
+const themeLabels: Record<string, string> = {
   system: "Theo hệ thống",
   light: "Sáng",
   dark: "Tối",
-};
-
-const densityLabels: Record<DensityMode, string> = {
-  comfortable: "Thoáng",
-  compact: "Gọn",
 };
 
 const languageLabels: Record<string, string> = {
@@ -69,15 +60,31 @@ function readStoredSettings(): SettingsState {
 
 function Settings() {
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState<SettingsState>(readStoredSettings);
   const [saved, setSaved] = useState(false);
-  const { theme, setTheme } = useTheme();
 
   const userRole = user?.role || "USER";
   const displayName = user?.fullName || "Manga Kousei User";
+  const roleLandingOptions =
+    landingOptionsByRole[userRole] ?? landingOptionsByRole.MANGAKA;
+  const currentLandingLabel =
+    roleLandingOptions.find((o) => o.value === settings.dashboardLanding)
+      ?.label ??
+    roleLandingOptions[0]?.label ??
+    "Bảng điều khiển";
 
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(settings));
+    try {
+      const raw = localStorage.getItem(storageKey);
+      const parsed = raw ? JSON.parse(raw) : {};
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ ...parsed, ...settings }),
+      );
+    } catch {
+      localStorage.setItem(storageKey, JSON.stringify(settings));
+    }
   }, [settings]);
 
   useEffect(() => {
@@ -97,6 +104,7 @@ function Settings() {
 
   const handleReset = () => {
     setSettings(defaultSettings);
+    setTheme("system");
     setSaved(true);
   };
 
@@ -148,8 +156,8 @@ function Settings() {
             <LayoutDashboard size={20} />
           </span>
           <div>
-            <strong>{densityLabels[settings.density]}</strong>
-            <p>Mật độ bảng điều khiển</p>
+            <strong>{currentLandingLabel}</strong>
+            <p>Trang mở mặc định</p>
           </div>
         </article>
         <article>
@@ -207,30 +215,6 @@ function Settings() {
             </div>
           </div>
 
-          <div className="settings-field">
-            <label>Mật độ bảng điều khiển</label>
-            <div
-              className="settings-segmented"
-              role="group"
-              aria-label="Mật độ bảng điều khiển"
-            >
-              <button
-                className={settings.density === "comfortable" ? "active" : ""}
-                type="button"
-                onClick={() => updateSetting("density", "comfortable")}
-              >
-                Thoáng
-              </button>
-              <button
-                className={settings.density === "compact" ? "active" : ""}
-                type="button"
-                onClick={() => updateSetting("density", "compact")}
-              >
-                Gọn
-              </button>
-            </div>
-          </div>
-
           <div className="settings-two-col">
             <label className="settings-select">
               <span>Trang mở mặc định</span>
@@ -240,10 +224,11 @@ function Settings() {
                   updateSetting("dashboardLanding", event.target.value)
                 }
               >
-                <option value="dashboard">Bảng điều khiển</option>
-                <option value="approvals">Không gian xét duyệt</option>
-                <option value="schedule">Lịch trình</option>
-                <option value="reports">Báo cáo</option>
+                {roleLandingOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </label>
 
