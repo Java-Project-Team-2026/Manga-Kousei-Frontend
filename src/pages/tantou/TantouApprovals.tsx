@@ -111,27 +111,30 @@ export default function TantouApprovals() {
 
   const [submitting, setSubmitting] = useState(false);
 
-  const loadImagesForDeadline = useCallback(async (deadlineId: number) => {
-    if (deadlineImagesRef.current[deadlineId]) {
+  const loadImagesForDeadline = useCallback(
+    async (deadlineId: number, force = false) => {
+      if (!force && deadlineImagesRef.current[deadlineId]) {
+        setImageIndex(0);
+        return;
+      }
+      setLoadingImages(true);
       setImageIndex(0);
-      return;
-    }
-    setLoadingImages(true);
-    setImageIndex(0);
-    try {
-      const pages = await fetchDeadlinePages(deadlineId);
-      const mapped = pages.map((p) => ({
-        pageNumber: p.pageNumber,
-        fileUrl: p.fileUrl,
-      }));
-      deadlineImagesRef.current[deadlineId] = mapped;
-      setDeadlineImages((prev) => ({ ...prev, [deadlineId]: mapped }));
-    } catch (err) {
-      console.error("Load ảnh thất bại", err);
-    } finally {
-      setLoadingImages(false);
-    }
-  }, []);
+      try {
+        const pages = await fetchDeadlinePages(deadlineId);
+        const mapped = pages.map((p) => ({
+          pageNumber: p.pageNumber,
+          fileUrl: p.fileUrl,
+        }));
+        deadlineImagesRef.current[deadlineId] = mapped;
+        setDeadlineImages((prev) => ({ ...prev, [deadlineId]: mapped }));
+      } catch (err) {
+        console.error("Load ảnh thất bại", err);
+      } finally {
+        setLoadingImages(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -160,7 +163,9 @@ export default function TantouApprovals() {
   useEffect(() => {
     const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
       if (deadlineId === activePageId) {
-        loadImagesForDeadline(deadlineId);
+        loadImagesForDeadline(deadlineId, true);
+      } else {
+        delete deadlineImagesRef.current[deadlineId];
       }
     });
     return unsubscribe;

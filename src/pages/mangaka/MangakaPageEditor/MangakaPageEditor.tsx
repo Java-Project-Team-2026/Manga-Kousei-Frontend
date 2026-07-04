@@ -9,6 +9,7 @@ import {
   MousePointer2,
   PenTool,
   Plus,
+  RefreshCw,
   Square,
   Trash2,
   X,
@@ -19,6 +20,7 @@ import { getAvatarColor, getInitials } from "../../../utils";
 import {
   fetchPages,
   createPage,
+  updatePage,
   deletePage,
   fetchRegions,
   createRegion,
@@ -246,6 +248,29 @@ export default function MangakaPageEditor() {
       })
       .catch(console.error);
   }, [selectedPage]);
+
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+  const [replacingPageId, setReplacingPageId] = useState<number | null>(null);
+
+  const handleReplaceImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !replacingPageId) return;
+    setUploading(true);
+    try {
+      const url = await uploadImageToCloudinary(file);
+      const updated = await updatePage(replacingPageId, { fileUrl: url });
+      setPages((prev) =>
+        prev.map((p) => (p.pageId === replacingPageId ? updated : p)),
+      );
+      if (selectedPage?.pageId === replacingPageId) setSelectedPage(updated);
+    } catch (err) {
+      console.error("Thay ảnh thất bại", err);
+    } finally {
+      setUploading(false);
+      setReplacingPageId(null);
+      e.target.value = "";
+    }
+  };
 
   const handleUploadPage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -506,6 +531,18 @@ export default function MangakaPageEditor() {
                   )}
                 </div>
                 <button
+                  className="mpe-thumb__replace"
+                  title="Thay ảnh (giữ nguyên số trang)"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setReplacingPageId(p.pageId);
+                    replaceInputRef.current?.click();
+                  }}
+                  disabled={uploading}
+                >
+                  <RefreshCw size={11} />
+                </button>
+                <button
                   className="mpe-thumb__delete"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -522,6 +559,13 @@ export default function MangakaPageEditor() {
                 <span>Upload trang đầu tiên</span>
               </div>
             )}
+            <input
+              ref={replaceInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleReplaceImage}
+            />
           </div>
         </div>
 
