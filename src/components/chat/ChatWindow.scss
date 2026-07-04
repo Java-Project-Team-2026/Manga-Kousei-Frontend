@@ -192,6 +192,45 @@
   }
 }
 
+.chat-bubble__proposal-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(59, 130, 246, 0.06);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.12);
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    color: #3b82f6;
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+  &__label {
+    font-size: 11px;
+    color: #64748b;
+  }
+  &__title {
+    font-size: 13px;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 [data-theme="dark"] {
   .chat-bubble-row {
     &:not(&--mine) {
