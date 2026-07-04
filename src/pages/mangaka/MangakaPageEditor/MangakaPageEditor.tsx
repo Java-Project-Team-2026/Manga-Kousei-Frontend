@@ -41,6 +41,10 @@ import {
   reviewSubmission,
   type TaskSubmissionRes,
 } from "../../../services/taskSubmissionService";
+import {
+  onSubmissionUpdate,
+  onTaskUpdate,
+} from "../../../services/notificationSocket";
 
 interface DrawingRect {
   startX: number;
@@ -121,6 +125,44 @@ export default function MangakaPageEditor() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [chapterId]);
+
+  useEffect(() => {
+    const offTask = onTaskUpdate((updated) => {
+      setRegions((prevRegions) =>
+        prevRegions.map((r) => ({
+          ...r,
+          tasks: r.tasks.map((t) =>
+            t.taskId === updated.taskId ? { ...t, ...updated } : t,
+          ),
+        })),
+      );
+      setSelectedRegion((prev) =>
+        prev
+          ? {
+              ...prev,
+              tasks: prev.tasks.map((t) =>
+                t.taskId === updated.taskId ? { ...t, ...updated } : t,
+              ),
+            }
+          : prev,
+      );
+    });
+
+    const offSub = onSubmissionUpdate((sub) => {
+      if (sub.taskId === expandedTaskId) {
+        setTaskSubmissions((prev) =>
+          prev.some((s) => s.submissionId === sub.submissionId)
+            ? prev.map((s) => (s.submissionId === sub.submissionId ? sub : s))
+            : [sub, ...prev],
+        );
+      }
+    });
+
+    return () => {
+      offTask();
+      offSub();
+    };
+  }, [expandedTaskId]);
 
   const handleExpandTask = async (taskId: number) => {
     if (expandedTaskId === taskId) {

@@ -27,6 +27,11 @@ import {
 } from "../../../services/taskSubmissionService";
 import { getAvatarColor, getInitials } from "../../../utils";
 import "./AssistantTasks.scss";
+import {
+  onAssistantTaskDeleted,
+  onAssistantTaskUpdate,
+  onSubmissionUpdate,
+} from "../../../services/notificationSocket";
 
 const STATUS_META: Record<
   string,
@@ -159,6 +164,38 @@ export default function AssistantTasks() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const offTask = onAssistantTaskUpdate((updatedTask) => {
+      setTasks((prev) => {
+        const exists = prev.some((t) => t.taskId === updatedTask.taskId);
+        return exists
+          ? prev.map((t) => (t.taskId === updatedTask.taskId ? updatedTask : t))
+          : [updatedTask, ...prev];
+      });
+    });
+
+    const offDeleted = onAssistantTaskDeleted((taskId) => {
+      setTasks((prev) => prev.filter((t) => t.taskId !== taskId));
+      setExpandedId((prev) => (prev === taskId ? null : prev));
+    });
+
+    const offSub = onSubmissionUpdate((sub) => {
+      if (sub.taskId === expandedId) {
+        setSubmissions((prev) =>
+          prev.some((s) => s.submissionId === sub.submissionId)
+            ? prev.map((s) => (s.submissionId === sub.submissionId ? sub : s))
+            : [sub, ...prev],
+        );
+      }
+    });
+
+    return () => {
+      offTask();
+      offDeleted();
+      offSub();
+    };
+  }, [expandedId]);
 
   useEffect(() => {
     if (expandedId === null) {

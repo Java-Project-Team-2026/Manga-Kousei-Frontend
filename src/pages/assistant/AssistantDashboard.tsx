@@ -35,6 +35,11 @@ import {
 } from "../../services/chatService";
 import { getAvatarColor, getInitials } from "../../utils";
 import ChatWindow from "../../components/chat/ChatWindow";
+import {
+  onAssistantTaskDeleted,
+  onAssistantTaskUpdate,
+  onSubmissionUpdate,
+} from "../../services/notificationSocket";
 
 interface Notification {
   icon: "edit" | "file";
@@ -502,6 +507,29 @@ const AssistantDashboard: React.FC = () => {
 
     return () => {
       isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const offTask = onAssistantTaskUpdate((updatedTask) => {
+      setTasks((prev) => {
+        const exists = prev.some((t) => t.taskId === updatedTask.taskId);
+        return exists
+          ? prev.map((t) => (t.taskId === updatedTask.taskId ? updatedTask : t))
+          : [updatedTask, ...prev];
+      });
+    });
+
+    const offDeleted = onAssistantTaskDeleted((taskId) => {
+      setTasks((prev) => prev.filter((t) => t.taskId !== taskId));
+    });
+
+    const offSub = onSubmissionUpdate(() => {});
+
+    return () => {
+      offTask();
+      offDeleted();
+      offSub();
     };
   }, []);
 
