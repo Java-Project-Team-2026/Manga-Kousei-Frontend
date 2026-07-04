@@ -229,7 +229,7 @@ export default function TantouSeriesChapters() {
       setChapters((prev) =>
         prev.map((c) =>
           c.chapterId === chapterId
-            ? { ...c, chapterStatus: updated.chapterStatus }
+            ? { ...c, chapterStatus: updated.chapterStatus, adminNote: null }
             : c,
         ),
       );
@@ -516,7 +516,10 @@ export default function TantouSeriesChapters() {
                             </>
                           ) : (
                             <>
-                              <Upload size={12} /> Nộp chương lên Admin
+                              <Upload size={12} />{" "}
+                              {c.adminNote
+                                ? "Nộp lại lên Admin"
+                                : "Nộp chương lên Admin"}
                             </>
                           )}
                         </button>

@@ -18,6 +18,10 @@ import {
   type AdminChapterRes,
 } from "../../services/adminChapterService";
 import "./AdminApprovals.scss";
+import {
+  onAdminChapterUpdate,
+  onDeadlinePagesChanged,
+} from "../../services/notificationSocket";
 
 interface PageGroup {
   deadlineId: number;
@@ -88,6 +92,7 @@ export default function AdminApprovals() {
   }, [loadImages]);
 
   const activeChapter = chapters.find((c) => c.chapterId === activeId);
+
   const groups: PageGroup[] = (activeChapter?.pageDeadlines ?? []).map((d) => ({
     deadlineId: d.deadlineId,
     label:
@@ -103,6 +108,30 @@ export default function AdminApprovals() {
     ? (images[activeGroup.deadlineId] ?? [])
     : [];
   const currentImage = currentImages[imageIndex] ?? null;
+
+  useEffect(() => {
+    const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
+      if (activeGroup && deadlineId === activeGroup.deadlineId) {
+        loadImages(deadlineId);
+      }
+    });
+    return unsubscribe;
+  }, [activeGroup, loadImages]);
+
+  useEffect(() => {
+    const unsubscribe = onAdminChapterUpdate((updated) => {
+      setChapters((prev) => {
+        if (updated.chapterStatus === "published") {
+          return prev.filter((c) => c.chapterId !== updated.chapterId);
+        }
+        const exists = prev.some((c) => c.chapterId === updated.chapterId);
+        return exists
+          ? prev.map((c) => (c.chapterId === updated.chapterId ? updated : c))
+          : [...prev, updated];
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   const selectChapter = (c: AdminChapterRes) => {
     setActiveId(c.chapterId);

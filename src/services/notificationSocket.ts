@@ -11,6 +11,7 @@ import type {
 import type { ChapterRes, PageDeadline } from "./chapterService";
 import type { SeriesProposal } from "../types/SeriesProposal";
 import type { AssignmentItem } from "./personnelService";
+import type { AdminChapterRes } from "./adminChapterService";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL ?? "http://localhost:8080";
 
@@ -25,6 +26,8 @@ type TantouAssignUpdateHandler = (a: AssignmentItem) => void;
 type AssistantTaskUpdateHandler = (t: AssistantTaskRes) => void;
 type AssistantTaskDeletedHandler = (taskId: number) => void;
 type ChapterUpdateHandler = (chapter: ChapterRes) => void;
+type AdminChapterUpdateHandler = (a: AdminChapterRes) => void;
+type DeadlinePagesChangedHandler = (deadlineId: number) => void;
 
 let client: Client | null = null;
 const notificationHandlers = new Set<NotificationHandler>();
@@ -38,6 +41,8 @@ const tantouAssignUpdateHandlers = new Set<TantouAssignUpdateHandler>();
 const assistantTaskUpdateHandlers = new Set<AssistantTaskUpdateHandler>();
 const assistantTaskDeletedHandlers = new Set<AssistantTaskDeletedHandler>();
 const chapterUpdateHandlers = new Set<ChapterUpdateHandler>();
+const adminChapterUpdateHandler = new Set<AdminChapterUpdateHandler>();
+const deadlinePagesChangedHandlers = new Set<DeadlinePagesChangedHandler>();
 
 function safeSubscribe<T>(
   destination: string,
@@ -124,6 +129,16 @@ export function connectNotificationSocket() {
         chapterUpdateHandlers,
         "chapter update",
       );
+      safeSubscribe(
+        "/user/queue/admin-chapter-updates",
+        adminChapterUpdateHandler,
+        "admin chapter update",
+      );
+      safeSubscribe(
+        "/user/queue/deadline-pages-changed",
+        deadlinePagesChangedHandlers,
+        "deadline pages changed",
+      );
     },
 
     onStompError: (frame) => {
@@ -152,6 +167,8 @@ export function disconnectNotificationSocket() {
   assistantTaskDeletedHandlers.clear();
   pageDeadlineUpdateHandlers.clear();
   chapterUpdateHandlers.clear();
+  adminChapterUpdateHandler.clear();
+  deadlinePagesChangedHandlers.clear();
 }
 
 export function onNotification(handler: NotificationHandler): () => void {
@@ -221,5 +238,23 @@ export function onChapterUpdate(handler: ChapterUpdateHandler): () => void {
   chapterUpdateHandlers.add(handler);
   return () => {
     chapterUpdateHandlers.delete(handler);
+  };
+}
+
+export function onAdminChapterUpdate(
+  handler: AdminChapterUpdateHandler,
+): () => void {
+  adminChapterUpdateHandler.add(handler);
+  return () => {
+    adminChapterUpdateHandler.delete(handler);
+  };
+}
+
+export function onDeadlinePagesChanged(
+  handler: DeadlinePagesChangedHandler,
+): () => void {
+  deadlinePagesChangedHandlers.add(handler);
+  return () => {
+    deadlinePagesChangedHandlers.delete(handler);
   };
 }

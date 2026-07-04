@@ -23,7 +23,10 @@ import {
   type PageDeadline,
 } from "../../services/chapterService";
 import "./TantouApprovals.scss";
-import { onPageDeadlineUpdate } from "../../services/notificationSocket";
+import {
+  onDeadlinePagesChanged,
+  onPageDeadlineUpdate,
+} from "../../services/notificationSocket";
 
 interface MangaPage {
   id: number;
@@ -153,6 +156,15 @@ export default function TantouApprovals() {
     };
     load();
   }, [loadImagesForDeadline]);
+
+  useEffect(() => {
+    const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
+      if (deadlineId === activePageId) {
+        loadImagesForDeadline(deadlineId);
+      }
+    });
+    return unsubscribe;
+  }, [activePageId]);
 
   useEffect(() => {
     const unsubscribe = onPageDeadlineUpdate((updated) => {
