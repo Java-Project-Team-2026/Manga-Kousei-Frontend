@@ -128,10 +128,7 @@ function isSeriesScheduledOn(series: MangakaSeries, date: Date) {
   return date.getDate() === series.dayValue;
 }
 
-function makeDeadlineLabel(
-  chapter: ChapterWithSeries,
-  deadline: PageDeadline,
-) {
+function makeDeadlineLabel(chapter: ChapterWithSeries, deadline: PageDeadline) {
   const pageRange =
     deadline.pageFrom === deadline.pageTo
       ? `${deadline.pageFrom}`
@@ -247,7 +244,8 @@ function buildProductionRows(chapters: ChapterWithSeries[]): ProductionRow[] {
       ).length;
       const total = chapter.totalDeadlines || chapter.pageDeadlines.length;
       const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-      const stage = STATUS_LABELS[chapter.chapterStatus] ?? chapter.chapterStatus;
+      const stage =
+        STATUS_LABELS[chapter.chapterStatus] ?? chapter.chapterStatus;
 
       return {
         chapter: `${chapter.seriesTitle} - Chương ${chapter.chapterNumber}${
@@ -258,14 +256,21 @@ function buildProductionRows(chapters: ChapterWithSeries[]): ProductionRow[] {
         tone: index % 2 === 0 ? "blue" : "indigo",
         labels:
           total > 0
-            ? [`${completed}/${total} nhóm`, "Đang xử lý", "Chờ duyệt", "Hoàn tất"]
+            ? [
+                `${completed}/${total} nhóm`,
+                "Đang xử lý",
+                "Chờ duyệt",
+                "Hoàn tất",
+              ]
             : ["Chưa có deadline", "Đang chuẩn bị", "Chờ duyệt", "Hoàn tất"],
       };
     });
 }
 
 export default function MangakaSchedule() {
-  const [visibleMonth, setVisibleMonth] = useState(() => startOfDay(new Date()));
+  const [visibleMonth, setVisibleMonth] = useState(() =>
+    startOfDay(new Date()),
+  );
   const [seriesList, setSeriesList] = useState<MangakaSeries[]>([]);
   const [chapters, setChapters] = useState<ChapterWithSeries[]>([]);
   const [loading, setLoading] = useState(true);
@@ -336,7 +341,8 @@ export default function MangakaSchedule() {
 
   const moveMonth = (amount: number) => {
     setVisibleMonth(
-      (current) => new Date(current.getFullYear(), current.getMonth() + amount, 1),
+      (current) =>
+        new Date(current.getFullYear(), current.getMonth() + amount, 1),
     );
   };
 

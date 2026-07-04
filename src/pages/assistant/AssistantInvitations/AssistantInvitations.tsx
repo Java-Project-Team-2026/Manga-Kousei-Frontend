@@ -8,6 +8,7 @@ import {
 import { getAvatarColor, getInitials } from "../../../utils";
 import { formatDate } from "../../../utils/date";
 import "./AssistantInvitations.scss";
+import { onAssignmentUpdate } from "../../../services/notificationSocket";
 
 function MangakaAvatar({ name, url }: { name: string; url?: string | null }) {
   if (url) {
@@ -27,6 +28,22 @@ export default function AssistantInvitations() {
   const [invitations, setInvitations] = useState<AssistantAssignmentRes[]>([]);
   const [loading, setLoading] = useState(true);
   const [responding, setResponding] = useState<number | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAssignmentUpdate((updated) => {
+      setInvitations((prev) => {
+        const exists = prev.some(
+          (i) => i.assignmentId === updated.assignmentId,
+        );
+        return exists
+          ? prev.map((i) =>
+              i.assignmentId === updated.assignmentId ? updated : i,
+            )
+          : [updated, ...prev];
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     fetchMyInvitations()

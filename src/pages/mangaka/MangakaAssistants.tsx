@@ -20,6 +20,7 @@ import {
 import { getAvatarColor, getInitials } from "../../utils";
 import { formatDate } from "../../utils/date";
 import "./MangakaAssistants.scss";
+import { onAssignmentUpdate } from "../../services/notificationSocket";
 
 function Avatar({
   name,
@@ -118,6 +119,42 @@ export default function MangakaAssistants() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAssignmentUpdate((updated) => {
+      if (updated.status === "active") {
+        setPendings((prev) =>
+          prev.filter((p) => p.assignmentId !== updated.assignmentId),
+        );
+        setActives((prev) =>
+          prev.some((a) => a.assignmentId === updated.assignmentId)
+            ? prev.map((a) =>
+                a.assignmentId === updated.assignmentId ? updated : a,
+              )
+            : [updated, ...prev],
+        );
+      } else if (updated.status === "rejected") {
+        setPendings((prev) =>
+          prev.filter((p) => p.assignmentId !== updated.assignmentId),
+        );
+      } else if (updated.status === "pending") {
+        setPendings((prev) =>
+          prev.some((p) => p.assignmentId === updated.assignmentId)
+            ? prev
+            : [updated, ...prev],
+        );
+      }
+
+      setSearchResults((prev) =>
+        prev.map((r) =>
+          r.userId === updated.assistantId
+            ? { ...r, relationshipStatus: updated.status }
+            : r,
+        ),
+      );
+    });
+    return unsubscribe;
   }, []);
 
   useEffect(() => {

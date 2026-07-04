@@ -2,15 +2,18 @@ import { Client, type IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import type { NotificationItem } from "./notificationService";
 import type { ChatMessageItem } from "./chatService";
+import type { AssistantAssignmentRes } from "./assistantAssignmentService";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL ?? "http://localhost:8080";
 
 type NotificationHandler = (notification: NotificationItem) => void;
 type ChatMessageHandler = (message: ChatMessageItem) => void;
+type AssignmentUpdateHandler = (assignment: AssistantAssignmentRes) => void;
 
 let client: Client | null = null;
 const notificationHandlers = new Set<NotificationHandler>();
 const chatMessageHandlers = new Set<ChatMessageHandler>();
+const assignmentUpdateHandlers = new Set<AssignmentUpdateHandler>();
 
 export function connectNotificationSocket() {
   if (client?.active) return;
@@ -39,6 +42,17 @@ export function connectNotificationSocket() {
           console.error("Không parse được chat message realtime:", err);
         }
       });
+      client?.subscribe(
+        "/user/queue/assignment-updates",
+        (message: IMessage) => {
+          try {
+            const updated: AssistantAssignmentRes = JSON.parse(message.body);
+            assignmentUpdateHandlers.forEach((h) => h(updated));
+          } catch (err) {
+            console.error("Không parse được assignment update realtime:", err);
+          }
+        },
+      );
     },
 
     onStompError: (frame) => {
@@ -58,6 +72,7 @@ export function disconnectNotificationSocket() {
   client = null;
   notificationHandlers.clear();
   chatMessageHandlers.clear();
+  assignmentUpdateHandlers.clear();
 }
 
 export function onNotification(handler: NotificationHandler): () => void {
@@ -68,4 +83,11 @@ export function onNotification(handler: NotificationHandler): () => void {
 export function onChatMessage(handler: ChatMessageHandler): () => void {
   chatMessageHandlers.add(handler);
   return () => chatMessageHandlers.delete(handler);
+}
+
+export function onAssignmentUpdate(
+  handler: AssignmentUpdateHandler,
+): () => void {
+  assignmentUpdateHandlers.add(handler);
+  return () => assignmentUpdateHandlers.delete(handler);
 }
