@@ -109,16 +109,21 @@ export default function AdminApprovals() {
     : [];
   const currentImage = currentImages[imageIndex] ?? null;
 
+  const activeGroupIdRef = useRef<number | null>(null);
+  useEffect(() => {
+    activeGroupIdRef.current = activeGroup?.deadlineId ?? null;
+  }, [activeGroup]);
+
   useEffect(() => {
     const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
-      if (activeGroup && deadlineId === activeGroup.deadlineId) {
+      if (deadlineId === activeGroupIdRef.current) {
         loadImages(deadlineId, true);
       } else {
         delete imagesRef.current[deadlineId];
       }
     });
     return unsubscribe;
-  }, [activeGroup, loadImages]);
+  }, [loadImages]);
 
   useEffect(() => {
     const unsubscribe = onAdminChapterUpdate((updated) => {
