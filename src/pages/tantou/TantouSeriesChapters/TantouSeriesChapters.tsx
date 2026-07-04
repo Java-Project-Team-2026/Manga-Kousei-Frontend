@@ -237,9 +237,14 @@ export default function TantouSeriesChapters() {
               cls: "tcs-draft",
             };
             const isExpanded = expanded === c.chapterId;
+            const completedDeadlines =
+              c.completedDeadlines ??
+              c.pageDeadlines.filter(
+                (d) => d.status === "submitted" || d.status === "approved",
+              ).length;
             const progress =
               c.totalDeadlines > 0
-                ? Math.round((c.submittedDeadlines / c.totalDeadlines) * 100)
+                ? Math.round((completedDeadlines / c.totalDeadlines) * 100)
                 : 0;
 
             const canSubmitToAdmin =
@@ -296,7 +301,7 @@ export default function TantouSeriesChapters() {
                           />
                         </div>
                         <span className="tsc-progress-label">
-                          {c.submittedDeadlines}/{c.totalDeadlines} đã nộp
+                          {completedDeadlines}/{c.totalDeadlines} hoàn thành
                         </span>
                       </>
                     ) : (

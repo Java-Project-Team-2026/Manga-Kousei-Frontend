@@ -27,6 +27,7 @@ export interface ChapterRes {
   pageDeadlines: PageDeadline[];
   totalDeadlines: number;
   submittedDeadlines: number;
+  completedDeadlines?: number;
 
   seriesId?: number;
   seriesTitle?: string;
