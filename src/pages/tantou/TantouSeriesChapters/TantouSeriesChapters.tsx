@@ -26,6 +26,10 @@ import {
   type PageDeadline,
 } from "../../../services/chapterService";
 import "./TantouSeriesChapters.scss";
+import {
+  onChapterUpdate,
+  onPageDeadlineUpdate,
+} from "../../../services/notificationSocket";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   draft: { label: "Bản nháp", cls: "tcs-draft" },
@@ -80,6 +84,37 @@ export default function TantouSeriesChapters() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [seriesId]);
+
+  useEffect(() => {
+    const unsubscribe = onPageDeadlineUpdate((updated) => {
+      setChapters((prev) =>
+        prev.map((c) => {
+          const idx = c.pageDeadlines.findIndex(
+            (d) => d.deadlineId === updated.deadlineId,
+          );
+          if (idx === -1) return c;
+          const newDeadlines = [...c.pageDeadlines];
+          newDeadlines[idx] = updated;
+          return { ...c, pageDeadlines: newDeadlines };
+        }),
+      );
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onChapterUpdate((updated) => {
+      setChapters((prev) => {
+        const exists = prev.some((c) => c.chapterId === updated.chapterId);
+        return exists
+          ? prev.map((c) => (c.chapterId === updated.chapterId ? updated : c))
+          : [...prev, updated].sort(
+              (a, b) => a.chapterNumber - b.chapterNumber,
+            );
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   const openAddForm = (chapterId: number) => {
     setForm({ chapterId, pageFrom: "", pageTo: "", dueDate: "" });

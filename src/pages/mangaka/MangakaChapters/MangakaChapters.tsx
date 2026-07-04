@@ -17,6 +17,10 @@ import {
   type ChapterRes,
 } from "../../../services/chapterService";
 import "./MangakaChapters.scss";
+import {
+  onChapterUpdate,
+  onPageDeadlineUpdate,
+} from "../../../services/notificationSocket";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   draft: { label: "Bản nháp", cls: "cs-draft" },
@@ -61,6 +65,41 @@ export default function MangakaChapters() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [seriesId]);
+
+  useEffect(() => {
+    const unsubscribe = onPageDeadlineUpdate((updated) => {
+      setChapters((prev) =>
+        prev.map((c) => {
+          const idx = c.pageDeadlines.findIndex(
+            (d) => d.deadlineId === updated.deadlineId,
+          );
+          if (idx === -1) return c;
+          const newDeadlines = [...c.pageDeadlines];
+          newDeadlines[idx] = updated;
+
+          const submittedCount = newDeadlines.filter(
+            (d) => d.status === "submitted",
+          ).length;
+
+          return {
+            ...c,
+            pageDeadlines: newDeadlines,
+            submittedDeadlines: submittedCount,
+          };
+        }),
+      );
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onChapterUpdate((updated) => {
+      setChapters((prev) =>
+        prev.map((c) => (c.chapterId === updated.chapterId ? updated : c)),
+      );
+    });
+    return unsubscribe;
+  }, []);
 
   const handleCreate = async () => {
     if (!formNumber || !seriesId) return;

@@ -1,4 +1,3 @@
-// src/services/notificationSocket.ts — BẢN ĐẦY ĐỦ
 import { Client, type IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import type { NotificationItem } from "./notificationService";
@@ -9,7 +8,7 @@ import type {
   AssistantTaskRes,
   TaskSubmissionRes,
 } from "./taskSubmissionService";
-import type { PageDeadline } from "./chapterService";
+import type { ChapterRes, PageDeadline } from "./chapterService";
 import type { SeriesProposal } from "../types/SeriesProposal";
 import type { AssignmentItem } from "./personnelService";
 
@@ -25,6 +24,7 @@ type ProposalUpdateHandler = (p: SeriesProposal) => void;
 type TantouAssignUpdateHandler = (a: AssignmentItem) => void;
 type AssistantTaskUpdateHandler = (t: AssistantTaskRes) => void;
 type AssistantTaskDeletedHandler = (taskId: number) => void;
+type ChapterUpdateHandler = (chapter: ChapterRes) => void;
 
 let client: Client | null = null;
 const notificationHandlers = new Set<NotificationHandler>();
@@ -37,6 +37,7 @@ const proposalUpdateHandlers = new Set<ProposalUpdateHandler>();
 const tantouAssignUpdateHandlers = new Set<TantouAssignUpdateHandler>();
 const assistantTaskUpdateHandlers = new Set<AssistantTaskUpdateHandler>();
 const assistantTaskDeletedHandlers = new Set<AssistantTaskDeletedHandler>();
+const chapterUpdateHandlers = new Set<ChapterUpdateHandler>();
 
 function safeSubscribe<T>(
   destination: string,
@@ -113,6 +114,16 @@ export function connectNotificationSocket() {
         assistantTaskDeletedHandlers,
         "assistant task deleted",
       );
+      safeSubscribe(
+        "/user/queue/page-deadline-updates",
+        pageDeadlineUpdateHandlers,
+        "page deadline update",
+      );
+      safeSubscribe(
+        "/user/queue/chapter-updates",
+        chapterUpdateHandlers,
+        "chapter update",
+      );
     },
 
     onStompError: (frame) => {
@@ -139,6 +150,8 @@ export function disconnectNotificationSocket() {
   tantouAssignUpdateHandlers.clear();
   assistantTaskUpdateHandlers.clear();
   assistantTaskDeletedHandlers.clear();
+  pageDeadlineUpdateHandlers.clear();
+  chapterUpdateHandlers.clear();
 }
 
 export function onNotification(handler: NotificationHandler): () => void {
@@ -176,10 +189,7 @@ export function onSubmissionUpdate(h: SubmissionUpdateHandler) {
   submissionUpdateHandlers.add(h);
   return () => submissionUpdateHandlers.delete(h);
 }
-export function onPageDeadlineUpdate(h: PageDeadlineUpdateHandler) {
-  pageDeadlineUpdateHandlers.add(h);
-  return () => pageDeadlineUpdateHandlers.delete(h);
-}
+
 export function onProposalUpdate(h: ProposalUpdateHandler) {
   proposalUpdateHandlers.add(h);
   return () => proposalUpdateHandlers.delete(h);
@@ -195,5 +205,21 @@ export function onAssistantTaskDeleted(
   assistantTaskDeletedHandlers.add(handler);
   return () => {
     assistantTaskDeletedHandlers.delete(handler);
+  };
+}
+
+export function onPageDeadlineUpdate(
+  handler: PageDeadlineUpdateHandler,
+): () => void {
+  pageDeadlineUpdateHandlers.add(handler);
+  return () => {
+    pageDeadlineUpdateHandlers.delete(handler);
+  };
+}
+
+export function onChapterUpdate(handler: ChapterUpdateHandler): () => void {
+  chapterUpdateHandlers.add(handler);
+  return () => {
+    chapterUpdateHandlers.delete(handler);
   };
 }
