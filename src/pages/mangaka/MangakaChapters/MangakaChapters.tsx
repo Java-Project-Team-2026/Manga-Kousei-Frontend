@@ -33,10 +33,10 @@ const STATUS_META: Record<string, { label: string; cls: string }> = {
 const DEADLINE_STATUS: Record<string, { label: string; cls: string }> = {
   pending: { label: "Chưa nộp", cls: "ds-pending" },
   submitted: { label: "Đã nộp", cls: "ds-submitted" },
-  revision: { label: "Yêu cầu chỉnh sửa", cls: "ds-pending" },
+  approved: { label: "Đã duyệt", cls: "ds-approved" },
+  revision: { label: "Yêu cầu chỉnh sửa", cls: "ds-revision" },
   late: { label: "Trễ hạn", cls: "ds-late" },
 };
-
 function formatDate(d: string | null) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("vi-VN");
@@ -352,7 +352,8 @@ export default function MangakaChapters() {
                                   {ds.label}
                                 </span>
                                 {(d.status === "pending" ||
-                                  d.status === "revision") && (
+                                  d.status === "revision" ||
+                                  d.status === "late") && (
                                   <button
                                     className="mc-submit-btn"
                                     onClick={() =>
@@ -373,7 +374,18 @@ export default function MangakaChapters() {
                                     💬
                                   </span>
                                   <span className="mc-review-note__text">
-                                    <strong>Biên tập:</strong> {d.reviewNote}
+                                    <strong>
+                                      {d.reviewNote.startsWith(
+                                        "[Admin yêu cầu sửa]",
+                                      )
+                                        ? "Admin"
+                                        : "Biên tập"}
+                                      :
+                                    </strong>{" "}
+                                    {d.reviewNote.replace(
+                                      /^\[Admin yêu cầu sửa\]\s*/,
+                                      "",
+                                    )}
                                   </span>
                                 </div>
                               )}

@@ -186,15 +186,23 @@ export default function AdminApprovals() {
     if (!activeId || reviewing) return;
     setReviewing(true);
     try {
-      const updated = await reviewChapterAdmin(activeId, {
+      await reviewChapterAdmin(activeId, {
         decision: "revision",
         note: revisionNote.trim() || undefined,
       });
-      setChapters((prev) =>
-        prev.map((c) =>
-          c.chapterId === activeId ? { ...c, adminNote: updated.adminNote } : c,
-        ),
-      );
+      setChapters((prev) => {
+        const remaining = prev.filter((c) => c.chapterId !== activeId);
+        if (remaining.length > 0) {
+          setActiveId(remaining[0].chapterId);
+          setActiveGroupIdx(0);
+          setImageIndex(0);
+          const firstGroup = remaining[0].pageDeadlines[0];
+          if (firstGroup) loadImages(firstGroup.deadlineId);
+        } else {
+          setActiveId(null);
+        }
+        return remaining;
+      });
       setShowRevisionForm(false);
       setRevisionNote("");
     } catch (err: unknown) {

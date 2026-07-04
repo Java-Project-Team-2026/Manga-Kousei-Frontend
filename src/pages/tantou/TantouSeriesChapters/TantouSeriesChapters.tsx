@@ -547,17 +547,21 @@ export default function TantouSeriesChapters() {
                       </div>
                     )}
 
-                    {c.adminNote && c.chapterStatus === "pending_publish" && (
-                      <div className="tsc-admin-note">
-                        <div className="tsc-admin-note__head">
-                          <ShieldAlert size={13} />
-                          <span>
-                            Góp ý từ Admin — cần chỉnh sửa trước khi đăng
-                          </span>
+                    {c.adminNote &&
+                      (c.chapterStatus === "pending_publish" ||
+                        c.chapterStatus === "in_progress") && (
+                        <div className="tsc-admin-note">
+                          <div className="tsc-admin-note__head">
+                            <ShieldAlert size={13} />
+                            <span>
+                              {c.chapterStatus === "in_progress"
+                                ? "Admin yêu cầu sửa — Mangaka cần nộp lại các nhóm trang"
+                                : "Góp ý từ Admin — cần chỉnh sửa trước khi đăng"}
+                            </span>
+                          </div>
+                          <p className="tsc-admin-note__text">{c.adminNote}</p>
                         </div>
-                        <p className="tsc-admin-note__text">{c.adminNote}</p>
-                      </div>
-                    )}
+                      )}
 
                     {form?.chapterId !== c.chapterId && (
                       <button
