@@ -53,8 +53,8 @@ export default function AdminApprovals() {
   const [revisionNote, setRevisionNote] = useState("");
   const [reviewing, setReviewing] = useState(false);
 
-  const loadImages = useCallback(async (deadlineId: number) => {
-    if (imagesRef.current[deadlineId]) {
+  const loadImages = useCallback(async (deadlineId: number, force = false) => {
+    if (!force && imagesRef.current[deadlineId]) {
       setImageIndex(0);
       return;
     }
@@ -112,7 +112,9 @@ export default function AdminApprovals() {
   useEffect(() => {
     const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
       if (activeGroup && deadlineId === activeGroup.deadlineId) {
-        loadImages(deadlineId);
+        loadImages(deadlineId, true);
+      } else {
+        delete imagesRef.current[deadlineId];
       }
     });
     return unsubscribe;
@@ -186,15 +188,23 @@ export default function AdminApprovals() {
     if (!activeId || reviewing) return;
     setReviewing(true);
     try {
-      const updated = await reviewChapterAdmin(activeId, {
+      await reviewChapterAdmin(activeId, {
         decision: "revision",
         note: revisionNote.trim() || undefined,
       });
-      setChapters((prev) =>
-        prev.map((c) =>
-          c.chapterId === activeId ? { ...c, adminNote: updated.adminNote } : c,
-        ),
-      );
+      setChapters((prev) => {
+        const remaining = prev.filter((c) => c.chapterId !== activeId);
+        if (remaining.length > 0) {
+          setActiveId(remaining[0].chapterId);
+          setActiveGroupIdx(0);
+          setImageIndex(0);
+          const firstGroup = remaining[0].pageDeadlines[0];
+          if (firstGroup) loadImages(firstGroup.deadlineId);
+        } else {
+          setActiveId(null);
+        }
+        return remaining;
+      });
       setShowRevisionForm(false);
       setRevisionNote("");
     } catch (err: unknown) {
