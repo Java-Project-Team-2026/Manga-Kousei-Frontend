@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, Send, Loader2, AlertTriangle } from "lucide-react";
+import {
+  X,
+  Send,
+  Loader2,
+  AlertTriangle,
+  ChevronRight,
+  FileEdit,
+} from "lucide-react";
 import axios from "axios";
 import {
   fetchMessages,
@@ -12,6 +19,23 @@ import { onChatMessage } from "../../services/notificationSocket";
 import { useAuth } from "../../hooks/useAuth";
 import { getAvatarColor, getInitials } from "../../utils";
 import "./ChatWindow.scss";
+import { useNavigate } from "react-router-dom";
+
+const PROPOSAL_REVISION_LINK_PREFIX = "__PROPOSAL_REVISION_LINK__::";
+
+interface ProposalLinkPayload {
+  proposalId: number;
+  workingTitle: string;
+}
+
+function parseProposalLink(content: string): ProposalLinkPayload | null {
+  if (!content.startsWith(PROPOSAL_REVISION_LINK_PREFIX)) return null;
+  try {
+    return JSON.parse(content.slice(PROPOSAL_REVISION_LINK_PREFIX.length));
+  } catch {
+    return null;
+  }
+}
 
 interface Props {
   conversation: ConversationItem;
@@ -26,6 +50,8 @@ export default function ChatWindow({ conversation, onClose }: Props) {
   const [sending, setSending] = useState(false);
   const [relationshipEnded, setRelationshipEnded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -133,13 +159,40 @@ export default function ChatWindow({ conversation, onClose }: Props) {
         ) : (
           messages.map((msg) => {
             const isMine = msg.senderId === user?.id;
+            const proposalLink = parseProposalLink(msg.content);
+
             return (
               <div
                 key={msg.messageId}
                 className={`chat-bubble-row ${isMine ? "chat-bubble-row--mine" : ""}`}
               >
                 <div className="chat-bubble">
-                  <p>{msg.content}</p>
+                  {proposalLink ? (
+                    <button
+                      type="button"
+                      className="chat-bubble__proposal-card"
+                      onClick={() =>
+                        navigate(
+                          `/mangaka/create-work?proposalId=${proposalLink.proposalId}`,
+                        )
+                      }
+                    >
+                      <div className="chat-bubble__proposal-card__icon">
+                        <FileEdit size={18} strokeWidth={1.75} />
+                      </div>
+                      <div className="chat-bubble__proposal-card__body">
+                        <span className="chat-bubble__proposal-card__label">
+                          Yêu cầu chỉnh sửa bản ý tưởng
+                        </span>
+                        <strong className="chat-bubble__proposal-card__title">
+                          {proposalLink.workingTitle}
+                        </strong>
+                      </div>
+                      <ChevronRight size={16} />
+                    </button>
+                  ) : (
+                    <p>{msg.content}</p>
+                  )}
                   <time>
                     {new Date(msg.createdAt).toLocaleTimeString("vi-VN", {
                       hour: "2-digit",
