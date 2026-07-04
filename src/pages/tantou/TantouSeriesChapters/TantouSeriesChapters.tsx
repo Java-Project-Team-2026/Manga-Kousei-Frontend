@@ -26,6 +26,10 @@ import {
   type PageDeadline,
 } from "../../../services/chapterService";
 import "./TantouSeriesChapters.scss";
+import {
+  onChapterUpdate,
+  onPageDeadlineUpdate,
+} from "../../../services/notificationSocket";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   draft: { label: "Bản nháp", cls: "tcs-draft" },
@@ -80,6 +84,37 @@ export default function TantouSeriesChapters() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [seriesId]);
+
+  useEffect(() => {
+    const unsubscribe = onPageDeadlineUpdate((updated) => {
+      setChapters((prev) =>
+        prev.map((c) => {
+          const idx = c.pageDeadlines.findIndex(
+            (d) => d.deadlineId === updated.deadlineId,
+          );
+          if (idx === -1) return c;
+          const newDeadlines = [...c.pageDeadlines];
+          newDeadlines[idx] = updated;
+          return { ...c, pageDeadlines: newDeadlines };
+        }),
+      );
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onChapterUpdate((updated) => {
+      setChapters((prev) => {
+        const exists = prev.some((c) => c.chapterId === updated.chapterId);
+        return exists
+          ? prev.map((c) => (c.chapterId === updated.chapterId ? updated : c))
+          : [...prev, updated].sort(
+              (a, b) => a.chapterNumber - b.chapterNumber,
+            );
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   const openAddForm = (chapterId: number) => {
     setForm({ chapterId, pageFrom: "", pageTo: "", dueDate: "" });
@@ -194,7 +229,7 @@ export default function TantouSeriesChapters() {
       setChapters((prev) =>
         prev.map((c) =>
           c.chapterId === chapterId
-            ? { ...c, chapterStatus: updated.chapterStatus }
+            ? { ...c, chapterStatus: updated.chapterStatus, adminNote: null }
             : c,
         ),
       );
@@ -486,7 +521,10 @@ export default function TantouSeriesChapters() {
                             </>
                           ) : (
                             <>
-                              <Upload size={12} /> Nộp chương lên Admin
+                              <Upload size={12} />{" "}
+                              {c.adminNote
+                                ? "Nộp lại lên Admin"
+                                : "Nộp chương lên Admin"}
                             </>
                           )}
                         </button>
@@ -514,17 +552,21 @@ export default function TantouSeriesChapters() {
                       </div>
                     )}
 
-                    {c.adminNote && c.chapterStatus === "pending_publish" && (
-                      <div className="tsc-admin-note">
-                        <div className="tsc-admin-note__head">
-                          <ShieldAlert size={13} />
-                          <span>
-                            Góp ý từ Admin — cần chỉnh sửa trước khi đăng
-                          </span>
+                    {c.adminNote &&
+                      (c.chapterStatus === "pending_publish" ||
+                        c.chapterStatus === "in_progress") && (
+                        <div className="tsc-admin-note">
+                          <div className="tsc-admin-note__head">
+                            <ShieldAlert size={13} />
+                            <span>
+                              {c.chapterStatus === "in_progress"
+                                ? "Admin yêu cầu sửa — Mangaka cần nộp lại các nhóm trang"
+                                : "Góp ý từ Admin — cần chỉnh sửa trước khi đăng"}
+                            </span>
+                          </div>
+                          <p className="tsc-admin-note__text">{c.adminNote}</p>
                         </div>
-                        <p className="tsc-admin-note__text">{c.adminNote}</p>
-                      </div>
-                    )}
+                      )}
 
                     {form?.chapterId !== c.chapterId && (
                       <button

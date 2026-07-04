@@ -23,6 +23,10 @@ import {
   type PageDeadline,
 } from "../../services/chapterService";
 import "./TantouApprovals.scss";
+import {
+  onDeadlinePagesChanged,
+  onPageDeadlineUpdate,
+} from "../../services/notificationSocket";
 
 interface MangaPage {
   id: number;
@@ -107,27 +111,30 @@ export default function TantouApprovals() {
 
   const [submitting, setSubmitting] = useState(false);
 
-  const loadImagesForDeadline = useCallback(async (deadlineId: number) => {
-    if (deadlineImagesRef.current[deadlineId]) {
+  const loadImagesForDeadline = useCallback(
+    async (deadlineId: number, force = false) => {
+      if (!force && deadlineImagesRef.current[deadlineId]) {
+        setImageIndex(0);
+        return;
+      }
+      setLoadingImages(true);
       setImageIndex(0);
-      return;
-    }
-    setLoadingImages(true);
-    setImageIndex(0);
-    try {
-      const pages = await fetchDeadlinePages(deadlineId);
-      const mapped = pages.map((p) => ({
-        pageNumber: p.pageNumber,
-        fileUrl: p.fileUrl,
-      }));
-      deadlineImagesRef.current[deadlineId] = mapped;
-      setDeadlineImages((prev) => ({ ...prev, [deadlineId]: mapped }));
-    } catch (err) {
-      console.error("Load ảnh thất bại", err);
-    } finally {
-      setLoadingImages(false);
-    }
-  }, []);
+      try {
+        const pages = await fetchDeadlinePages(deadlineId);
+        const mapped = pages.map((p) => ({
+          pageNumber: p.pageNumber,
+          fileUrl: p.fileUrl,
+        }));
+        deadlineImagesRef.current[deadlineId] = mapped;
+        setDeadlineImages((prev) => ({ ...prev, [deadlineId]: mapped }));
+      } catch (err) {
+        console.error("Load ảnh thất bại", err);
+      } finally {
+        setLoadingImages(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -152,6 +159,54 @@ export default function TantouApprovals() {
     };
     load();
   }, [loadImagesForDeadline]);
+
+  useEffect(() => {
+    const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
+      if (deadlineId === activePageId) {
+        loadImagesForDeadline(deadlineId, true);
+      } else {
+        delete deadlineImagesRef.current[deadlineId];
+      }
+    });
+    return unsubscribe;
+  }, [activePageId]);
+
+  useEffect(() => {
+    const unsubscribe = onPageDeadlineUpdate((updated) => {
+      setChapters((prev) => {
+        const foundInExisting = prev.some((c) =>
+          c.pageDeadlines.some((d) => d.deadlineId === updated.deadlineId),
+        );
+
+        if (!foundInExisting) {
+          fetchPendingReviewChapters().then(setChapters).catch(console.error);
+          return prev;
+        }
+
+        return prev.map((c) => {
+          const idx = c.pageDeadlines.findIndex(
+            (d) => d.deadlineId === updated.deadlineId,
+          );
+          if (idx === -1) return c;
+          const newDeadlines = [...c.pageDeadlines];
+          newDeadlines[idx] = updated;
+          return { ...c, pageDeadlines: newDeadlines };
+        });
+      });
+
+      setPageOverrides((prev) => {
+        const next = { ...prev };
+        delete next[updated.deadlineId];
+        return next;
+      });
+      setNoteOverrides((prev) => {
+        const next = { ...prev };
+        delete next[updated.deadlineId];
+        return next;
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   const SUBMISSIONS: Submission[] = chapters.map(toSubmission);
   const sub = SUBMISSIONS.find((s) => s.id === activeId) ?? SUBMISSIONS[0];

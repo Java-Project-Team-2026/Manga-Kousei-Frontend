@@ -17,6 +17,10 @@ import {
   type ChapterRes,
 } from "../../../services/chapterService";
 import "./MangakaChapters.scss";
+import {
+  onChapterUpdate,
+  onPageDeadlineUpdate,
+} from "../../../services/notificationSocket";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   draft: { label: "Bản nháp", cls: "cs-draft" },
@@ -29,10 +33,10 @@ const STATUS_META: Record<string, { label: string; cls: string }> = {
 const DEADLINE_STATUS: Record<string, { label: string; cls: string }> = {
   pending: { label: "Chưa nộp", cls: "ds-pending" },
   submitted: { label: "Đã nộp", cls: "ds-submitted" },
-  revision: { label: "Yêu cầu chỉnh sửa", cls: "ds-pending" },
+  approved: { label: "Đã duyệt", cls: "ds-approved" },
+  revision: { label: "Yêu cầu chỉnh sửa", cls: "ds-revision" },
   late: { label: "Trễ hạn", cls: "ds-late" },
 };
-
 function formatDate(d: string | null) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("vi-VN");
@@ -61,6 +65,41 @@ export default function MangakaChapters() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [seriesId]);
+
+  useEffect(() => {
+    const unsubscribe = onPageDeadlineUpdate((updated) => {
+      setChapters((prev) =>
+        prev.map((c) => {
+          const idx = c.pageDeadlines.findIndex(
+            (d) => d.deadlineId === updated.deadlineId,
+          );
+          if (idx === -1) return c;
+          const newDeadlines = [...c.pageDeadlines];
+          newDeadlines[idx] = updated;
+
+          const submittedCount = newDeadlines.filter(
+            (d) => d.status === "submitted",
+          ).length;
+
+          return {
+            ...c,
+            pageDeadlines: newDeadlines,
+            submittedDeadlines: submittedCount,
+          };
+        }),
+      );
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onChapterUpdate((updated) => {
+      setChapters((prev) =>
+        prev.map((c) => (c.chapterId === updated.chapterId ? updated : c)),
+      );
+    });
+    return unsubscribe;
+  }, []);
 
   const handleCreate = async () => {
     if (!formNumber || !seriesId) return;
@@ -313,7 +352,8 @@ export default function MangakaChapters() {
                                   {ds.label}
                                 </span>
                                 {(d.status === "pending" ||
-                                  d.status === "revision") && (
+                                  d.status === "revision" ||
+                                  d.status === "late") && (
                                   <button
                                     className="mc-submit-btn"
                                     onClick={() =>
@@ -334,7 +374,18 @@ export default function MangakaChapters() {
                                     💬
                                   </span>
                                   <span className="mc-review-note__text">
-                                    <strong>Biên tập:</strong> {d.reviewNote}
+                                    <strong>
+                                      {d.reviewNote.startsWith(
+                                        "[Admin yêu cầu sửa]",
+                                      )
+                                        ? "Admin"
+                                        : "Biên tập"}
+                                      :
+                                    </strong>{" "}
+                                    {d.reviewNote.replace(
+                                      /^\[Admin yêu cầu sửa\]\s*/,
+                                      "",
+                                    )}
                                   </span>
                                 </div>
                               )}
