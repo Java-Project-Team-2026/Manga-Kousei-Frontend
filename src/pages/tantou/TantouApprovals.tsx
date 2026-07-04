@@ -23,6 +23,10 @@ import {
   type PageDeadline,
 } from "../../services/chapterService";
 import "./TantouApprovals.scss";
+import {
+  onDeadlinePagesChanged,
+  onPageDeadlineUpdate,
+} from "../../services/notificationSocket";
 
 interface MangaPage {
   id: number;
@@ -152,6 +156,52 @@ export default function TantouApprovals() {
     };
     load();
   }, [loadImagesForDeadline]);
+
+  useEffect(() => {
+    const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
+      if (deadlineId === activePageId) {
+        loadImagesForDeadline(deadlineId);
+      }
+    });
+    return unsubscribe;
+  }, [activePageId]);
+
+  useEffect(() => {
+    const unsubscribe = onPageDeadlineUpdate((updated) => {
+      setChapters((prev) => {
+        const foundInExisting = prev.some((c) =>
+          c.pageDeadlines.some((d) => d.deadlineId === updated.deadlineId),
+        );
+
+        if (!foundInExisting) {
+          fetchPendingReviewChapters().then(setChapters).catch(console.error);
+          return prev;
+        }
+
+        return prev.map((c) => {
+          const idx = c.pageDeadlines.findIndex(
+            (d) => d.deadlineId === updated.deadlineId,
+          );
+          if (idx === -1) return c;
+          const newDeadlines = [...c.pageDeadlines];
+          newDeadlines[idx] = updated;
+          return { ...c, pageDeadlines: newDeadlines };
+        });
+      });
+
+      setPageOverrides((prev) => {
+        const next = { ...prev };
+        delete next[updated.deadlineId];
+        return next;
+      });
+      setNoteOverrides((prev) => {
+        const next = { ...prev };
+        delete next[updated.deadlineId];
+        return next;
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   const SUBMISSIONS: Submission[] = chapters.map(toSubmission);
   const sub = SUBMISSIONS.find((s) => s.id === activeId) ?? SUBMISSIONS[0];
