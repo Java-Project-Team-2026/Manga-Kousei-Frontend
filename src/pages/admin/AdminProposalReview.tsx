@@ -26,6 +26,11 @@ import {
 } from "../../services/adminProposalService";
 import type { SeriesProposal } from "../../types/SeriesProposal";
 import "./AdminProposalReview.scss";
+import { onProposalUpdate } from "../../services/notificationSocket";
+import type {
+  ProposalStatusDTO,
+  SeriesProposalDTO,
+} from "../../types/dtos/SeriesProposalDto";
 
 type ProposalStatus =
   | "pending"
@@ -95,6 +100,36 @@ function Section({
   );
 }
 
+function mapProposalDTO(item: SeriesProposalDTO): SeriesProposal {
+  return {
+    proposal_id: item.proposalId,
+    created_at: item.createdAt,
+    working_title: item.workingTitle,
+    synopsis: item.synopsis,
+    target_audience: item.targetAudience,
+    name_summary: item.nameSummary ?? null,
+    sketch_image_url: item.sketchImageUrl ?? null,
+    status: item.status as ProposalStatusDTO,
+    rejection_reason: item.rejectionReason ?? null,
+    revision_feedback: item.revisionFeedback ?? null,
+    mangaka: {
+      user_id: item.mangaka?.userId,
+      fullName: item.mangaka?.fullName,
+      avatarUrl: item.mangaka?.avatarUrl ?? null,
+    },
+    genres: (item.genres || []).map((g) => ({
+      genre_id: g.genre_id,
+      name: g.name,
+    })),
+    characters: (item.characters || []).map((c) => ({
+      character_id: c.character_id,
+      character_name: c.character_name,
+      role: c.role,
+      description: c.description ?? null,
+    })),
+  };
+}
+
 export default function AdminProposalReview() {
   const { proposalId } = useParams<{ proposalId?: string }>();
   const navigate = useNavigate();
@@ -119,6 +154,23 @@ export default function AdminProposalReview() {
       });
     }
   }, [proposalId, proposals, navigate]);
+
+  useEffect(() => {
+    const unsubscribe = onProposalUpdate((dto) => {
+      const updated = mapProposalDTO(dto);
+      setProposals((prev) => {
+        const exists = prev.some((p) => p.proposal_id === updated.proposal_id);
+        // Trang Admin chỉ quan tâm các proposal đã ở pending_admin trở lên
+        if (!exists && updated.status === "pending_admin") {
+          return [updated, ...prev];
+        }
+        return prev.map((p) =>
+          p.proposal_id === updated.proposal_id ? updated : p,
+        );
+      });
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const load = async () => {

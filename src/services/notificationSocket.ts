@@ -9,9 +9,9 @@ import type {
   TaskSubmissionRes,
 } from "./taskSubmissionService";
 import type { ChapterRes, PageDeadline } from "./chapterService";
-import type { SeriesProposal } from "../types/SeriesProposal";
 import type { AssignmentItem } from "./personnelService";
 import type { AdminChapterRes } from "./adminChapterService";
+import type { SeriesProposalDTO } from "../types/dtos/SeriesProposalDto";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL ?? "http://localhost:8080";
 
@@ -21,13 +21,13 @@ type AssignmentUpdateHandler = (a: AssistantAssignmentRes) => void;
 type TaskUpdateHandler = (t: TaskRes) => void;
 type SubmissionUpdateHandler = (s: TaskSubmissionRes) => void;
 type PageDeadlineUpdateHandler = (d: PageDeadline) => void;
-type ProposalUpdateHandler = (p: SeriesProposal) => void;
 type TantouAssignUpdateHandler = (a: AssignmentItem) => void;
 type AssistantTaskUpdateHandler = (t: AssistantTaskRes) => void;
 type AssistantTaskDeletedHandler = (taskId: number) => void;
 type ChapterUpdateHandler = (chapter: ChapterRes) => void;
 type AdminChapterUpdateHandler = (a: AdminChapterRes) => void;
 type DeadlinePagesChangedHandler = (deadlineId: number) => void;
+type ProposalUpdateHandler = (p: SeriesProposalDTO) => void;
 
 let client: Client | null = null;
 const notificationHandlers = new Set<NotificationHandler>();
@@ -207,7 +207,7 @@ export function onSubmissionUpdate(h: SubmissionUpdateHandler) {
   return () => submissionUpdateHandlers.delete(h);
 }
 
-export function onProposalUpdate(h: ProposalUpdateHandler) {
+export function onProposalUpdate(h: ProposalUpdateHandler): () => void {
   proposalUpdateHandlers.add(h);
   return () => proposalUpdateHandlers.delete(h);
 }
