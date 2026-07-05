@@ -1,3 +1,4 @@
+import { saveFileWithPicker } from "../utils/fileDownload";
 import api from "./api";
 
 interface ApiResponse<T> {
@@ -122,3 +123,16 @@ export const fetchDeadlinePages = (deadlineId: number): Promise<PageSimple[]> =>
       ApiResponse<{ pageNumber: number; fileUrl: string }[]>
     >(`/tantou/page-deadlines/${deadlineId}/pages`)
     .then((r) => r.data.data ?? []);
+
+export const downloadChapterFiles = async (
+  chapterId: number,
+  chapterNumber: number,
+): Promise<void> => {
+  const response = await api.get(
+    `/mangaka/chapters/${chapterId}/download-all`,
+    { responseType: "blob" },
+  );
+
+  const blob = new Blob([response.data], { type: "application/zip" });
+  await saveFileWithPicker(blob, `Chapter_${chapterNumber}.zip`);
+};
