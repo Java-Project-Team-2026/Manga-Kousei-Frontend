@@ -255,8 +255,10 @@ export default function MangakaChapters() {
                 key={c.chapterId}
                 className={`mc-chapter ${isExpanded ? "mc-chapter--open" : ""}`}
               >
-                <button
+                <div
                   className="mc-chapter__head"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setExpanded(isExpanded ? null : c.chapterId)}
                 >
                   <div className="mc-chapter__icon">
@@ -314,7 +316,7 @@ export default function MangakaChapters() {
                     className="mc-chapter__chevron"
                     style={{ transform: isExpanded ? "rotate(90deg)" : "none" }}
                   />
-                </button>
+                </div>
 
                 {isExpanded && (
                   <div className="mc-deadlines">
