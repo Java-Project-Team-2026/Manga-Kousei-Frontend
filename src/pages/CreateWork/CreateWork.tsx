@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, FileClock, X } from "lucide-react";
+import { CheckCircle2, FileClock, Loader2, X } from "lucide-react";
 import "./CreateWork.scss";
 import { useCreateWorkForm } from "../../hooks/useCreateWorkForm";
 import { StepIndicator } from "./StepIndicator";
@@ -9,15 +9,23 @@ import { StepCharacters } from "./StepCharacters";
 import { StepNameSummary } from "./StepNameSummary";
 import { StepSelectTantou } from "./StepSelectTantou";
 import { StepReview } from "./StepReview";
+import { useSearchParams } from "react-router-dom";
 
 const TOTAL_STEPS = 5;
 
 export default function CreateWork() {
+  const [searchParams] = useSearchParams();
+  const editingProposalId = searchParams.get("proposalId")
+    ? Number(searchParams.get("proposalId"))
+    : null;
+
   const {
     form,
     step,
     submitted,
     isSubmitting,
+    loadingExisting,
+    isEditing,
     updateField,
     addCharacter,
     removeCharacter,
@@ -30,12 +38,12 @@ export default function CreateWork() {
     draftSavedAt,
     restoreDraft,
     discardDraft,
-  } = useCreateWorkForm();
+  } = useCreateWorkForm(editingProposalId);
 
   const [selectedTantouId, setSelectedTantouId] = useState<number | null>(null);
   const [nowAtMount] = useState(() => Date.now());
 
-  const canProceedStep4 = step !== 4 || selectedTantouId !== null;
+  const canProceedStep4 = step !== 4 || isEditing || selectedTantouId !== null;
   const effectiveCanProceed = canProceed && canProceedStep4;
 
   const draftMinutesAgo =
@@ -54,6 +62,17 @@ export default function CreateWork() {
     if (diffMin < 60) return `${diffMin} phút trước`;
     return `${Math.floor(diffMin / 60)} giờ trước`;
   };
+
+  if (loadingExisting) {
+    return (
+      <div className="cw-page">
+        <div className="cw-loading">
+          <Loader2 size={28} className="cw-spin" />
+          <span>Đang tải bản ý tưởng cần sửa...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -86,7 +105,7 @@ export default function CreateWork() {
       <div className="cw-header">
         <div className="cw-header__copy">
           <span className="cw-eyebrow">TẠO TÁC PHẨM MỚI</span>
-          <h1>Nộp Bản Name</h1>
+          <h1>{isEditing ? "Sửa lại Bản Name" : "Nộp Bản Name"}</h1>
           <p>Phác thảo ý tưởng series để trình lên Ban Biên tập xét duyệt</p>
         </div>
       </div>
@@ -119,11 +138,20 @@ export default function CreateWork() {
             onUpdate={updateField}
           />
         )}
-        {step === 4 && (
+        {step === 4 && !isEditing && (
           <StepSelectTantou
             selectedTantouId={selectedTantouId}
             onSelect={setSelectedTantouId}
           />
+        )}
+        {step === 4 && isEditing && (
+          <div className="cw-section">
+            <h2 className="cw-section__title">Tantou phụ trách</h2>
+            <p>
+              Giữ nguyên Tantou đã phụ trách proposal này từ trước — không cần
+              chọn lại.
+            </p>
+          </div>
         )}
         {step === 5 && (
           <StepReview
