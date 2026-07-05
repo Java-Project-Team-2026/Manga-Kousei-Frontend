@@ -46,7 +46,8 @@ export default function ScheduleAssignment() {
   const navigate = useNavigate();
 
   const [schedules, setSchedules] = useState<ScheduleEntry[]>([]);
-  const [, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [saved, setSaved] = useState(false);

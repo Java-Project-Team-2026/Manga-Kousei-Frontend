@@ -112,7 +112,6 @@ export const submitChapterToAdmin = (chapterId: number): Promise<ChapterRes> =>
     .then((r) => r.data.data);
 
 export interface PageSimple {
-  pageId: number;
   pageNumber: number;
   fileUrl: string;
 }
@@ -120,6 +119,6 @@ export interface PageSimple {
 export const fetchDeadlinePages = (deadlineId: number): Promise<PageSimple[]> =>
   api
     .get<
-      ApiResponse<{ pageId: number; pageNumber: number; fileUrl: string }[]>
+      ApiResponse<{ pageNumber: number; fileUrl: string }[]>
     >(`/tantou/page-deadlines/${deadlineId}/pages`)
     .then((r) => r.data.data ?? []);

@@ -105,7 +105,8 @@ export default function AdminProposalReview() {
   const [rejectionText, setRejectionText] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loading, setLoading] = useState(true);
 
   const selected = proposalId
     ? (proposals.find((p) => p.proposal_id === Number(proposalId)) ?? null)

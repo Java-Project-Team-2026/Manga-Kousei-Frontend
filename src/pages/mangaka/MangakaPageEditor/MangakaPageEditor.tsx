@@ -43,7 +43,6 @@ import {
   reviewSubmission,
   type TaskSubmissionRes,
 } from "../../../services/taskSubmissionService";
-import { createTaskAttachment } from "../../../services/taskAttachmentService";
 import {
   onSubmissionUpdate,
   onTaskUpdate,
@@ -251,9 +250,7 @@ export default function MangakaPageEditor() {
   }, [selectedPage]);
 
   const replaceInputRef = useRef<HTMLInputElement>(null);
-  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const [replacingPageId, setReplacingPageId] = useState<number | null>(null);
-  const [attachmentTaskId, setAttachmentTaskId] = useState<number | null>(null);
 
   const handleReplaceImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -296,50 +293,6 @@ export default function MangakaPageEditor() {
       console.error("Upload page thất bại", err);
     } finally {
       setUploading(false);
-      e.target.value = "";
-    }
-  };
-
-  const handleAttachmentUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file || !attachmentTaskId) return;
-    setUploading(true);
-    try {
-      const url = await uploadImageToCloudinary(file);
-      const created = await createTaskAttachment(attachmentTaskId, {
-        fileUrl: url,
-        fileName: file.name,
-        fileType: file.type,
-      });
-      setRegions((prev) =>
-        prev.map((r) => ({
-          ...r,
-          tasks: r.tasks.map((t) =>
-            t.taskId === attachmentTaskId
-              ? { ...t, attachments: [...(t.attachments ?? []), created] }
-              : t,
-          ),
-        })),
-      );
-      setSelectedRegion((prev) =>
-        prev
-          ? {
-              ...prev,
-              tasks: prev.tasks.map((t) =>
-                t.taskId === attachmentTaskId
-                  ? { ...t, attachments: [...(t.attachments ?? []), created] }
-                  : t,
-              ),
-            }
-          : prev,
-      );
-    } catch (err) {
-      console.error("Upload tài nguyên thất bại", err);
-    } finally {
-      setUploading(false);
-      setAttachmentTaskId(null);
       e.target.value = "";
     }
   };
@@ -612,13 +565,6 @@ export default function MangakaPageEditor() {
               accept="image/*"
               style={{ display: "none" }}
               onChange={handleReplaceImage}
-            />
-            <input
-              ref={attachmentInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleAttachmentUpload}
             />
           </div>
         </div>
@@ -949,16 +895,6 @@ export default function MangakaPageEditor() {
                           </button>
                         )}
                         <button
-                          className="mpe-view-subs-btn"
-                          onClick={() => {
-                            setAttachmentTaskId(t.taskId);
-                            attachmentInputRef.current?.click();
-                          }}
-                          disabled={uploading}
-                        >
-                          Tài nguyên
-                        </button>
-                        <button
                           className="mpe-icon-btn mpe-icon-btn--delete-sm"
                           onClick={() => handleDeleteTask(t.taskId)}
                           title="Xoá task"
@@ -1109,29 +1045,6 @@ export default function MangakaPageEditor() {
                             </div>
                           ))
                         )}
-                      </div>
-                    )}
-                    {t.attachments && t.attachments.length > 0 && (
-                      <div className="mpe-submission-panel">
-                        <div className="mpe-submission-panel__head">
-                          Tài nguyên hỗ trợ
-                        </div>
-                        {t.attachments.map((a) => (
-                          <a
-                            key={a.attachmentId}
-                            className="mpe-sub-item"
-                            href={a.fileUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <div className="mpe-sub-item__info">
-                              <strong>{a.fileName}</strong>
-                              <span className="mpe-sub-item__date">
-                                {new Date(a.createdAt).toLocaleString("vi-VN")}
-                              </span>
-                            </div>
-                          </a>
-                        ))}
                       </div>
                     )}
                   </div>

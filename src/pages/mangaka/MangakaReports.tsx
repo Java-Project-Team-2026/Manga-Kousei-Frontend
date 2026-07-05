@@ -13,10 +13,8 @@ import "./MangakaReports.scss";
 import {
   fetchMangakaReportStats,
   fetchMangakaDailyProduction,
-  fetchMangakaRisks,
   type MangakaReportStats,
   type DailyProductionItem,
-  type SeriesRiskItem,
 } from "../../services/mangakaReportService";
 import {
   fetchMangakaTopSeries,
@@ -27,7 +25,6 @@ export default function MangakaReports() {
   const [stats, setStats] = useState<MangakaReportStats | null>(null);
   const [daily, setDaily] = useState<DailyProductionItem[]>([]);
   const [ranking, setRanking] = useState<SeriesRankItem[]>([]);
-  const [risks, setRisks] = useState<SeriesRiskItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,13 +33,11 @@ export default function MangakaReports() {
       fetchMangakaReportStats(),
       fetchMangakaDailyProduction(),
       fetchMangakaTopSeries(),
-      fetchMangakaRisks(),
     ])
-      .then(([s, d, r, riskData]) => {
+      .then(([s, d, r]) => {
         setStats(s);
         setDaily(d);
         setRanking(r);
-        setRisks(riskData);
       })
       .catch(() => setError("Không thể tải dữ liệu báo cáo. Vui lòng thử lại."))
       .finally(() => setLoading(false));
@@ -124,36 +119,6 @@ export default function MangakaReports() {
           <div className="mr-stat__sub">Nhóm trang đã nộp / tổng</div>
         </div>
       </div>
-
-      {risks.length > 0 && (
-        <div className="mr-card mr-risk-panel">
-          <div className="mr-card__head">
-            <div className="mr-card__title">
-              <AlertTriangle size={15} strokeWidth={2} />
-              Cảnh báo nguy cơ
-            </div>
-          </div>
-          <div className="mr-ranking__list">
-            {risks.map((risk) => (
-              <div
-                key={risk.seriesId}
-                className={`mr-rank-item mr-risk-item--${risk.riskLevel}`}
-              >
-                <span className="mr-rank-item__num">
-                  #{risk.rankingPosition}
-                </span>
-                <div className="mr-rank-item__body">
-                  <strong>{risk.title}</strong>
-                  <span>{risk.reason}</span>
-                </div>
-                <div className="mr-rank-item__trend">
-                  <AlertTriangle size={13} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="mr-grid">
         <div className="mr-card mr-production">

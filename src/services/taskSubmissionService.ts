@@ -1,5 +1,4 @@
 import api from "./api";
-import type { TaskAttachmentRes } from "./taskAttachmentService";
 
 interface ApiResponse<T> {
   data: T;
@@ -50,7 +49,6 @@ export interface AssistantTaskRes {
   seriesTitle: string;
   submissionCount: number;
   latestSubmissionStatus: string | null;
-  attachments?: TaskAttachmentRes[];
   createdAt: string;
 }
 
