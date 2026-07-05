@@ -566,6 +566,7 @@
   border-radius: 8px;
   cursor: pointer;
   padding: 10px 12px;
+  padding-right: 34px;
   transition: background 0.15s;
 
   &:hover {
@@ -578,6 +579,37 @@
     &:hover {
       background: #dbeafe;
     }
+  }
+}
+
+.header-notif-item__delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: #94a3b8;
+
+  &:hover {
+    background: #fee2e2;
+    color: #ef4444;
+  }
+}
+
+.header-notif-item:hover .header-notif-item__delete {
+  display: flex;
+}
+
+.header-notif__delete-all {
+  color: #ef4444 !important;
+
+  &:hover {
+    background: #fef2f2 !important;
+    border-color: #fca5a5 !important;
   }
 }
 

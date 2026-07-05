@@ -15,6 +15,7 @@ import {
   MessagesSquare,
   Plus,
   ArrowLeft,
+  Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotificationCount } from "../../hooks/useNotificationCount";
@@ -22,6 +23,8 @@ import {
   fetchMyNotifications,
   markAllRead,
   markOneRead,
+  deleteNotification,
+  deleteAllNotifications,
   type NotificationItem,
 } from "../../services/notificationService";
 import {
@@ -38,6 +41,7 @@ import {
 } from "../../services/chatService";
 import { useUnreadMessagesCount } from "../../hooks/useUnreadMessagesCount";
 import ChatWindow from "../chat/ChatWindow";
+import NotificationDetailModal from "./NotificationDetailModal";
 import { getAvatarColor, getInitials } from "../../utils";
 
 function formatRelativeTime(iso: string): string {
@@ -67,7 +71,12 @@ export const Header = () => {
   const popupRef = useRef<HTMLDivElement>(null);
   const utilityRef = useRef<HTMLDivElement>(null);
 
-  const { count: notifCount, refresh: refreshCount } = useNotificationCount();
+  const {
+    count: notifCount,
+    refresh: refreshCount,
+    decrement: decrementNotifCount,
+    reset: resetNotifCount,
+  } = useNotificationCount();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const { count: msgCount, refresh: refreshMsgCount } =
     useUnreadMessagesCount();
@@ -79,6 +88,11 @@ export const Header = () => {
   const [adminsLoading, setAdminsLoading] = useState(false);
   const [startingChatWith, setStartingChatWith] = useState<number | null>(null);
   const [notifLoading, setNotifLoading] = useState(false);
+  const [selectedNotif, setSelectedNotif] = useState<NotificationItem | null>(
+    null,
+  );
+  const [deletingNotifId, setDeletingNotifId] = useState<number | null>(null);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
 
   const {
     showConfirmLogout,
@@ -218,6 +232,42 @@ export const Header = () => {
       prev.map((n) => (n.notificationId === id ? { ...n, isRead: true } : n)),
     );
     refreshCount();
+  };
+
+  const handleOpenNotifDetail = (notif: NotificationItem) => {
+    setSelectedNotif(notif);
+    if (!notif.isRead) handleMarkOneRead(notif.notificationId);
+  };
+
+  const handleDeleteNotif = async (id: number) => {
+    const target = notifications.find((n) => n.notificationId === id);
+    setDeletingNotifId(id);
+    try {
+      await deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.notificationId !== id));
+      // Optimistic update: nếu thông báo vừa xoá đang chưa đọc thì trừ badge
+      // ngay lập tức, không cần chờ gọi lại API unread-count.
+      if (target && !target.isRead) {
+        decrementNotifCount(1);
+      }
+    } catch (err) {
+      console.error("Xoá thông báo thất bại", err);
+    } finally {
+      setDeletingNotifId(null);
+    }
+  };
+
+  const handleDeleteAllNotifs = async () => {
+    try {
+      await deleteAllNotifications();
+      setNotifications([]);
+      // Optimistic update: xoá hết thì badge về 0 ngay, không cần chờ API.
+      resetNotifCount();
+    } catch (err) {
+      console.error("Xoá tất cả thông báo thất bại", err);
+    } finally {
+      setShowDeleteAllConfirm(false);
+    }
   };
 
   const handleProfileClick = () => {
@@ -454,16 +504,28 @@ export const Header = () => {
                       : "Không có thông báo mới"}
                   </span>
                 </div>
-                {notifCount > 0 && (
-                  <button
-                    type="button"
-                    className="header-notif__mark-all"
-                    onClick={handleMarkAllRead}
-                    title="Đánh dấu tất cả đã đọc"
-                  >
-                    <CheckCheck size={15} />
-                  </button>
-                )}
+                <div className="header-notif__header-actions">
+                  {notifCount > 0 && (
+                    <button
+                      type="button"
+                      className="header-notif__mark-all"
+                      onClick={handleMarkAllRead}
+                      title="Đánh dấu tất cả đã đọc"
+                    >
+                      <CheckCheck size={15} />
+                    </button>
+                  )}
+                  {notifications.length > 0 && (
+                    <button
+                      type="button"
+                      className="header-notif__mark-all header-notif__delete-all"
+                      onClick={() => setShowDeleteAllConfirm(true)}
+                      title="Xoá tất cả thông báo"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="header-notif-list">
@@ -483,10 +545,7 @@ export const Header = () => {
                       key={notif.notificationId}
                       type="button"
                       className={`header-notif-item ${!notif.isRead ? "header-notif-item--unread" : ""}`}
-                      onClick={() => {
-                        if (!notif.isRead)
-                          handleMarkOneRead(notif.notificationId);
-                      }}
+                      onClick={() => handleOpenNotifDetail(notif)}
                     >
                       {!notif.isRead && (
                         <span className="header-notif-item__dot" />
@@ -495,6 +554,21 @@ export const Header = () => {
                         <strong>{notif.title}</strong>
                         <small>{notif.message}</small>
                         <time>{notif.createdAt}</time>
+                      </span>
+                      <span
+                        className="header-notif-item__delete"
+                        role="button"
+                        aria-label="Xoá thông báo"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteNotif(notif.notificationId);
+                        }}
+                      >
+                        {deletingNotifId === notif.notificationId ? (
+                          <Loader2 size={14} className="header-notif__spin" />
+                        ) : (
+                          <Trash2 size={14} />
+                        )}
                       </span>
                     </button>
                   ))
@@ -587,6 +661,25 @@ export const Header = () => {
         onConfirm={handleConfirmLogout}
         onCancel={handleCancelLogout}
       />
+
+      <ConfirmDialog
+        isOpen={showDeleteAllConfirm}
+        title="Xoá tất cả thông báo"
+        message="Bạn có chắc chắn muốn xoá toàn bộ thông báo? Hành động này không thể hoàn tác."
+        confirmText="Xoá tất cả"
+        cancelText="Hủy"
+        onConfirm={handleDeleteAllNotifs}
+        onCancel={() => setShowDeleteAllConfirm(false)}
+      />
+
+      {selectedNotif && (
+        <NotificationDetailModal
+          notif={selectedNotif}
+          onClose={() => setSelectedNotif(null)}
+          onDelete={handleDeleteNotif}
+        />
+      )}
+
       {openChat && (
         <ChatWindow conversation={openChat} onClose={() => setOpenChat(null)} />
       )}

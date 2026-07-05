@@ -17,6 +17,14 @@ export function useNotificationCount() {
     }
   }, [user]);
 
+  const decrement = useCallback((by: number = 1) => {
+    setCount((prev) => Math.max(0, prev - by));
+  }, []);
+
+  const reset = useCallback(() => {
+    setCount(0);
+  }, []);
+
   useEffect(() => {
     // eslint-disable-next-line
     refresh();
@@ -32,5 +40,5 @@ export function useNotificationCount() {
     return unsubscribe;
   }, [user]);
 
-  return { count, refresh };
+  return { count, refresh, decrement, reset };
 }
