@@ -1,19 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Bell,
   BookOpen,
   Calendar,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
-  Eye,
   Grid3X3,
   Layers3,
   List,
   MessageSquare,
-  PenLine,
   Search,
   ShieldAlert,
   Sparkles,
@@ -25,6 +22,11 @@ import {
 } from "../../services/tantouSeriesService";
 import { getAvatarColor, getInitials } from "../../utils";
 import "./TantouManage.scss";
+import {
+  startConversationWithMangaka,
+  type ConversationItem,
+} from "../../services/chatService";
+import ChatWindow from "../../components/chat/ChatWindow";
 
 type ViewMode = "grid" | "list";
 type SortMode = "newest" | "name" | "progress" | "chapters";
@@ -75,9 +77,13 @@ const PAGE_SIZE = 6;
 function WorkCard({
   series,
   viewMode,
+  onOpenChat,
+  chatLoading,
 }: {
   series: TantouSeries;
   viewMode: ViewMode;
+  onOpenChat: (mangakaId: number) => void;
+  chatLoading: boolean;
 }) {
   const navigate = useNavigate();
   const st = statusMeta(series.seriesStatus);
@@ -173,17 +179,13 @@ function WorkCard({
             >
               <BookOpen size={16} strokeWidth={2.2} />
             </button>
-            <button className="tm-action" title="Chi tiết">
-              <Eye size={16} strokeWidth={2.2} />
-            </button>
-            <button className="tm-action" title="Tin nhắn">
+            <button
+              className="tm-action"
+              title="Tin nhắn"
+              disabled={!series.mangakaId || chatLoading}
+              onClick={() => series.mangakaId && onOpenChat(series.mangakaId)}
+            >
               <MessageSquare size={16} strokeWidth={2.2} />
-            </button>
-            <button className="tm-action" title="Ghi chú">
-              <PenLine size={16} strokeWidth={2.2} />
-            </button>
-            <button className="tm-action" title="Cảnh báo">
-              <Bell size={16} strokeWidth={2.2} />
             </button>
           </div>
         </div>
@@ -200,10 +202,25 @@ export default function TantouManage() {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [page, setPage] = useState(1);
+  const [openChat, setOpenChat] = useState<ConversationItem | null>(null);
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const handleOpenChat = async (mangakaId: number) => {
+    setChatLoading(true);
+    try {
+      const conv = await startConversationWithMangaka(mangakaId);
+      setOpenChat(conv);
+    } catch (err) {
+      console.error("Không mở được chat với Mangaka", err);
+      alert(
+        "Không thể mở chat -- có thể bạn không còn được phân công phụ trách Mangaka này.",
+      );
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   useEffect(() => {
-    console.log("hello?");
-
     fetchTantouSeries()
       .then(setSeriesList)
       .catch(console.error)
@@ -390,7 +407,13 @@ export default function TantouManage() {
       ) : (
         <div className={`tm-work-grid tm-work-grid--${viewMode}`}>
           {visible.map((s) => (
-            <WorkCard key={s.seriesId} series={s} viewMode={viewMode} />
+            <WorkCard
+              key={s.seriesId}
+              series={s}
+              viewMode={viewMode}
+              onOpenChat={handleOpenChat}
+              chatLoading={chatLoading}
+            />
           ))}
         </div>
       )}
@@ -421,6 +444,9 @@ export default function TantouManage() {
             <ChevronRight size={15} />
           </button>
         </div>
+      )}
+      {openChat && (
+        <ChatWindow conversation={openChat} onClose={() => setOpenChat(null)} />
       )}
     </main>
   );

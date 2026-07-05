@@ -29,3 +29,9 @@ export const markAllRead = (): Promise<void> =>
 
 export const markOneRead = (id: number): Promise<void> =>
   api.patch(`/notifications/${id}/read`);
+
+export const deleteNotification = (id: number): Promise<void> =>
+  api.delete(`/notifications/${id}`);
+
+export const deleteAllNotifications = (): Promise<void> =>
+  api.delete("/notifications");

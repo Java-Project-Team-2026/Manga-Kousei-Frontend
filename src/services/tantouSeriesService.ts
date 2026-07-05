@@ -10,6 +10,7 @@ export interface TantouSeries {
   title: string;
   coverImageUrl: string | null;
   seriesStatus: string | null;
+  mangakaId: number | null;
   mangakaName: string | null;
   mangakaAvatarUrl: string | null;
   chapterCount: number;

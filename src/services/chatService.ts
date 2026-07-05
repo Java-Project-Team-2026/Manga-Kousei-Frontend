@@ -82,3 +82,12 @@ export const startConversationWithAdmin = (
   api
     .post<ApiResponse<ConversationItem>>(`/chat/conversations/start/${adminId}`)
     .then((r) => r.data.data);
+
+export const startConversationWithMangaka = (
+  mangakaId: number,
+): Promise<ConversationItem> =>
+  api
+    .post<
+      ApiResponse<ConversationItem>
+    >(`/chat/conversations/start/mangaka/${mangakaId}`)
+    .then((r) => r.data.data);
