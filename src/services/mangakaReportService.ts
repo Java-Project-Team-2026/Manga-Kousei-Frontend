@@ -20,17 +20,6 @@ export interface DailyProductionItem {
   submittedCount: number;
 }
 
-export interface SeriesRiskItem {
-  seriesId: number;
-  title: string;
-  mangakaName: string | null;
-  rankingPosition: number;
-  previousRankingPosition: number | null;
-  voteCount: number;
-  riskLevel: "watch" | "at_risk" | "safe";
-  reason: string;
-}
-
 export const fetchMangakaReportStats = (): Promise<MangakaReportStats> =>
   api
     .get<ApiResponse<MangakaReportStats>>("/mangaka/reports/stats")
@@ -41,9 +30,4 @@ export const fetchMangakaDailyProduction = (): Promise<DailyProductionItem[]> =>
     .get<
       ApiResponse<DailyProductionItem[]>
     >("/mangaka/reports/daily-production")
-    .then((r) => r.data.data ?? []);
-
-export const fetchMangakaRisks = (): Promise<SeriesRiskItem[]> =>
-  api
-    .get<ApiResponse<SeriesRiskItem[]>>("/mangaka/reports/risks")
     .then((r) => r.data.data ?? []);

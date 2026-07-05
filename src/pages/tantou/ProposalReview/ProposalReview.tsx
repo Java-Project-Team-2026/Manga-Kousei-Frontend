@@ -79,7 +79,8 @@ export default function ProposalReview() {
   const [showRevisionForm, setShowRevisionForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const [, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!proposalId && proposals.length > 0 && !selected) {

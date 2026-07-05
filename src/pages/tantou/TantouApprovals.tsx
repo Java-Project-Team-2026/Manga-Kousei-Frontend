@@ -13,7 +13,6 @@ import {
   Eye,
   ImageIcon,
   Send,
-  MessageSquarePlus,
 } from "lucide-react";
 import {
   fetchPendingReviewChapters,
@@ -28,13 +27,6 @@ import {
   onDeadlinePagesChanged,
   onPageDeadlineUpdate,
 } from "../../services/notificationSocket";
-import {
-  createAnnotation,
-  fetchAnnotationTypes,
-  fetchTantouAnnotations,
-  type AnnotationRes,
-  type LookupItem,
-} from "../../services/annotationService";
 
 interface MangaPage {
   id: number;
@@ -53,15 +45,6 @@ interface Submission {
   chapterTitle: string;
   submittedAt: string;
   pages: MangaPage[];
-}
-
-interface MarkRect {
-  startX: number;
-  startY: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 }
 
 function mapStatus(s: PageDeadline["status"]): MangaPage["status"] {
@@ -104,10 +87,10 @@ export default function TantouApprovals() {
   const [loading, setLoading] = useState(true);
 
   const deadlineImagesRef = useRef<
-    Record<number, { pageId: number; pageNumber: number; fileUrl: string }[]>
+    Record<number, { pageNumber: number; fileUrl: string }[]>
   >({});
   const [deadlineImages, setDeadlineImages] = useState<
-    Record<number, { pageId: number; pageNumber: number; fileUrl: string }[]>
+    Record<number, { pageNumber: number; fileUrl: string }[]>
   >({});
   const [loadingImages, setLoadingImages] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
@@ -127,13 +110,6 @@ export default function TantouApprovals() {
   const [reviewingId, setReviewingId] = useState<number | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
-  const [annotationTypes, setAnnotationTypes] = useState<LookupItem[]>([]);
-  const [annotations, setAnnotations] = useState<AnnotationRes[]>([]);
-  const [markMode, setMarkMode] = useState(false);
-  const [markRect, setMarkRect] = useState<MarkRect | null>(null);
-  const [pendingMark, setPendingMark] = useState<MarkRect | null>(null);
-  const [annotationComment, setAnnotationComment] = useState("");
-  const [annotationTypeId, setAnnotationTypeId] = useState<number>(0);
 
   const loadImagesForDeadline = useCallback(
     async (deadlineId: number, force = false) => {
@@ -146,7 +122,6 @@ export default function TantouApprovals() {
       try {
         const pages = await fetchDeadlinePages(deadlineId);
         const mapped = pages.map((p) => ({
-          pageId: p.pageId,
           pageNumber: p.pageNumber,
           fileUrl: p.fileUrl,
         }));
@@ -184,26 +159,6 @@ export default function TantouApprovals() {
     };
     load();
   }, [loadImagesForDeadline]);
-
-  useEffect(() => {
-    fetchAnnotationTypes()
-      .then((items) => {
-        setAnnotationTypes(items);
-        setAnnotationTypeId(items[0]?.id ?? 0);
-      })
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    const pageId = activePageId
-      ? deadlineImages[activePageId]?.[imageIndex]?.pageId
-      : undefined;
-    if (!pageId) {
-      setAnnotations([]);
-      return;
-    }
-    fetchTantouAnnotations(pageId).then(setAnnotations).catch(console.error);
-  }, [activePageId, deadlineImages, imageIndex]);
 
   useEffect(() => {
     const unsubscribe = onDeadlinePagesChanged((deadlineId) => {
@@ -406,68 +361,6 @@ export default function TantouApprovals() {
     }
   };
 
-  const getMarkPos = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    return {
-      x: Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)),
-      y: Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)),
-    };
-  };
-
-  const handleMarkDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!markMode || !currentImage?.pageId) return;
-    const pos = getMarkPos(e);
-    setMarkRect({
-      startX: pos.x,
-      startY: pos.y,
-      x: pos.x,
-      y: pos.y,
-      width: 0,
-      height: 0,
-    });
-  };
-
-  const handleMarkMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!markRect) return;
-    const pos = getMarkPos(e);
-    const x = Math.min(markRect.startX, pos.x);
-    const y = Math.min(markRect.startY, pos.y);
-    setMarkRect({
-      ...markRect,
-      x,
-      y,
-      width: Math.abs(pos.x - markRect.startX),
-      height: Math.abs(pos.y - markRect.startY),
-    });
-  };
-
-  const handleMarkUp = () => {
-    if (!markRect) return;
-    if (markRect.width >= 1 && markRect.height >= 1) {
-      setPendingMark(markRect);
-      setAnnotationComment("");
-      setAnnotationTypeId(annotationTypes[0]?.id ?? 0);
-    }
-    setMarkRect(null);
-    setMarkMode(false);
-  };
-
-  const handleSaveAnnotation = async () => {
-    if (!pendingMark || !currentImage?.pageId || !annotationTypeId) return;
-    const created = await createAnnotation({
-      pageId: currentImage.pageId,
-      x: pendingMark.x,
-      y: pendingMark.y,
-      width: pendingMark.width,
-      height: pendingMark.height,
-      annotationTypeId,
-      commentText: annotationComment,
-    });
-    setAnnotations((prev) => [created, ...prev]);
-    setPendingMark(null);
-    setAnnotationComment("");
-  };
-
   return (
     <div className="ta-root">
       <aside className="ta-rail">
@@ -567,13 +460,6 @@ export default function TantouApprovals() {
             >
               <ZoomOut size={17} strokeWidth={1.75} />
             </button>
-            <button
-              className={`ta-tool ${markMode ? "ta-tool--active" : ""}`}
-              onClick={() => setMarkMode((v) => !v)}
-              title="Đánh dấu trực tiếp"
-            >
-              <MessageSquarePlus size={17} strokeWidth={1.75} />
-            </button>
           </div>
         </div>
 
@@ -591,13 +477,7 @@ export default function TantouApprovals() {
             className="ta-canvas"
             style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}
           >
-            <div
-              className={`ta-art ${markMode ? "ta-art--marking" : ""}`}
-              onMouseDown={handleMarkDown}
-              onMouseMove={handleMarkMove}
-              onMouseUp={handleMarkUp}
-              onMouseLeave={() => setMarkRect(null)}
-            >
+            <div className="ta-art">
               {loadingImages ? (
                 <div className="ta-art-placeholder">Đang tải ảnh…</div>
               ) : currentImage ? (
@@ -612,43 +492,6 @@ export default function TantouApprovals() {
                   <ImageIcon size={32} strokeWidth={1} />
                   <span>Mangaka chưa upload ảnh trang {page.label}</span>
                 </div>
-              )}
-              {annotations.map((a) => (
-                <div
-                  key={a.annotationId}
-                  className={`ta-annotation ta-annotation--${a.status}`}
-                  style={{
-                    left: `${a.x}%`,
-                    top: `${a.y}%`,
-                    width: `${a.width}%`,
-                    height: `${a.height}%`,
-                  }}
-                  title={a.commentText}
-                >
-                  <span>{a.annotationTypeName ?? "Note"}</span>
-                </div>
-              ))}
-              {markRect && (
-                <div
-                  className="ta-annotation ta-annotation--draft"
-                  style={{
-                    left: `${markRect.x}%`,
-                    top: `${markRect.y}%`,
-                    width: `${markRect.width}%`,
-                    height: `${markRect.height}%`,
-                  }}
-                />
-              )}
-              {pendingMark && (
-                <div
-                  className="ta-annotation ta-annotation--draft"
-                  style={{
-                    left: `${pendingMark.x}%`,
-                    top: `${pendingMark.y}%`,
-                    width: `${pendingMark.width}%`,
-                    height: `${pendingMark.height}%`,
-                  }}
-                />
               )}
             </div>
           </div>
@@ -811,45 +654,6 @@ export default function TantouApprovals() {
                   setShowRevisionForm(false);
                   setRevisionNote("");
                 }}
-              >
-                Huỷ
-              </button>
-            </div>
-          </div>
-        )}
-
-        {pendingMark && (
-          <div className="ta-revision-form">
-            <label className="ta-revision-form__label">Đánh dấu trên trang</label>
-            <select
-              className="ta-revision-form__input"
-              value={annotationTypeId}
-              onChange={(e) => setAnnotationTypeId(Number(e.target.value))}
-            >
-              {annotationTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
-            <textarea
-              className="ta-revision-form__input"
-              rows={3}
-              placeholder="Nội dung cần chỉnh sửa..."
-              value={annotationComment}
-              onChange={(e) => setAnnotationComment(e.target.value)}
-            />
-            <div className="ta-revision-form__actions">
-              <button
-                className="ta-btn ta-btn--revision-confirm"
-                onClick={handleSaveAnnotation}
-                disabled={!annotationComment.trim() || !annotationTypeId}
-              >
-                <Send size={13} /> Lưu đánh dấu
-              </button>
-              <button
-                className="ta-btn ta-btn--ghost"
-                onClick={() => setPendingMark(null)}
               >
                 Huỷ
               </button>

@@ -86,11 +86,6 @@ export const Sidebar = () => {
         label: "Quản lý Nhân sự",
         icon: Users,
       },
-      {
-        path: "admin/board",
-        label: "Editorial Board",
-        icon: LineChart,
-      },
     ],
     MANGAKA: [
       {
