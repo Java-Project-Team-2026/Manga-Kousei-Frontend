@@ -78,7 +78,7 @@ export const Sidebar = () => {
       },
       {
         path: "admin/approvals",
-        label: "Xét duyệt dự án mới",
+        label: "Xét duyệt dự án",
         icon: ClipboardCheck,
       },
       {
