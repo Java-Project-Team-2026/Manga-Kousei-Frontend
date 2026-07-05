@@ -463,7 +463,7 @@ export default function AdminApprovals() {
               }}
               disabled={reviewing}
             >
-              <RotateCcw size={15} strokeWidth={1.75} /> Góp ý / Yêu cầu sửa
+              <RotateCcw size={15} strokeWidth={1.75} /> Yêu cầu sửa
             </button>
           </div>
 
