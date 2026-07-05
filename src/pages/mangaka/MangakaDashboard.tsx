@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertTriangle,
@@ -20,30 +19,14 @@ import {
   fetchMangakaDashboardStats,
   fetchMangakaDeadlines,
   fetchMangakaTopSeries,
-  type MangakaDashboardStats,
-  type MangakaDeadlineItem,
-  type SeriesRankItem,
 } from "../../services/mangakaDashboardService";
-import {
-  fetchMySeries,
-  type MangakaSeries,
-} from "../../services/mangakaSeriesService";
-import {
-  fetchActiveAssistants,
-  type AssistantAssignmentRes,
-} from "../../services/assistantAssignmentService";
+import { fetchMySeries } from "../../services/mangakaSeriesService";
+import { fetchActiveAssistants } from "../../services/assistantAssignmentService";
 import { getAvatarColor, getInitials } from "../../utils";
+import { useQuery } from "@tanstack/react-query";
 
 export default function MangakaDashboard() {
   const navigate = useNavigate();
-
-  const [stats, setStats] = useState<MangakaDashboardStats | null>(null);
-  const [deadlines, setDeadlines] = useState<MangakaDeadlineItem[]>([]);
-  const [ranking, setRanking] = useState<SeriesRankItem[]>([]);
-  const [series, setSeries] = useState<MangakaSeries[]>([]);
-  const [assistants, setAssistants] = useState<AssistantAssignmentRes[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const now = new Date();
   const dateLabel = now.toLocaleDateString("vi-VN", {
@@ -52,24 +35,42 @@ export default function MangakaDashboard() {
     month: "2-digit",
   });
 
-  useEffect(() => {
-    Promise.all([
-      fetchMangakaDashboardStats(),
-      fetchMangakaDeadlines(),
-      fetchMangakaTopSeries(),
-      fetchMySeries(),
-      fetchActiveAssistants(),
-    ])
-      .then(([s, d, r, sr, a]) => {
-        setStats(s);
-        setDeadlines(d);
-        setRanking(r);
-        setSeries(sr);
-        setAssistants(a);
-      })
-      .catch(() => setError("Không thể tải dữ liệu. Vui lòng thử lại."))
-      .finally(() => setLoading(false));
-  }, []);
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useQuery({
+    queryKey: ["mangaka-dashboard-stats"],
+    queryFn: fetchMangakaDashboardStats,
+  });
+
+  const { data: deadlines = [], isLoading: deadlinesLoading } = useQuery({
+    queryKey: ["mangaka-dashboard-deadlines"],
+    queryFn: fetchMangakaDeadlines,
+  });
+
+  const { data: ranking = [], isLoading: rankingLoading } = useQuery({
+    queryKey: ["mangaka-dashboard-top-series"],
+    queryFn: fetchMangakaTopSeries,
+  });
+
+  const { data: series = [], isLoading: seriesLoading } = useQuery({
+    queryKey: ["mangaka-my-series"],
+    queryFn: fetchMySeries,
+  });
+
+  const { data: assistants = [], isLoading: assistantsLoading } = useQuery({
+    queryKey: ["mangaka-active-assistants"],
+    queryFn: fetchActiveAssistants,
+  });
+
+  const loading =
+    statsLoading ||
+    deadlinesLoading ||
+    rankingLoading ||
+    seriesLoading ||
+    assistantsLoading;
+  const error = statsError ? "Không thể tải dữ liệu. Vui lòng thử lại." : null;
 
   if (loading)
     return (

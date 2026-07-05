@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   AlertTriangle,
   CalendarDays,
@@ -19,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import RecentActivityWidget from "../../components/activityLog/RecentActivityWidget";
 import api from "../../services/api";
 import "./AdminDashboard.scss";
+import { useQuery } from "@tanstack/react-query";
 
 interface AdminStats {
   totalSeries: number;
@@ -56,10 +56,6 @@ const fetchTopSeries = (): Promise<SeriesRank[]> =>
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [ranking, setRanking] = useState<SeriesRank[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const now = new Date();
   const month = now.toLocaleDateString("vi-VN", {
@@ -67,15 +63,19 @@ export default function AdminDashboard() {
     year: "numeric",
   });
 
-  useEffect(() => {
-    Promise.all([fetchStats(), fetchTopSeries()])
-      .then(([s, r]) => {
-        setStats(s);
-        setRanking(r);
-      })
-      .catch(() => setError("Không thể tải dữ liệu. Vui lòng thử lại."))
-      .finally(() => setLoading(false));
-  }, []);
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useQuery({ queryKey: ["admin-dashboard-stats"], queryFn: fetchStats });
+
+  const { data: ranking = [], isLoading: rankingLoading } = useQuery({
+    queryKey: ["admin-dashboard-top-series"],
+    queryFn: fetchTopSeries,
+  });
+
+  const loading = statsLoading || rankingLoading;
+  const error = statsError ? "Không thể tải dữ liệu. Vui lòng thử lại." : null;
 
   if (loading)
     return (

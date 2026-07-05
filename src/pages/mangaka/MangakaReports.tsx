@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
@@ -13,35 +12,34 @@ import "./MangakaReports.scss";
 import {
   fetchMangakaReportStats,
   fetchMangakaDailyProduction,
-  type MangakaReportStats,
-  type DailyProductionItem,
 } from "../../services/mangakaReportService";
-import {
-  fetchMangakaTopSeries,
-  type SeriesRankItem,
-} from "../../services/mangakaDashboardService";
+import { fetchMangakaTopSeries } from "../../services/mangakaDashboardService";
+import { useQuery } from "@tanstack/react-query";
 
 export default function MangakaReports() {
-  const [stats, setStats] = useState<MangakaReportStats | null>(null);
-  const [daily, setDaily] = useState<DailyProductionItem[]>([]);
-  const [ranking, setRanking] = useState<SeriesRankItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useQuery({
+    queryKey: ["mangaka-report-stats"],
+    queryFn: fetchMangakaReportStats,
+  });
 
-  useEffect(() => {
-    Promise.all([
-      fetchMangakaReportStats(),
-      fetchMangakaDailyProduction(),
-      fetchMangakaTopSeries(),
-    ])
-      .then(([s, d, r]) => {
-        setStats(s);
-        setDaily(d);
-        setRanking(r);
-      })
-      .catch(() => setError("Không thể tải dữ liệu báo cáo. Vui lòng thử lại."))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: daily = [], isLoading: dailyLoading } = useQuery({
+    queryKey: ["mangaka-daily-production"],
+    queryFn: fetchMangakaDailyProduction,
+  });
+
+  const { data: ranking = [], isLoading: rankingLoading } = useQuery({
+    queryKey: ["mangaka-dashboard-top-series"],
+    queryFn: fetchMangakaTopSeries,
+  });
+
+  const loading = statsLoading || dailyLoading || rankingLoading;
+  const error = statsError
+    ? "Không thể tải dữ liệu báo cáo. Vui lòng thử lại."
+    : null;
 
   if (loading)
     return (
