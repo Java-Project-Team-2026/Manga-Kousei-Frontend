@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   BookOpen,
@@ -18,20 +18,16 @@ import {
 import {
   fetchSeriesDetail,
   downloadAllSeriesFiles,
-  type MangakaSeries,
 } from "../../services/mangakaSeriesService";
-import {
-  fetchActiveAssistants,
-  type AssistantAssignmentRes,
-} from "../../services/assistantAssignmentService";
+import { fetchActiveAssistants } from "../../services/assistantAssignmentService";
 import {
   downloadChapterFiles,
   fetchChaptersBySeriesMangaka,
-  type ChapterRes,
 } from "../../services/chapterService";
 import { getAvatarColor, getInitials } from "../../utils";
 import EditSeriesModal from "./components/EditSeriesModal/EditSeriesModal";
 import "./MangakaSeriesDetail.scss";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const WEEKDAY_LABELS: Record<number, string> = {
   1: "Thứ 2",
@@ -103,10 +99,9 @@ export default function MangakaSeriesDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [series, setSeries] = useState<MangakaSeries | null>(null);
-  const [assistants, setAssistants] = useState<AssistantAssignmentRes[]>([]);
-  const [chapters, setChapters] = useState<ChapterRes[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const seriesIdNum = id ? Number(id) : undefined;
+
   const [activeTab, setActiveTab] = useState<"chapters" | "info">("chapters");
   const [showEdit, setShowEdit] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -115,23 +110,28 @@ export default function MangakaSeriesDetail() {
     number | null
   >(null);
 
-  useEffect(() => {
-    if (!id) return;
-    const seriesId = Number(id);
+  const {
+    data: series,
+    isLoading: seriesLoading,
+    isError: seriesError,
+  } = useQuery({
+    queryKey: ["mangaka-series-detail", seriesIdNum],
+    queryFn: () => fetchSeriesDetail(seriesIdNum!),
+    enabled: !!seriesIdNum,
+  });
 
-    Promise.all([
-      fetchSeriesDetail(seriesId),
-      fetchActiveAssistants(),
-      fetchChaptersBySeriesMangaka(seriesId),
-    ])
-      .then(([s, a, c]) => {
-        setSeries(s);
-        setAssistants(a);
-        setChapters(c);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [id]);
+  const { data: assistants = [], isLoading: assistantsLoading } = useQuery({
+    queryKey: ["mangaka-active-assistants"],
+    queryFn: fetchActiveAssistants,
+  });
+
+  const { data: chapters = [], isLoading: chaptersLoading } = useQuery({
+    queryKey: ["mangaka-series-chapters", seriesIdNum],
+    queryFn: () => fetchChaptersBySeriesMangaka(seriesIdNum!),
+    enabled: !!seriesIdNum,
+  });
+
+  const loading = seriesLoading || assistantsLoading || chaptersLoading;
 
   if (loading) {
     return (
@@ -144,7 +144,7 @@ export default function MangakaSeriesDetail() {
     );
   }
 
-  if (!series) {
+  if (!series || seriesError) {
     return (
       <div className="series-detail-page">
         <div className="ssd-loading">
@@ -524,7 +524,10 @@ export default function MangakaSeriesDetail() {
           series={series}
           onClose={() => setShowEdit(false)}
           onSaved={(updated) => {
-            setSeries(updated);
+            queryClient.setQueryData(
+              ["mangaka-series-detail", seriesIdNum],
+              updated,
+            );
             setShowEdit(false);
           }}
         />

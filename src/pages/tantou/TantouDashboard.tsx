@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   AlertTriangle,
   Clock,
@@ -14,41 +13,32 @@ import {
   fetchInbox,
   fetchDashboardDeadlines,
 } from "../../services/tantouService";
-import type {
-  InboxItem,
-  DashboardDeadlineItem,
-} from "../../services/tantouService";
 import RecentActivityWidget from "../../components/activityLog/RecentActivityWidget";
+import { useQuery } from "@tanstack/react-query";
 
 export default function TantouDashboard() {
-  const [inbox, setInbox] = useState<InboxItem[]>([]);
-  const [deadlines, setDeadlines] = useState<DashboardDeadlineItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const now = new Date();
   const month = now.toLocaleDateString("vi-VN", {
     month: "long",
     year: "numeric",
   });
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [inboxRes, deadlineRes] = await Promise.all([
-          fetchInbox(),
-          fetchDashboardDeadlines(),
-        ]);
-        setInbox(inboxRes);
-        setDeadlines(deadlineRes);
-      } catch (err) {
-        setError("Không thể tải dữ liệu. Vui lòng thử lại.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const {
+    data: inbox = [],
+    isLoading: inboxLoading,
+    isError: inboxError,
+  } = useQuery({
+    queryKey: ["tantou-inbox"],
+    queryFn: fetchInbox,
+  });
+
+  const { data: deadlines = [], isLoading: deadlinesLoading } = useQuery({
+    queryKey: ["tantou-dashboard-deadlines"],
+    queryFn: fetchDashboardDeadlines,
+  });
+
+  const loading = inboxLoading || deadlinesLoading;
+  const error = inboxError ? "Không thể tải dữ liệu. Vui lòng thử lại." : null;
 
   const pendingCount = inbox.filter((i) => i.status === "pending").length;
 
