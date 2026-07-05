@@ -198,19 +198,27 @@
   gap: 10px;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid var(--color-border);
+  background: var(--color-brand-soft);
+  color: var(--color-text-secondary);
   cursor: pointer;
   text-align: left;
   width: 100%;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    filter 0.15s ease;
 
   &:hover {
-    background: rgba(59, 130, 246, 0.12);
+    border-color: var(--color-brand-accent);
+    filter: brightness(0.96);
   }
 
   &__icon {
     flex-shrink: 0;
-    color: #3b82f6;
+    color: var(--color-brand-accent);
+    transition: color 0.2s ease;
   }
   &__body {
     display: flex;
@@ -220,14 +228,16 @@
   }
   &__label {
     font-size: 11px;
-    color: #64748b;
+    color: var(--color-text-secondary);
+    transition: color 0.2s ease;
   }
   &__title {
     font-size: 13px;
-    color: #0f172a;
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.2s ease;
   }
 }
 
@@ -239,6 +249,9 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
     }
+  }
+  .chat-bubble__proposal-card:hover {
+    filter: brightness(1.15);
   }
 }
 
