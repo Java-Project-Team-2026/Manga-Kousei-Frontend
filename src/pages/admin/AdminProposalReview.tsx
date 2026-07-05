@@ -160,7 +160,7 @@ export default function AdminProposalReview() {
       const updated = mapProposalDTO(dto);
       setProposals((prev) => {
         const exists = prev.some((p) => p.proposal_id === updated.proposal_id);
-        // Trang Admin chỉ quan tâm các proposal đã ở pending_admin trở lên
+
         if (!exists && updated.status === "pending_admin") {
           return [updated, ...prev];
         }
