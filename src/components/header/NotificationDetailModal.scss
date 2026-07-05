@@ -8,13 +8,20 @@
   z-index: 1100;
 }
 
+[data-theme="dark"] .notif-detail-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 .notif-detail-modal {
   width: 420px;
   max-width: 90vw;
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border-radius: 14px;
   padding: 20px;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+  box-shadow: var(--shadow-card, 0 20px 40px rgba(15, 23, 42, 0.2));
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .notif-detail-header {
@@ -27,16 +34,19 @@
     border: none;
     background: none;
     cursor: pointer;
-    color: #64748b;
+    color: var(--color-text-secondary);
     display: grid;
     place-items: center;
     width: 28px;
     height: 28px;
     border-radius: 8px;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     &:hover {
-      background: #f1f5f9;
-      color: #0f172a;
+      background: var(--color-bg-surface-alt);
+      color: var(--color-text-primary);
     }
   }
 }
@@ -46,8 +56,8 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #0254b1;
-  background: #eff6ff;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
   padding: 4px 8px;
   border-radius: 6px;
 }
@@ -56,13 +66,13 @@
   margin: 0 0 6px;
   font-size: 16px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text-primary);
 }
 
 .notif-detail-time {
   display: block;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--color-text-muted);
   font-weight: 600;
   margin-bottom: 14px;
 }
@@ -70,7 +80,7 @@
 .notif-detail-message {
   font-size: 14px;
   line-height: 1.6;
-  color: #334155;
+  color: var(--color-text-secondary);
   white-space: pre-wrap;
   margin-bottom: 20px;
 }
@@ -92,9 +102,23 @@
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 
   &:hover {
     background: #fee2e2;
     border-color: #fca5a5;
+  }
+}
+
+[data-theme="dark"] .notif-detail-delete {
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+
+  &:hover {
+    background: rgba(248, 113, 113, 0.18);
+    border-color: rgba(248, 113, 113, 0.5);
   }
 }
