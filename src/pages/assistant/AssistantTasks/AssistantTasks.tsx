@@ -396,6 +396,38 @@ export default function AssistantTasks() {
         </div>
       )}
 
+      {t.attachments && t.attachments.length > 0 && (
+        <div className="at-subs">
+          <div className="at-subs__head">Tài nguyên hỗ trợ</div>
+          <div className="at-subs__list">
+            {t.attachments.map((a) => (
+              <a
+                key={a.attachmentId}
+                className="at-sub-card"
+                href={a.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <FileImage size={18} />
+                <div className="at-sub-card__info">
+                  <div className="at-sub-card__row">
+                    <strong>{a.fileName}</strong>
+                    <span className="at-sub-card__date">
+                      {formatDateTime(a.createdAt)}
+                    </span>
+                  </div>
+                  {a.uploadedByName && (
+                    <span className="at-sub-card__reviewer">
+                      {a.uploadedByName}
+                    </span>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="at-subs">
         <div className="at-subs__head">
           Lịch sử nộp bài ({submissions.length})

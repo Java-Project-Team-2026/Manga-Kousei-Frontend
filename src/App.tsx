@@ -35,6 +35,7 @@ import MangakaPageEditor from "./pages/mangaka/MangakaPageEditor/MangakaPageEdit
 import AssistantTasks from "./pages/assistant/AssistantTasks/AssistantTasks.tsx";
 import AdminPersonnel from "./pages/admin/AdminPersonnel.tsx";
 import Help from "./pages/help/Help.tsx";
+import AdminBoardOps from "./pages/admin/AdminBoardOps.tsx";
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
               element={<ScheduleAssignment />}
             />
             <Route path="personnel" element={<AdminPersonnel />} />
+            <Route path="board" element={<AdminBoardOps />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["TANTOU"]} />}>
