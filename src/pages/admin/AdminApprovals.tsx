@@ -162,8 +162,7 @@ export default function AdminApprovals() {
     if (!activeId || reviewing) return;
     setReviewing(true);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const updated = await reviewChapterAdmin(activeId, {
+      await reviewChapterAdmin(activeId, {
         decision: "approved",
       });
       setChapters((prev) => {

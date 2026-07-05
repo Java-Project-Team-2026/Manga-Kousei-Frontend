@@ -13,6 +13,7 @@ export const landingOptionsByRole: Record<string, LandingOption[]> = {
       path: "/admin/approvals",
     },
     { value: "personnel", label: "Nhân sự", path: "/admin/personnel" },
+    { value: "board", label: "Editorial Board", path: "/admin/board" },
   ],
   TANTOU: [
     { value: "dashboard", label: "Bảng điều khiển", path: "/tantou/dashboard" },

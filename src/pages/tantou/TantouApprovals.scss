@@ -1136,3 +1136,56 @@
     cursor: not-allowed;
   }
 }
+
+.ta-art {
+  position: relative;
+}
+
+.ta-art--marking {
+  cursor: crosshair;
+}
+
+.ta-tool--active {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+}
+
+.ta-annotation {
+  position: absolute;
+  border: 2px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.14);
+  pointer-events: auto;
+  z-index: 5;
+}
+
+.ta-annotation span {
+  position: absolute;
+  top: -22px;
+  left: -2px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 4px;
+  background: #f59e0b;
+  color: #111827;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 6px;
+}
+
+.ta-annotation--resolved {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.ta-annotation--resolved span {
+  background: #10b981;
+  color: #fff;
+}
+
+.ta-annotation--draft {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.14);
+  pointer-events: none;
+}

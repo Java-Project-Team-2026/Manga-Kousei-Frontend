@@ -1,0 +1,107 @@
+.abo-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  color: var(--color-text-primary);
+}
+
+.abo-header h1,
+.abo-section h2 {
+  margin: 0;
+}
+
+.abo-header p {
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
+}
+
+.abo-message,
+.abo-section {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-surface);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.abo-form-grid,
+.abo-vote-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.abo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.abo-section input,
+.abo-section select,
+.abo-section textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  padding: 10px 12px;
+}
+
+.abo-vote-table,
+.abo-ranking,
+.abo-risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.abo-rank-row,
+.abo-risk {
+  display: grid;
+  grid-template-columns: 64px minmax(160px, 1fr) 120px 80px;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-page);
+  color: inherit;
+  padding: 10px;
+  text-align: left;
+}
+
+.abo-risk {
+  grid-template-columns: minmax(160px, 1fr) 100px minmax(180px, 2fr);
+}
+
+.abo-risk--at_risk {
+  border-color: #dc2626;
+}
+
+.abo-risk--watch {
+  border-color: #f59e0b;
+}
+
+.abo-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.abo-actions button {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  padding: 10px 14px;
+}
+
+.abo-actions .abo-primary {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: #fff;
+}
+
+.abo-selected {
+  margin: 0;
+  color: var(--color-text-secondary);
+}

@@ -1,4 +1,5 @@
 import api from "./api";
+import type { TaskAttachmentRes } from "./taskAttachmentService";
 
 interface ApiResponse<T> {
   data: T;
@@ -26,6 +27,7 @@ export interface TaskRes {
   assignedToAvatarUrl: string | null;
   createdAt: string;
   rate: number | null;
+  attachments?: TaskAttachmentRes[];
 }
 
 export interface RegionRes {
