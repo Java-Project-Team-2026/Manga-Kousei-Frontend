@@ -1,9 +1,13 @@
-import { useReducer, useCallback, useMemo, useState } from "react";
+import { useReducer, useCallback, useMemo, useState, useEffect } from "react";
 import api from "../services/api";
 import { uploadImageToCloudinary } from "../utils/imageUpload";
 import { useGenres } from "./useGenres";
 import type { Character, CreateWorkFormData } from "../types/createWork";
 import { peekDraftSavedAt, useDraftAutosave } from "./useDraftAutosave";
+import {
+  fetchMyProposalDetail,
+  updateProposal,
+} from "../services/proposalService";
 
 type FormAction =
   | {
@@ -20,7 +24,8 @@ type FormAction =
       value: string;
     }
   | { type: "RESET_FORM" }
-  | { type: "LOAD_DRAFT"; data: Partial<CreateWorkFormData> };
+  | { type: "LOAD_DRAFT"; data: Partial<CreateWorkFormData> }
+  | { type: "LOAD_EXISTING"; data: CreateWorkFormData };
 
 const initialState: CreateWorkFormData = {
   title: "",
@@ -64,6 +69,8 @@ const formReducer = (
       return initialState;
     case "LOAD_DRAFT":
       return { ...state, ...action.data };
+    case "LOAD_EXISTING":
+      return action.data;
     default:
       return state;
   }
@@ -71,14 +78,49 @@ const formReducer = (
 
 const TOTAL_STEPS = 5;
 
-export const useCreateWorkForm = () => {
+export const useCreateWorkForm = (editingProposalId: number | null) => {
   const [form, dispatch] = useReducer(formReducer, initialState);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [loadingExisting, setLoadingExisting] = useState(
+    Boolean(editingProposalId),
+  );
 
   const genresList = useGenres();
+
+  useEffect(() => {
+    if (!editingProposalId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoadingExisting(true);
+    fetchMyProposalDetail(editingProposalId)
+      .then((p) => {
+        dispatch({
+          type: "LOAD_EXISTING",
+          data: {
+            title: p.working_title,
+            genreIds: p.genres.map((g) => g.genre_id),
+            targetAudience: p.target_audience,
+            synopsis: p.synopsis,
+            characters: p.characters.map((c) => ({
+              id: c.character_id,
+              name: c.character_name,
+              role: c.role,
+              description: c.description ?? "",
+            })),
+            nameSummary: p.name_summary ?? "",
+            sketchImage: null,
+            sketchPreview: p.sketch_image_url ?? "",
+          },
+        });
+      })
+      .catch((err) => {
+        console.error("Không tải được proposal để sửa", err);
+        setSubmitError("Không tải được bản ý tưởng cần sửa.");
+      })
+      .finally(() => setLoadingExisting(false));
+  }, [editingProposalId]);
 
   const draftPayload = useMemo(
     () => ({
@@ -96,10 +138,10 @@ export const useCreateWorkForm = () => {
   );
 
   const [draftSavedAt, setDraftSavedAt] = useState<number | null>(() =>
-    peekDraftSavedAt("create-work"),
+    editingProposalId ? null : peekDraftSavedAt("create-work"),
   );
 
-  const draftAutosaveEnabled = draftSavedAt === null;
+  const draftAutosaveEnabled = !editingProposalId && draftSavedAt === null;
 
   const { loadDraft, clearDraft } = useDraftAutosave(
     "create-work",
@@ -159,7 +201,7 @@ export const useCreateWorkForm = () => {
 
   const submitProposal = useCallback(
     async (tantouId: number | null) => {
-      if (!tantouId) {
+      if (!editingProposalId && !tantouId) {
         alert("Vui lòng chọn Tantou phụ trách trước khi nộp.");
         return;
       }
@@ -168,33 +210,50 @@ export const useCreateWorkForm = () => {
       setSubmitError(null);
 
       try {
-        let sketchImageUrl = "";
+        let sketchImageUrl = form.sketchPreview || "";
         if (form.sketchImage) {
           sketchImageUrl = await uploadImageToCloudinary(form.sketchImage);
         }
 
-        const payload = {
-          workingTitle: form.title,
-          synopsis: form.synopsis,
-          targetAudience: form.targetAudience,
-          nameSummary: form.nameSummary,
-          sketchImageUrl,
-          genreIds: form.genreIds,
-          tantouId,
-          characters: form.characters.map((c) => ({
-            characterName: c.name,
-            role: c.role,
-            description: c.description,
-          })),
-        };
-
-        const response = await api.post("/proposals", payload);
-        if (response.status === 200 || response.status === 201) {
-          setSubmitted(true);
-          clearDraft();
+        if (editingProposalId) {
+          await updateProposal(editingProposalId, {
+            workingTitle: form.title,
+            synopsis: form.synopsis,
+            targetAudience: form.targetAudience,
+            nameSummary: form.nameSummary,
+            sketchImageUrl,
+            genreIds: form.genreIds,
+            characters: form.characters.map((c) => ({
+              characterName: c.name,
+              role: c.role,
+              description: c.description,
+            })),
+          });
         } else {
-          throw new Error("Gửi proposal thất bại, mã lỗi: " + response.status);
+          const payload = {
+            workingTitle: form.title,
+            synopsis: form.synopsis,
+            targetAudience: form.targetAudience,
+            nameSummary: form.nameSummary,
+            sketchImageUrl,
+            genreIds: form.genreIds,
+            tantouId,
+            characters: form.characters.map((c) => ({
+              characterName: c.name,
+              role: c.role,
+              description: c.description,
+            })),
+          };
+          const response = await api.post("/proposals", payload);
+          if (response.status !== 200 && response.status !== 201) {
+            throw new Error(
+              "Gửi proposal thất bại, mã lỗi: " + response.status,
+            );
+          }
         }
+
+        setSubmitted(true);
+        clearDraft();
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Có lỗi xảy ra khi gửi proposal";
@@ -204,7 +263,7 @@ export const useCreateWorkForm = () => {
         setIsSubmitting(false);
       }
     },
-    [form, clearDraft],
+    [form, clearDraft, editingProposalId],
   );
 
   const canProceed = useMemo(() => {
@@ -256,5 +315,7 @@ export const useCreateWorkForm = () => {
     draftSavedAt,
     restoreDraft,
     discardDraft,
+    loadingExisting,
+    isEditing: Boolean(editingProposalId),
   };
 };
