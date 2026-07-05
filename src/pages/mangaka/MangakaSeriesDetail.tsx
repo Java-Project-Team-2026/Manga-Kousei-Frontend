@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import {
   fetchSeriesDetail,
+  downloadAllSeriesFiles,
   type MangakaSeries,
 } from "../../services/mangakaSeriesService";
 import {
@@ -24,6 +25,7 @@ import {
   type AssistantAssignmentRes,
 } from "../../services/assistantAssignmentService";
 import {
+  downloadChapterFiles,
   fetchChaptersBySeriesMangaka,
   type ChapterRes,
 } from "../../services/chapterService";
@@ -107,6 +109,11 @@ export default function MangakaSeriesDetail() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"chapters" | "info">("chapters");
   const [showEdit, setShowEdit] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [downloadingChapterId, setDownloadingChapterId] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     if (!id) return;
@@ -153,6 +160,40 @@ export default function MangakaSeriesDetail() {
     .sort((a, b) => b.chapterNumber - a.chapterNumber)
     .slice(0, 5);
 
+  const handleDownloadAll = async () => {
+    if (!series || downloading) return;
+    setDownloadError(null);
+    setDownloading(true);
+    try {
+      await downloadAllSeriesFiles(series.seriesId, series.title);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      if (err?.name === "AbortError") return;
+      setDownloadError(
+        err?.response?.data?.message ?? "Tải file thất bại, vui lòng thử lại",
+      );
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleDownloadChapter = async (
+    chapterId: number,
+    chapterNumber: number,
+  ) => {
+    if (downloadingChapterId !== null) return;
+    setDownloadingChapterId(chapterId);
+    try {
+      await downloadChapterFiles(chapterId, chapterNumber);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      if (err?.name === "AbortError") return;
+      console.error("Tải file chapter thất bại", err);
+    } finally {
+      setDownloadingChapterId(null);
+    }
+  };
+
   return (
     <div className="series-detail-page">
       <div className="detail-series-header">
@@ -174,10 +215,23 @@ export default function MangakaSeriesDetail() {
             <button className="btn-outline" onClick={() => setShowEdit(true)}>
               <Pencil size={16} /> Chỉnh sửa Series
             </button>
-            <button className="btn-primary">
-              <Download size={16} /> Tải xuống toàn bộ file
+            <button
+              className="btn-primary"
+              type="button"
+              onClick={handleDownloadAll}
+              disabled={downloading}
+            >
+              {downloading ? (
+                <Loader2 size={16} className="btn-spin" />
+              ) : (
+                <Download size={16} />
+              )}
+              {downloading ? "Đang đóng gói..." : "Tải xuống toàn bộ file"}
             </button>
           </div>
+          {downloadError && (
+            <div className="download-error-toast">{downloadError}</div>
+          )}
         </div>
       </div>
 
@@ -339,11 +393,33 @@ export default function MangakaSeriesDetail() {
                           </span>
                         </div>
                         <div className="col-actions">
-                          <button className="icon-btn" title="Xem chapter">
+                          <button
+                            className="icon-btn"
+                            title="Xem chapter"
+                            onClick={() =>
+                              navigate(
+                                `/mangaka/series/${id}/chapters/${c.chapterId}/pages`,
+                              )
+                            }
+                          >
                             <Eye size={16} />
                           </button>
-                          <button className="icon-btn" title="Tải file">
-                            <FileImage size={16} />
+                          <button
+                            className="icon-btn"
+                            title="Tải file"
+                            onClick={() =>
+                              handleDownloadChapter(
+                                c.chapterId,
+                                c.chapterNumber,
+                              )
+                            }
+                            disabled={downloadingChapterId === c.chapterId}
+                          >
+                            {downloadingChapterId === c.chapterId ? (
+                              <Loader2 size={16} className="btn-spin" />
+                            ) : (
+                              <FileImage size={16} />
+                            )}
                           </button>
                         </div>
                       </div>
