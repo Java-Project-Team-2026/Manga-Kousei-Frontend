@@ -35,100 +35,104 @@ import MangakaPageEditor from "./pages/mangaka/MangakaPageEditor/MangakaPageEdit
 import AssistantTasks from "./pages/assistant/AssistantTasks/AssistantTasks.tsx";
 import AdminPersonnel from "./pages/admin/AdminPersonnel.tsx";
 import Help from "./pages/help/Help.tsx";
+import { PageTitleManager } from "./components/common/PageTitleManager";
 
 function App() {
   return (
-    <Routes>
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
-      </Route>
+    <>
+      <PageTitleManager />
+      <Routes>
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+        </Route>
 
-      <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
-      <Route element={<MainLayout />}>
-        <Route path="/dashboard" element={<DashboardRedirect />} />
-        <Route
-          element={
-            <ProtectedRoute
-              allowedRoles={["ADMIN", "TANTOU", "MANGAKA", "ASSISTANT"]}
-            />
-          }
-        >
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/setting" element={<Settings />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/activity-history" element={<ActivityHistory />} />
-        </Route>
-        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-          <Route path="/admin">
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="approvals" element={<AdminApprovalsPage />} />
-            <Route path="proposal-review" element={<AdminProposalReview />} />
-            <Route
-              path="/admin/proposal-review/:proposalId"
-              element={<AdminProposalReview />}
-            />
-            <Route
-              path="schedule-assignment/:proposalId"
-              element={<ScheduleAssignment />}
-            />
-            <Route path="personnel" element={<AdminPersonnel />} />
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<DashboardRedirect />} />
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={["ADMIN", "TANTOU", "MANGAKA", "ASSISTANT"]}
+              />
+            }
+          >
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/setting" element={<Settings />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/activity-history" element={<ActivityHistory />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+            <Route path="/admin">
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="approvals" element={<AdminApprovalsPage />} />
+              <Route path="proposal-review" element={<AdminProposalReview />} />
+              <Route
+                path="/admin/proposal-review/:proposalId"
+                element={<AdminProposalReview />}
+              />
+              <Route
+                path="schedule-assignment/:proposalId"
+                element={<ScheduleAssignment />}
+              />
+              <Route path="personnel" element={<AdminPersonnel />} />
+            </Route>
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["TANTOU"]} />}>
+            <Route path="/tantou">
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<TantouDashboard />} />
+              <Route path="manage" element={<TantouManage />} />
+              <Route path="approvals" element={<TantouApprovals />} />
+              <Route path="proposal-review" element={<ProposalReview />} />
+              <Route
+                path="/tantou/proposal-review/:proposalId"
+                element={<ProposalReview />}
+              />
+              <Route path="schedule" element={<TantouSchedule />} />
+              <Route path="reports" element={<TantouReports />} />
+              <Route
+                path="series/:seriesId/chapters"
+                element={<TantouSeriesChapters />}
+              />
+            </Route>
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["MANGAKA"]} />}>
+            <Route path="/mangaka">
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<MangakaDashboard />} />
+              <Route path="series" element={<MangakaSeries />} />
+              <Route path="series/:id" element={<MangakaSeriesDetail />} />
+              <Route path="schedule" element={<MangakaSchedule />} />
+              <Route path="assistants" element={<MangakaAssistants />} />
+              <Route path="reports" element={<MangakaReports />} />
+              <Route path="create-work" element={<CreateWork />} />
+              <Route
+                path="series/:seriesId/chapters"
+                element={<MangakaChapters />}
+              />
+              <Route
+                path="series/:seriesId/chapters/:chapterId/pages"
+                element={<MangakaPageEditor />}
+              />
+            </Route>
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["ASSISTANT"]} />}>
+            <Route path="/assistant">
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<AssistantDashboard />} />
+              <Route path="income" element={<AssistantIncome />} />
+              <Route path="invitations" element={<AssistantInvitations />} />
+              <Route path="tasks" element={<AssistantTasks />} />
+            </Route>
           </Route>
         </Route>
-        <Route element={<ProtectedRoute allowedRoles={["TANTOU"]} />}>
-          <Route path="/tantou">
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<TantouDashboard />} />
-            <Route path="manage" element={<TantouManage />} />
-            <Route path="approvals" element={<TantouApprovals />} />
-            <Route path="proposal-review" element={<ProposalReview />} />
-            <Route
-              path="/tantou/proposal-review/:proposalId"
-              element={<ProposalReview />}
-            />
-            <Route path="schedule" element={<TantouSchedule />} />
-            <Route path="reports" element={<TantouReports />} />
-            <Route
-              path="series/:seriesId/chapters"
-              element={<TantouSeriesChapters />}
-            />
-          </Route>
-        </Route>
-        <Route element={<ProtectedRoute allowedRoles={["MANGAKA"]} />}>
-          <Route path="/mangaka">
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<MangakaDashboard />} />
-            <Route path="series" element={<MangakaSeries />} />
-            <Route path="series/:id" element={<MangakaSeriesDetail />} />
-            <Route path="schedule" element={<MangakaSchedule />} />
-            <Route path="assistants" element={<MangakaAssistants />} />
-            <Route path="reports" element={<MangakaReports />} />
-            <Route path="create-work" element={<CreateWork />} />
-            <Route
-              path="series/:seriesId/chapters"
-              element={<MangakaChapters />}
-            />
-            <Route
-              path="series/:seriesId/chapters/:chapterId/pages"
-              element={<MangakaPageEditor />}
-            />
-          </Route>
-        </Route>
-        <Route element={<ProtectedRoute allowedRoles={["ASSISTANT"]} />}>
-          <Route path="/assistant">
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<AssistantDashboard />} />
-            <Route path="income" element={<AssistantIncome />} />
-            <Route path="invitations" element={<AssistantInvitations />} />
-            <Route path="tasks" element={<AssistantTasks />} />
-          </Route>
-        </Route>
-      </Route>
 
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 
