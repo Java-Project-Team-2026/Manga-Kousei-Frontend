@@ -1,0 +1,45 @@
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-surface-alt) 25%,
+    var(--color-border) 50%,
+    var(--color-bg-surface-alt) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+
+  width: 100%;
+  height: 14px;
+
+  &--text {
+    border-radius: 4px;
+  }
+
+  &--rect {
+    border-radius: 10px;
+  }
+
+  &--circle {
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Tôn trọng người dùng tắt animation
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation-duration: 3s;
+  }
+}

@@ -30,10 +30,6 @@ export const DashboardRedirect = () => {
   const dashboardPath = roleDashboardMap[user.role];
   if (!dashboardPath) return <Navigate to="/unauthorized" replace />;
 
-  // MỚI: đọc "Trang mở mặc định" đã lưu ở Settings, thay vì luôn về
-  // đúng /{role}/dashboard. resolveLandingPath() tự fallback an toàn
-  // về dashboard nếu value không hợp lệ với role hiện tại (vd dữ liệu
-  // cũ, hoặc admin đổi role user).
   const landingValue = readLandingSetting();
   const targetPath = resolveLandingPath(user.role, landingValue);
 
