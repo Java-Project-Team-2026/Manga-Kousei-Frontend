@@ -22,6 +22,7 @@ import {
   onAdminChapterUpdate,
   onDeadlinePagesChanged,
 } from "../../services/notificationSocket";
+import { Skeleton } from "../../components/common/Skeleton";
 
 interface PageGroup {
   deadlineId: number;
@@ -224,8 +225,64 @@ export default function AdminApprovals() {
 
   if (loading) {
     return (
-      <div className="aa-root aa-root--empty">
-        <span>Đang tải…</span>
+      <div className="aa-root">
+        <aside className="aa-rail">
+          <div className="aa-rail__head">
+            <span className="aa-rail__title">Chờ duyệt đăng</span>
+            <Skeleton variant="rect" width={28} height={18} radius={20} />
+          </div>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div className="aa-card" key={i}>
+              <div className="aa-card__top">
+                <Skeleton variant="text" width={90} height={11} />
+                <Skeleton variant="rect" width={38} height={16} radius={10} />
+              </div>
+              <Skeleton variant="text" width="82%" height={13} />
+              <Skeleton variant="text" width="55%" height={11} />
+            </div>
+          ))}
+        </aside>
+
+        <main className="aa-viewer">
+          <div className="aa-topbar">
+            <Skeleton variant="text" width={240} height={13} />
+            <div className="aa-toolbar">
+              <Skeleton variant="rect" width={32} height={32} />
+              <Skeleton variant="rect" width={32} height={32} />
+            </div>
+          </div>
+          <div className="aa-canvas-scroll">
+            <Skeleton
+              variant="rect"
+              style={{
+                width: "min(70%, 460px)",
+                aspectRatio: "3 / 4",
+                margin: "24px auto",
+              }}
+            />
+          </div>
+        </main>
+
+        <aside className="aa-panel">
+          <div className="aa-panel__info">
+            <Skeleton variant="text" width={120} height={11} />
+            <Skeleton variant="text" width="80%" height={16} />
+            <Skeleton variant="text" width="50%" height={12} />
+          </div>
+          <div className="aa-actions">
+            <Skeleton variant="rect" height={38} />
+            <Skeleton variant="rect" height={38} />
+          </div>
+          <div className="aa-divider" />
+          <div className="aa-groups-head">
+            <Skeleton variant="text" width={130} height={12} />
+          </div>
+          <div className="aa-groups-list">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} variant="rect" height={36} />
+            ))}
+          </div>
+        </aside>
       </div>
     );
   }
