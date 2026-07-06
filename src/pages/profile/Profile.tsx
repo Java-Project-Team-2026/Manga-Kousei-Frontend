@@ -5,7 +5,6 @@ import {
   Clock3,
   Edit3,
   KeyRound,
-  Loader2,
   AlertTriangle,
   Mail,
   ShieldCheck,
@@ -22,6 +21,7 @@ import {
 import { fetchMangakaReportStats } from "../../services/mangakaReportService";
 import EditProfileModal from "../../components/profile/EditProfileModal";
 import "./Profile.scss";
+import { PageSkeleton } from "../../components/common/PageSkeleton";
 
 interface ApiResp<T> {
   data: T;
@@ -245,9 +245,8 @@ function Profile() {
 
   if (loading) {
     return (
-      <main className="profile-page profile-page--center">
-        <Loader2 size={22} className="profile-spin" />
-        Đang tải hồ sơ...
+      <main className="profile-page">
+        <PageSkeleton stats={4} panels={2} />
       </main>
     );
   }
