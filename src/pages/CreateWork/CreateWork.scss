@@ -705,8 +705,23 @@
   }
 
   &--submit {
+    background: #a9b8cc;
+    color: #fff;
+
+    svg {
+      color: #fff;
+      stroke: currentColor;
+    }
+
     &:hover:not(:disabled) {
+      background: #b8c6d8;
       box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+    &:disabled {
+      opacity: 1;
+      background: #a9b8cc;
+      color: #fff;
     }
   }
 }
