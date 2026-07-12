@@ -14,6 +14,7 @@ import {
   fetchChaptersBySeriesMangaka,
   createChapter,
   submitPageGroup,
+  getDisplaySubmittedDeadlineCount,
   type ChapterRes,
 } from "../../../services/chapterService";
 import "./MangakaChapters.scss";
@@ -77,14 +78,10 @@ export default function MangakaChapters() {
           const newDeadlines = [...c.pageDeadlines];
           newDeadlines[idx] = updated;
 
-          const submittedCount = newDeadlines.filter(
-            (d) => d.status === "submitted",
-          ).length;
-
           return {
             ...c,
             pageDeadlines: newDeadlines,
-            submittedDeadlines: submittedCount,
+            submittedDeadlines: getDisplaySubmittedDeadlineCount(newDeadlines),
           };
         }),
       );
@@ -137,12 +134,13 @@ export default function MangakaChapters() {
       setChapters((prev) =>
         prev.map((c) => {
           if (c.chapterId !== chapterId) return c;
+          const newDeadlines = c.pageDeadlines.map((d) =>
+            d.deadlineId === deadlineId ? { ...d, ...updated } : d,
+          );
           return {
             ...c,
-            submittedDeadlines: c.submittedDeadlines + 1,
-            pageDeadlines: c.pageDeadlines.map((d) =>
-              d.deadlineId === deadlineId ? { ...d, ...updated } : d,
-            ),
+            submittedDeadlines: getDisplaySubmittedDeadlineCount(newDeadlines),
+            pageDeadlines: newDeadlines,
           };
         }),
       );
@@ -245,9 +243,12 @@ export default function MangakaChapters() {
               cls: "cs-draft",
             };
             const isExpanded = expanded === c.chapterId;
+            const submittedCount = getDisplaySubmittedDeadlineCount(
+              c.pageDeadlines,
+            );
             const progress =
               c.totalDeadlines > 0
-                ? Math.round((c.submittedDeadlines / c.totalDeadlines) * 100)
+                ? Math.round((submittedCount / c.totalDeadlines) * 100)
                 : 0;
 
             return (
@@ -293,7 +294,7 @@ export default function MangakaChapters() {
                         />
                       </div>
                       <span className="mc-progress-label">
-                        {c.submittedDeadlines}/{c.totalDeadlines} nhóm
+                        {submittedCount}/{c.totalDeadlines} nhóm
                       </span>
                     </div>
                   )}

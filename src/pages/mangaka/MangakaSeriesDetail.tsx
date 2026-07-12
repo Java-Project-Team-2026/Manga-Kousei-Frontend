@@ -23,6 +23,7 @@ import { fetchActiveAssistants } from "../../services/assistantAssignmentService
 import {
   downloadChapterFiles,
   fetchChaptersBySeriesMangaka,
+  getDisplaySubmittedDeadlineCount,
 } from "../../services/chapterService";
 import { getAvatarColor, getInitials } from "../../utils";
 import EditSeriesModal from "./components/EditSeriesModal/EditSeriesModal";
@@ -356,11 +357,12 @@ export default function MangakaSeriesDetail() {
                   </div>
                   {recentChapters.map((c) => {
                     const cs = chapterStatusMeta(c.chapterStatus);
+                    const submittedCount = getDisplaySubmittedDeadlineCount(
+                      c.pageDeadlines,
+                    );
                     const pct =
                       c.totalDeadlines > 0
-                        ? Math.round(
-                            (c.submittedDeadlines / c.totalDeadlines) * 100,
-                          )
+                        ? Math.round((submittedCount / c.totalDeadlines) * 100)
                         : 0;
                     return (
                       <div key={c.chapterId} className="chapter-table__row">
@@ -378,7 +380,7 @@ export default function MangakaSeriesDetail() {
                                 />
                               </div>
                               <span className="progress-text">
-                                {c.submittedDeadlines}/{c.totalDeadlines} nhóm
+                                {submittedCount}/{c.totalDeadlines} nhóm
                               </span>
                             </>
                           ) : (

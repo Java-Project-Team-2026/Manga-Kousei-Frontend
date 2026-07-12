@@ -16,6 +16,7 @@ import {
   deletePageDeadline,
   reviewPageGroup,
   submitChapterToAdmin,
+  getDisplaySubmittedDeadlineCount,
 } from '../../services/chapterService';
 import { useAuth } from '../../hooks/useAuth';
 import './ChapterDetailModal.scss';
@@ -166,7 +167,7 @@ export const ChapterDetailModal: React.FC<ChapterDetailModalProps> = ({
             <div className="info-row">
               <span className="label">Tiến độ:</span>
               <span>
-                {chapter.submittedDeadlines || 0} / {chapter.totalDeadlines || 0} nhóm trang đã nộp
+                {getDisplaySubmittedDeadlineCount(chapter.pageDeadlines)} / {chapter.totalDeadlines || 0} nhóm trang đã nộp
               </span>
             </div>
             {chapter.adminNote && (

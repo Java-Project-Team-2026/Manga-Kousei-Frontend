@@ -22,6 +22,7 @@ import {
   updatePageDeadline,
   deletePageDeadline,
   submitChapterToAdmin,
+  getDisplaySubmittedDeadlineCount,
   type ChapterRes,
   type PageDeadline,
 } from "../../../services/chapterService";
@@ -272,9 +273,12 @@ export default function TantouSeriesChapters() {
               cls: "tcs-draft",
             };
             const isExpanded = expanded === c.chapterId;
+            const submittedCount = getDisplaySubmittedDeadlineCount(
+              c.pageDeadlines,
+            );
             const progress =
               c.totalDeadlines > 0
-                ? Math.round((c.submittedDeadlines / c.totalDeadlines) * 100)
+                ? Math.round((submittedCount / c.totalDeadlines) * 100)
                 : 0;
 
             const canSubmitToAdmin =
@@ -331,7 +335,7 @@ export default function TantouSeriesChapters() {
                           />
                         </div>
                         <span className="tsc-progress-label">
-                          {c.submittedDeadlines}/{c.totalDeadlines} đã nộp
+                          {submittedCount}/{c.totalDeadlines} đã nộp
                         </span>
                       </>
                     ) : (
