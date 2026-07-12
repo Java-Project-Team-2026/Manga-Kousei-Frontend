@@ -37,6 +37,13 @@ export interface ChapterRes {
   adminNote?: string | null;
 }
 
+export const getDisplaySubmittedDeadlineCount = (
+  pageDeadlines: PageDeadline[] = [],
+): number =>
+  pageDeadlines.filter(
+    (deadline) => deadline.status === "submitted" || deadline.status === "approved",
+  ).length;
+
 export const fetchChaptersBySeriesMangaka = (
   seriesId: number,
 ): Promise<ChapterRes[]> =>
