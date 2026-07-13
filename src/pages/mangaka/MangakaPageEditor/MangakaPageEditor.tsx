@@ -34,6 +34,10 @@ import {
   type LookupItem,
 } from "../../../services/pageService";
 import {
+  fetchChaptersBySeriesMangaka,
+  type ChapterRes,
+} from "../../../services/chapterService";
+import {
   fetchActiveAssistants,
   type AssistantAssignmentRes,
 } from "../../../services/assistantAssignmentService";
@@ -67,6 +71,7 @@ export default function MangakaPageEditor() {
 
   const [pages, setPages] = useState<PageRes[]>([]);
   const [selectedPage, setSelectedPage] = useState<PageRes | null>(null);
+  const [chapterNumber, setChapterNumber] = useState<number | null>(null);
   const [regions, setRegions] = useState<RegionRes[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<RegionRes | null>(null);
   const [regionTypes, setRegionTypes] = useState<LookupItem[]>([]);
@@ -127,6 +132,20 @@ export default function MangakaPageEditor() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [chapterId]);
+
+  useEffect(() => {
+    if (!seriesId || !chapterId) return;
+    fetchChaptersBySeriesMangaka(Number(seriesId))
+      .then((chapters) => {
+        const chapter = chapters.find(
+          (c) => c.chapterId === Number(chapterId),
+        );
+        if (chapter) {
+          setChapterNumber(chapter.chapterNumber);
+        }
+      })
+      .catch(console.error);
+  }, [seriesId, chapterId]);
 
   useEffect(() => {
     const offTask = onTaskUpdate((updated) => {
@@ -474,7 +493,9 @@ export default function MangakaPageEditor() {
           <ChevronRight size={13} />
           <Link to={`/mangaka/series/${seriesId}/chapters`}>Chapters</Link>
           <ChevronRight size={13} />
-          <span>Chương {chapterId} · Trang</span>
+          <span>
+            Chương {chapterNumber ?? chapterId} · Trang
+          </span>
         </div>
         <div className="mpe-header__row">
           <h1>Quản lý Trang & Giao việc</h1>
