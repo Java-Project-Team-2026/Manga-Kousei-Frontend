@@ -24,7 +24,11 @@ export function useRealtimeNotifications() {
 
     connectNotificationSocket();
     const unsubscribe = onNotification((newNotif) => {
-      setNotifications((prev) => [newNotif, ...prev]);
+      setNotifications((prev) =>
+        prev.some((notification) => notification.notificationId === newNotif.notificationId)
+          ? prev
+          : [newNotif, ...prev],
+      );
     });
 
     return () => {

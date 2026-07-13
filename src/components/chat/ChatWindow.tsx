@@ -48,6 +48,7 @@ export default function ChatWindow({ conversation, onClose }: Props) {
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
   const [relationshipEnded, setRelationshipEnded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -86,8 +87,9 @@ export default function ChatWindow({ conversation, onClose }: Props) {
 
   const handleSend = useCallback(async () => {
     const content = input.trim();
-    if (!content || sending) return;
+    if (!content || sendingRef.current) return;
 
+    sendingRef.current = true;
     setSending(true);
     setInput("");
     try {
@@ -105,6 +107,7 @@ export default function ChatWindow({ conversation, onClose }: Props) {
         setRelationshipEnded(true);
       }
     } finally {
+      sendingRef.current = false;
       setSending(false);
     }
   }, [conversation.conversationId, input, sending]);
