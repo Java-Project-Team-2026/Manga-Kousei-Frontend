@@ -36,6 +36,7 @@ import { ListSkeleton } from "../../components/common/ListSkeleton";
 type ProposalStatus =
   | "pending"
   | "pending_admin"
+  | "approved_pending_schedule"
   | "approved"
   | "revision"
   | "rejected";
@@ -68,6 +69,11 @@ const STATUS_META: Record<
     label: "Từ chối",
     className: "pr-badge--rejected",
     icon: <XCircle size={10} />,
+  },
+  approved_pending_schedule: {
+    label: "Chờ set lịch",
+    className: "apr-badge--pending-admin",
+    icon: <Calendar size={10} />,
   },
 };
 
@@ -319,7 +325,7 @@ export default function AdminProposalReview() {
             <ListSkeleton rows={5} />
           ) : (
             visible.map((p) => {
-              const meta = STATUS_META[p.status];
+              const meta = STATUS_META[p.status] ?? STATUS_META.pending;
               return (
                 <button
                   key={p.proposal_id}
