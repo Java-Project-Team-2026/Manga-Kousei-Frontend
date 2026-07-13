@@ -31,10 +31,12 @@ import type {
   ProposalStatusDTO,
   SeriesProposalDTO,
 } from "../../types/dtos/SeriesProposalDto";
+import { ListSkeleton } from "../../components/common/ListSkeleton";
 
 type ProposalStatus =
   | "pending"
   | "pending_admin"
+  | "approved_pending_schedule"
   | "approved"
   | "revision"
   | "rejected";
@@ -67,6 +69,11 @@ const STATUS_META: Record<
     label: "Từ chối",
     className: "pr-badge--rejected",
     icon: <XCircle size={10} />,
+  },
+  approved_pending_schedule: {
+    label: "Chờ set lịch",
+    className: "apr-badge--pending-admin",
+    icon: <Calendar size={10} />,
   },
 };
 
@@ -140,7 +147,6 @@ export default function AdminProposalReview() {
   const [rejectionText, setRejectionText] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(true);
 
   const selected = proposalId
@@ -315,70 +321,74 @@ export default function AdminProposalReview() {
         </div>
 
         <div className="pr-list">
-          {visible.map((p) => {
-            const meta = STATUS_META[p.status];
-            return (
-              <button
-                key={p.proposal_id}
-                className={`pr-card ${selected?.proposal_id === p.proposal_id ? "pr-card--active" : ""} pr-card--${p.status}`}
-                onClick={() => openDetail(p)}
-              >
-                <div className="pr-card__bar" />
+          {loading ? (
+            <ListSkeleton rows={5} />
+          ) : (
+            visible.map((p) => {
+              const meta = STATUS_META[p.status] ?? STATUS_META.pending;
+              return (
+                <button
+                  key={p.proposal_id}
+                  className={`pr-card ${selected?.proposal_id === p.proposal_id ? "pr-card--active" : ""} pr-card--${p.status}`}
+                  onClick={() => openDetail(p)}
+                >
+                  <div className="pr-card__bar" />
 
-                <div className="pr-card__content">
-                  <div className="pr-card__row1">
-                    <span className="pr-card__title">{p.working_title}</span>
-                    <span className={`pr-badge ${meta.className}`}>
-                      {meta.icon}
-                      {meta.label}
-                    </span>
-                  </div>
-
-                  <div className="pr-card__row2">
-                    <div className="pr-card__author">
-                      {p.mangaka.avatarUrl ? (
-                        <img
-                          className="pr-avatar pr-avatar--sm"
-                          src={p.mangaka.avatarUrl}
-                          alt={p.mangaka.fullName}
-                        />
-                      ) : (
-                        <div
-                          className="pr-avatar pr-avatar--sm"
-                          style={{
-                            background: getAvatarColor(p.mangaka.fullName),
-                          }}
-                        >
-                          {getInitials(p.mangaka.fullName)}
-                        </div>
-                      )}
-                      <span>{p.mangaka.fullName}</span>
-                    </div>
-                    <span className="pr-card__date">
-                      <Calendar size={11} />
-                      {formatDate(p.created_at)}
-                    </span>
-                  </div>
-
-                  <div className="pr-card__genres">
-                    {p.genres.slice(0, 3).map((g, index) => (
-                      <span
-                        key={g.genre_id ?? `genre-${index}`}
-                        className="pr-genre-chip"
-                      >
-                        {g.name}
+                  <div className="pr-card__content">
+                    <div className="pr-card__row1">
+                      <span className="pr-card__title">{p.working_title}</span>
+                      <span className={`pr-badge ${meta.className}`}>
+                        {meta.icon}
+                        {meta.label}
                       </span>
-                    ))}
-                    <span className="pr-audience-chip">
-                      {p.target_audience}
-                    </span>
-                  </div>
-                </div>
+                    </div>
 
-                <ChevronRight size={16} className="pr-card__arrow" />
-              </button>
-            );
-          })}
+                    <div className="pr-card__row2">
+                      <div className="pr-card__author">
+                        {p.mangaka.avatarUrl ? (
+                          <img
+                            className="pr-avatar pr-avatar--sm"
+                            src={p.mangaka.avatarUrl}
+                            alt={p.mangaka.fullName}
+                          />
+                        ) : (
+                          <div
+                            className="pr-avatar pr-avatar--sm"
+                            style={{
+                              background: getAvatarColor(p.mangaka.fullName),
+                            }}
+                          >
+                            {getInitials(p.mangaka.fullName)}
+                          </div>
+                        )}
+                        <span>{p.mangaka.fullName}</span>
+                      </div>
+                      <span className="pr-card__date">
+                        <Calendar size={11} />
+                        {formatDate(p.created_at)}
+                      </span>
+                    </div>
+
+                    <div className="pr-card__genres">
+                      {p.genres.slice(0, 3).map((g, index) => (
+                        <span
+                          key={g.genre_id ?? `genre-${index}`}
+                          className="pr-genre-chip"
+                        >
+                          {g.name}
+                        </span>
+                      ))}
+                      <span className="pr-audience-chip">
+                        {p.target_audience}
+                      </span>
+                    </div>
+                  </div>
+
+                  <ChevronRight size={16} className="pr-card__arrow" />
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 

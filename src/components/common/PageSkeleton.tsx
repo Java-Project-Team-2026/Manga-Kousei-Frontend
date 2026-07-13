@@ -1,20 +1,22 @@
 import { Skeleton } from "./Skeleton";
 import "./PageSkeleton.scss";
 
+type PageSkeletonHeader = "profile" | "plain" | "none";
+
 interface PageSkeletonProps {
+  header?: PageSkeletonHeader;
   stats?: number;
   panels?: number;
-  hero?: boolean;
 }
 
 export const PageSkeleton = ({
+  header = "plain",
   stats = 4,
   panels = 2,
-  hero = true,
 }: PageSkeletonProps) => {
   return (
     <div className="page-skeleton" role="status" aria-label="Đang tải nội dung">
-      {hero && (
+      {header === "profile" && (
         <div className="page-skeleton__hero">
           <Skeleton variant="circle" width={72} height={72} />
           <div className="page-skeleton__hero-copy">
@@ -28,6 +30,13 @@ export const PageSkeleton = ({
             height={40}
             className="page-skeleton__hero-btn"
           />
+        </div>
+      )}
+
+      {header === "plain" && (
+        <div className="page-skeleton__header">
+          <Skeleton variant="text" width={220} height={26} />
+          <Skeleton variant="text" width={320} height={14} />
         </div>
       )}
 

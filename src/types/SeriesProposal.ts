@@ -4,6 +4,7 @@ export type ProposalStatus =
   | "approved"
   | "revision"
   | "rejected"
+  | "approved_pending_schedule"
   | "pending_admin";
 
 export interface ProposalCharacter {
