@@ -246,7 +246,7 @@ function Profile() {
   if (loading) {
     return (
       <main className="profile-page">
-        <PageSkeleton stats={4} panels={2} />
+        <PageSkeleton header="profile" stats={4} panels={2} />
       </main>
     );
   }

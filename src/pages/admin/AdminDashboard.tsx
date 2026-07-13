@@ -1,7 +1,6 @@
 import {
   AlertTriangle,
   CalendarDays,
-  Loader2,
   BookOpen,
   Users,
   FileText,
@@ -19,6 +18,7 @@ import RecentActivityWidget from "../../components/activityLog/RecentActivityWid
 import api from "../../services/api";
 import "./AdminDashboard.scss";
 import { useQuery } from "@tanstack/react-query";
+import { PageSkeleton } from "../../components/common/PageSkeleton";
 
 interface AdminStats {
   totalSeries: number;
@@ -79,9 +79,8 @@ export default function AdminDashboard() {
 
   if (loading)
     return (
-      <div className="ad-page ad-page--center">
-        <Loader2 size={22} className="ad-spin" />
-        Đang tải dữ liệu...
+      <div className="ad-page">
+        <PageSkeleton stats={4} panels={2} />
       </div>
     );
 
